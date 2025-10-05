@@ -166,8 +166,11 @@ function speak(text) {
 }
 
 // --- Landing interaction ---
-window.addEventListener("load", () => {
-  setTimeout(() => speak("Welcome to Design 26 landing page"), 500);
+window.addEventListener("click", () => {
+  if (!window.spokenOnce) {
+    speak("Welcome to Design 26 landing page");
+    window.spokenOnce = true;
+  }
 });
 
 const signupForm = document.getElementById("signupForm");
