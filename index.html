@@ -114,6 +114,9 @@
 <!-- Landing Page -->
 <section id="landing" class="center">
   <h1>Welcome to Design26 Foundation</h1>
+  <button id="hearGreeting" onclick="speak('Welcome to Design 26 landing page')">
+  🔊 Hear Greeting
+  </button>
   <p>Your path to creativity and empowerment begins here.</p>
   <form id="signupForm">
     <input type="text" id="name" placeholder="Your Name" required />
@@ -141,6 +144,8 @@
 </section>
 
 <script>
+  // --- preload available voices once page loads ---
+window.speechSynthesis.getVoices();  // helps initialize speech engine
 const aiData = {
   name: "Design26 AI",
   creator: "Design26 Foundation",
@@ -164,14 +169,6 @@ function speak(text) {
   utter.lang = "en-US";
   speechSynthesis.speak(utter);
 }
-
-// --- Landing interaction ---
-window.addEventListener("click", () => {
-  if (!window.spokenOnce) {
-    speak("Welcome to Design 26 landing page");
-    window.spokenOnce = true;
-  }
-});
 
 const signupForm = document.getElementById("signupForm");
 signupForm.addEventListener("submit", (e) => {
