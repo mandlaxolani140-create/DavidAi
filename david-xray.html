@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>X-Ray · DAVID AI</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#050507;--y:#FFD600;--yd:#c9a800;--g:#00ff88;--b:#00d4ff;--r:#ff4455;--txt:#f0f0f0;--m:#444;--m2:#666;--br:rgba(255,214,0,0.18);}
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{width:100%;min-height:100vh;background:var(--bg);color:var(--txt);font-family:'Rajdhani',sans-serif;}
+::-webkit-scrollbar{width:4px;}::-webkit-scrollbar-thumb{background:rgba(255,214,0,.18);border-radius:2px;}
+
+.nav{position:sticky;top:0;z-index:200;background:rgba(5,5,7,.97);border-bottom:1px solid var(--br);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px;padding:10px 20px;backdrop-filter:blur(12px);}
+.nav-left{display:flex;align-items:center;gap:10px;}
+.nav-logo{font-family:'Orbitron',monospace;font-size:.9rem;color:var(--y);letter-spacing:.14em;text-shadow:0 0 20px rgba(255,214,0,.4);}
+.nav-nick{font-family:'Share Tech Mono',monospace;font-size:.65rem;color:var(--g);background:rgba(0,255,136,.07);border:1px solid rgba(0,255,136,.2);border-radius:4px;padding:2px 8px;}
+.nav-links{display:flex;gap:5px;flex-wrap:wrap;}
+.nl{padding:6px 12px;background:rgba(255,214,0,.04);border:1px solid rgba(255,214,0,.1);border-radius:6px;color:var(--m2);font-family:'Share Tech Mono',monospace;font-size:.63rem;text-decoration:none;transition:all .2s;cursor:pointer;white-space:nowrap;}
+.nl:hover,.nl.on{background:rgba(255,214,0,.12);color:var(--y);border-color:rgba(255,214,0,.35);}
+
+.body{max-width:680px;margin:0 auto;padding:24px 16px 60px;}
+
+.page-hdr{text-align:center;margin-bottom:20px;}
+.page-title{font-family:'Orbitron',monospace;font-size:1.3rem;color:var(--b);letter-spacing:.1em;text-shadow:0 0 22px rgba(0,212,255,.4);}
+.page-sub{font-family:'Share Tech Mono',monospace;font-size:.68rem;color:var(--m2);margin-top:7px;line-height:1.7;}
+.mr-x-quote{margin-top:10px;font-size:.78rem;color:var(--yd);font-style:italic;letter-spacing:.04em;}
+
+.howto{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:18px;}
+.ht-card{background:rgba(0,212,255,.04);border:1px solid rgba(0,212,255,.14);border-radius:10px;padding:12px 14px;}
+.ht-title{font-family:'Orbitron',monospace;font-size:.62rem;color:var(--b);letter-spacing:.06em;margin-bottom:5px;}
+.ht-body{font-size:.76rem;color:var(--m2);line-height:1.65;}
+.ht-card.warn{background:rgba(255,140,0,.04);border-color:rgba(255,140,0,.2);}
+.ht-title.warn{color:#ffa040;}
+
+/* STATUS */
+.status-bar{display:flex;align-items:center;gap:8px;padding:9px 14px;background:rgba(0,0,0,.4);border:1px solid rgba(0,212,255,.15);border-radius:8px;margin-bottom:14px;font-family:'Share Tech Mono',monospace;font-size:.71rem;}
+.sdot{width:10px;height:10px;border-radius:50%;background:var(--m);flex-shrink:0;transition:all .3s;}
+.sdot.on{background:var(--g);box-shadow:0 0 8px var(--g);}
+.sdot.err{background:var(--r);box-shadow:0 0 8px var(--r);}
+#stxt{color:var(--m2);flex:1;}
+
+/* CAMERA FRAME */
+.xframe{background:#000;border:2px solid rgba(0,212,255,.2);border-radius:14px;overflow:hidden;position:relative;margin-bottom:14px;box-shadow:0 0 40px rgba(0,212,255,.06);}
+#xvid{width:100%;display:block;min-height:260px;max-height:460px;object-fit:cover;background:#000;}
+.xovl{position:absolute;inset:0;pointer-events:none;background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,255,136,.022) 3px,rgba(0,255,136,.022) 4px);}
+.xscn{position:absolute;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,rgba(0,212,255,.8),transparent);box-shadow:0 0 12px rgba(0,212,255,.6);animation:scn 2.5s linear infinite;display:none;}
+@keyframes scn{0%{top:0%;}100%{top:100%;}}
+.flbl{position:absolute;top:10px;left:10px;background:rgba(0,0,0,.78);border:1px solid rgba(0,212,255,.35);border-radius:6px;padding:4px 10px;font-family:'Share Tech Mono',monospace;font-size:.64rem;color:var(--b);display:none;}
+.snap-flash{position:absolute;inset:0;background:#fff;opacity:0;pointer-events:none;}
+.xoff{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:10px;background:rgba(0,0,5,.85);}
+.xoff-ico{font-size:3rem;opacity:.22;}
+.xoff-txt{font-family:'Share Tech Mono',monospace;font-size:.72rem;color:var(--m2);text-align:center;padding:0 20px;line-height:1.7;}
+
+/* BUTTONS */
+.btns{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-bottom:16px;}
+.gbtn{padding:10px 20px;border:none;border-radius:8px;font-family:'Orbitron',monospace;font-size:.67rem;font-weight:700;cursor:pointer;transition:all .2s;letter-spacing:.05em;}
+.gbtn:hover{transform:translateY(-2px);}
+.gbtn:disabled{opacity:.4;cursor:not-allowed;transform:none!important;}
+.gbtn.primary{background:linear-gradient(135deg,var(--b),#005580);color:#fff;}
+.gbtn.primary:hover{box-shadow:0 4px 20px rgba(0,212,255,.35);}
+.gbtn.gold{background:linear-gradient(135deg,var(--y),var(--yd));color:#000;}
+.gbtn.gold:hover{box-shadow:0 4px 20px rgba(255,214,0,.4);}
+.gbtn.sec{background:rgba(0,212,255,.08);color:var(--b);border:1px solid rgba(0,212,255,.25);}
+.gbtn.sec:hover{background:rgba(0,212,255,.18);}
+.gbtn.danger{background:rgba(255,68,85,.1);color:var(--r);border:1px solid rgba(255,68,85,.25);}
+
+/* CAMERA SWITCHER */
+#cam-row{display:none;margin-bottom:12px;}
+#cam-list{width:100%;background:rgba(255,255,255,.03);border:1px solid rgba(0,212,255,.2);border-radius:8px;padding:9px 12px;color:var(--txt);font-family:'Share Tech Mono',monospace;font-size:.71rem;outline:none;cursor:pointer;}
+
+/* FILTERS */
+.sec-lbl{font-family:'Orbitron',monospace;font-size:.66rem;color:var(--b);letter-spacing:.08em;margin-bottom:10px;}
+.filters{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:8px;margin-bottom:18px;}
+.fcard{background:rgba(0,212,255,.04);border:1px solid rgba(0,212,255,.13);border-radius:10px;padding:10px;cursor:pointer;text-align:center;transition:all .2s;position:relative;}
+.fcard:hover{border-color:rgba(0,212,255,.4);transform:translateY(-1px);}
+.fcard.on{border-color:var(--b);background:rgba(0,212,255,.14);}
+.fcard.on::after{content:'✓';position:absolute;top:5px;right:7px;font-size:.58rem;color:var(--b);}
+.fcard-ico{font-size:1.4rem;margin-bottom:4px;}
+.fcard-name{font-family:'Share Tech Mono',monospace;font-size:.61rem;color:var(--b);}
+.fcard-desc{font-size:.6rem;color:var(--m2);margin-top:2px;line-height:1.4;}
+
+/* DOWNLOAD BOX */
+.dl-box{background:rgba(0,212,255,.04);border:1px solid rgba(0,212,255,.13);border-radius:12px;padding:16px 18px;text-align:center;}
+.dl-title{font-family:'Orbitron',monospace;font-size:.75rem;color:var(--b);margin-bottom:7px;}
+.dl-text{font-size:.77rem;color:var(--m2);line-height:1.7;margin-bottom:12px;}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-left">
+    <div class="nav-logo">⬡ DAVID AI</div>
+    <div class="nav-nick" id="nav-nick"></div>
+  </div>
+  <div class="nav-links">
+    <a class="nl" href="index.html">🤖 Chat</a>
+    <a class="nl" href="david-games.html">🎮 Games</a>
+    <a class="nl" href="david-projects.html">📦 Projects</a>
+    <a class="nl on" href="david-xray.html">🔬 X-Ray</a>
+  </div>
+</nav>
+
+<div class="body">
+  <div class="page-hdr">
+    <div class="page-title">🔬 X-RAY VIEWER</div>
+    <div class="page-sub">LIVE CAMERA · 8 FILTERS · SNAPSHOT · WORKS ON LOCALHOST + GITHUB PAGES</div>
+    <div class="mr-x-quote">"An X-Ray from Mr X — for you to be aware of your body." — Mr X</div>
+  </div>
+
+  <div class="howto">
+    <div class="ht-card">
+      <div class="ht-title">✅ HOW TO USE</div>
+      <div class="ht-body">1. Click <strong style="color:var(--b)">Activate</strong><br>2. Allow camera when asked<br>3. Pick a filter below<br>4. Take a snapshot!</div>
+    </div>
+    <div class="ht-card warn">
+      <div class="ht-title warn">⚠️ NOTE</div>
+      <div class="ht-body">CSS visual effect only — not real X-ray. Camera needs HTTPS or localhost. If denied, check browser address bar.</div>
+    </div>
+  </div>
+
+  <div class="status-bar">
+    <div class="sdot" id="sdot"></div>
+    <span id="stxt">Camera inactive — press Activate X-Ray to begin</span>
+    <span id="fbadge" style="font-size:.63rem;color:var(--b);"></span>
+  </div>
+
+  <div id="cam-row">
+    <select id="cam-list" onchange="switchCam()"></select>
+  </div>
+
+  <div class="xframe" id="xframe">
+    <video id="xvid" autoplay playsinline muted></video>
+    <div class="xovl"></div>
+    <div class="xscn" id="xscn"></div>
+    <div class="flbl" id="flbl"></div>
+    <div class="snap-flash" id="snapflash"></div>
+    <div class="xoff" id="xoff">
+      <div class="xoff-ico">🔬</div>
+      <div class="xoff-txt" id="xoff-txt">Press Activate X-Ray to start your camera.<br>Camera permission will be requested.</div>
+    </div>
+  </div>
+
+  <div class="btns">
+    <button class="gbtn gold" id="btn-on" onclick="startX()">▶ ACTIVATE X-RAY</button>
+    <button class="gbtn danger" id="btn-off" onclick="stopX()" disabled>■ STOP</button>
+    <button class="gbtn sec" onclick="cycleF()">🎨 Next Filter</button>
+    <button class="gbtn sec" id="btn-flip" style="display:none" onclick="flipCam()">🔄 Flip</button>
+    <button class="gbtn sec" onclick="snapPhoto()">📸 Snapshot</button>
+  </div>
+
+  <div class="sec-lbl">CHOOSE A FILTER:</div>
+  <div class="filters" id="flist"></div>
+
+  <div class="dl-box">
+    <div class="dl-title">📦 Download Standalone X-Ray App</div>
+    <div class="dl-text">Get the full offline HTML version with all 8 filters + snapshot.<br>Works on <strong style="color:var(--b)">localhost</strong> and <strong style="color:var(--b)">GitHub Pages</strong> — no server needed!</div>
+    <button class="gbtn gold" onclick="dlApp()">⬇ Download X-Ray App</button>
+  </div>
+</div>
+
+<script>
+// Firebase
+var FB='https://david-worldwide-default-rtdb.firebaseio.com';
+var SID=localStorage.getItem('david_sid')||'xray-'+Date.now();
+function fbLog(a,d){fetch(FB+'/logs.json',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sid:SID,action:a,detail:d,ts:new Date().toISOString()})}).catch(function(){});}
+
+// User nickname from shared localStorage
+try{var u=JSON.parse(localStorage.getItem('david_user')||'null');if(u&&u.nick)document.getElementById('nav-nick').textContent='👋 '+u.nick;}catch(e){}
+
+// ═══ STATE ═══
+var xStream=null,xFi=0,cams=[],curCamId=null;
+
+var FILTERS=[
+  {name:'Classic X-Ray',ico:'🔬',desc:'Blue inverted',   css:'invert(1) hue-rotate(180deg) saturate(2) contrast(1.6)'},
+  {name:'Sepia Scan',   ico:'🌡️',desc:'Warm thermal',    css:'invert(1) sepia(1) hue-rotate(90deg) contrast(2) saturate(3)'},
+  {name:'Night Vision', ico:'🌿',desc:'Green glow',       css:'invert(1) hue-rotate(90deg) saturate(4) contrast(1.5) brightness(1.1)'},
+  {name:'Greyscale',    ico:'⬜',desc:'High contrast',    css:'grayscale(1) contrast(2.5) brightness(1.3)'},
+  {name:'Raw Invert',   ico:'🔲',desc:'Pure invert',      css:'invert(1) contrast(2) brightness(1.2) saturate(0)'},
+  {name:'Cyberpunk',    ico:'🟣',desc:'Purple neon',      css:'invert(1) hue-rotate(260deg) saturate(5) contrast(1.4)'},
+  {name:'Infrared',     ico:'🔴',desc:'Heat signature',   css:'sepia(1) saturate(10) hue-rotate(310deg) contrast(1.5)'},
+  {name:'Deep Scan',    ico:'🔵',desc:'Cold medical',     css:'invert(1) hue-rotate(200deg) saturate(3) contrast(2) brightness(.85)'}
+];
+
+// Build filter cards
+var fl=document.getElementById('flist');
+FILTERS.forEach(function(f,i){
+  var d=document.createElement('div');
+  d.className='fcard'+(i===0?' on':'');
+  d.innerHTML='<div class="fcard-ico">'+f.ico+'</div><div class="fcard-name">'+f.name+'</div><div class="fcard-desc">'+f.desc+'</div>';
+  d.onclick=function(){
+    xFi=i;
+    fl.querySelectorAll('.fcard').forEach(function(c){c.classList.remove('on');});
+    d.classList.add('on');
+    applyFilter();
+    document.getElementById('flbl').textContent=f.name;
+    document.getElementById('fbadge').textContent=f.name;
+  };
+  fl.appendChild(d);
+});
+
+function applyFilter(){
+  var v=document.getElementById('xvid');
+  if(v.srcObject)v.style.filter=FILTERS[xFi].css;
+}
+
+function setSt(txt,cls){
+  var dot=document.getElementById('sdot');
+  document.getElementById('stxt').textContent=txt;
+  dot.className='sdot'+(cls?' '+cls:'');
+}
+
+// ═══ ENUMERATE CAMERAS (after permission granted) ═══
+function loadCams(){
+  navigator.mediaDevices.enumerateDevices().then(function(devs){
+    cams=devs.filter(function(d){return d.kind==='videoinput';});
+    if(cams.length>1){
+      var row=document.getElementById('cam-row');
+      var sel=document.getElementById('cam-list');
+      row.style.display='block';
+      sel.innerHTML='';
+      cams.forEach(function(c,i){
+        var o=document.createElement('option');
+        o.value=c.deviceId;
+        o.textContent=c.label||'Camera '+(i+1);
+        if(c.deviceId===curCamId)o.selected=true;
+        sel.appendChild(o);
+      });
+      document.getElementById('btn-flip').style.display='inline-flex';
+    }
+  }).catch(function(){});
+}
+
+// ═══ ACTIVATE ═══
+async function startX(){
+  // Check API availability
+  if(!navigator.mediaDevices||typeof navigator.mediaDevices.getUserMedia!=='function'){
+    setSt('❌ Camera API not available. Open this page via localhost or HTTPS.','err');
+    document.getElementById('xoff-txt').textContent='Camera API not available.\nOpen via localhost or a HTTPS site (e.g. GitHub Pages).';
+    return;
+  }
+
+  setSt('Requesting camera access...','');
+  document.getElementById('btn-on').disabled=true;
+
+  // Build constraints
+  var constraints={video:true};
+  if(curCamId){
+    constraints={video:{deviceId:{exact:curCamId}}};
+  } else {
+    constraints={video:{facingMode:'user',width:{ideal:1280},height:{ideal:720}}};
+  }
+
+  try{
+    xStream=await navigator.mediaDevices.getUserMedia(constraints);
+  } catch(err){
+    document.getElementById('btn-on').disabled=false;
+    var msg='';
+    if(err.name==='NotAllowedError'||err.name==='PermissionDeniedError'){
+      msg='Permission denied. Click the camera icon in your browser\'s address bar and allow access, then try again.';
+    } else if(err.name==='NotFoundError'||err.name==='DevicesNotFoundError'){
+      msg='No camera found on this device.';
+    } else if(err.name==='NotReadableError'||err.name==='TrackStartError'){
+      msg='Camera is in use by another app. Close it and try again.';
+    } else if(err.name==='OverconstrainedError'){
+      // Retry without constraints
+      try{xStream=await navigator.mediaDevices.getUserMedia({video:true});}catch(e2){msg='Camera error: '+e2.message;}
+    } else {
+      msg='Camera error: '+err.message;
+    }
+    if(msg){setSt('❌ '+msg,'err');document.getElementById('xoff-txt').textContent=msg;return;}
+  }
+
+  // Attach stream to video
+  var v=document.getElementById('xvid');
+  v.srcObject=xStream;
+
+  // Track which camera is active
+  var track=xStream.getVideoTracks()[0];
+  if(track&&track.getSettings){
+    var settings=track.getSettings();
+    if(settings.deviceId)curCamId=settings.deviceId;
+  }
+
+  // Play video
+  try{await v.play();}catch(e){/* autoplay may already handle this */}
+
+  // UI updates
+  document.getElementById('xoff').style.display='none';
+  document.getElementById('xscn').style.display='block';
+  document.getElementById('flbl').style.display='block';
+  document.getElementById('flbl').textContent=FILTERS[xFi].name;
+  document.getElementById('fbadge').textContent=FILTERS[xFi].name;
+  document.getElementById('btn-on').disabled=false;
+  document.getElementById('btn-off').disabled=false;
+  applyFilter();
+  setSt('Camera active — '+FILTERS[xFi].name,'on');
+  loadCams();
+  fbLog('xray_start',FILTERS[xFi].name);
+}
+
+// ═══ STOP ═══
+function stopX(){
+  if(xStream){xStream.getTracks().forEach(function(t){t.stop();});xStream=null;}
+  var v=document.getElementById('xvid');v.srcObject=null;v.style.filter='';
+  document.getElementById('xoff').style.display='flex';
+  document.getElementById('xoff-txt').textContent='Camera stopped. Press Activate to restart.';
+  document.getElementById('xscn').style.display='none';
+  document.getElementById('flbl').style.display='none';
+  document.getElementById('fbadge').textContent='';
+  document.getElementById('btn-off').disabled=true;
+  document.getElementById('cam-row').style.display='none';
+  document.getElementById('btn-flip').style.display='none';
+  setSt('Camera stopped');
+  fbLog('xray_stop','');
+}
+
+// ═══ CYCLE FILTER ═══
+function cycleF(){
+  xFi=(xFi+1)%FILTERS.length;
+  fl.querySelectorAll('.fcard').forEach(function(c,i){c.classList.toggle('on',i===xFi);});
+  applyFilter();
+  document.getElementById('flbl').textContent=FILTERS[xFi].name;
+  document.getElementById('fbadge').textContent=FILTERS[xFi].name;
+  if(xStream)setSt('Filter: '+FILTERS[xFi].name,'on');
+}
+
+// ═══ FLIP CAMERA ═══
+async function flipCam(){
+  if(!cams.length)return;
+  var idx=cams.findIndex(function(c){return c.deviceId===curCamId;});
+  curCamId=cams[(idx+1)%cams.length].deviceId;
+  document.getElementById('cam-list').value=curCamId;
+  if(xStream){stopX();setTimeout(startX,300);}
+}
+function switchCam(){
+  curCamId=document.getElementById('cam-list').value;
+  if(xStream){stopX();setTimeout(startX,300);}
+}
+
+// ═══ SNAPSHOT ═══
+function snapPhoto(){
+  var v=document.getElementById('xvid');
+  if(!v||!v.srcObject){alert('Activate the camera first!');return;}
+  var canvas=document.createElement('canvas');
+  canvas.width=v.videoWidth||640;canvas.height=v.videoHeight||480;
+  var ctx=canvas.getContext('2d');
+  ctx.filter=FILTERS[xFi].css;
+  ctx.drawImage(v,0,0);
+  // Flash
+  var f=document.getElementById('snapflash');
+  f.style.transition='none';f.style.opacity='.8';
+  setTimeout(function(){f.style.transition='opacity .3s';f.style.opacity='0';},80);
+  canvas.toBlob(function(blob){
+    var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='xray-'+Date.now()+'.png';a.click();
+  },'image/png');
+  fbLog('xray_snap',FILTERS[xFi].name);
+}
+
+// ═══ DOWNLOAD STANDALONE APP ═══
+function dlApp(){
+  fbLog('xray_download','standalone');
+  var filters=JSON.stringify(FILTERS);
+  var html='<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>X-Ray App — DAVID AI</title><style>*{margin:0;padding:0;box-sizing:border-box;}body{background:#000;color:#0ff;font-family:monospace;display:flex;flex-direction:column;align-items:center;min-height:100vh;padding:16px;text-align:center;}h1{color:#00d4ff;font-size:1.2rem;letter-spacing:.12em;margin-bottom:4px;text-shadow:0 0 18px rgba(0,212,255,.4);}p.sub{font-size:.62rem;color:#555;margin-bottom:6px;letter-spacing:.07em;}p.quote{font-size:.72rem;color:#c9a800;font-style:italic;margin-bottom:14px;}.warn{background:rgba(255,140,0,.06);border:1px solid rgba(255,140,0,.25);border-radius:8px;padding:9px;max-width:500px;width:100%;font-size:.71rem;color:#ffa040;margin-bottom:12px;}.st{font-size:.69rem;margin-bottom:10px;}.st.ok{color:#00ff88;}.st.err{color:#ff4455;}.frame{position:relative;max-width:520px;width:100%;background:#000;border:2px solid rgba(0,212,255,.22);border-radius:12px;overflow:hidden;margin-bottom:10px;}video{width:100%;display:block;min-height:240px;object-fit:cover;}.ovl{position:absolute;inset:0;pointer-events:none;background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,255,136,.022) 3px,rgba(0,255,136,.022) 4px);}.scn{position:absolute;left:0;right:0;height:2px;background:rgba(0,212,255,.6);box-shadow:0 0 10px rgba(0,212,255,.7);animation:s 2.5s linear infinite;display:none;}@keyframes s{0%{top:0%;}100%{top:100%;}}.flbl{position:absolute;top:8px;left:8px;background:rgba(0,0,0,.75);border:1px solid rgba(0,212,255,.3);border-radius:5px;padding:3px 9px;font-size:.62rem;color:#00d4ff;display:none;}.btns{display:flex;gap:7px;margin-bottom:12px;flex-wrap:wrap;justify-content:center;}.btn{background:rgba(0,212,255,.1);border:1px solid rgba(0,212,255,.3);color:#00d4ff;padding:9px 15px;border-radius:7px;cursor:pointer;font-size:.71rem;font-family:monospace;transition:all .18s;}.btn:hover{background:rgba(0,212,255,.22);}.btn.y{background:rgba(255,214,0,.1);border-color:rgba(255,214,0,.3);color:#FFD600;}.sec-lbl{font-size:.64rem;color:#00d4ff;letter-spacing:.07em;margin:7px 0 5px;}.filters{display:flex;flex-wrap:wrap;gap:5px;justify-content:center;max-width:520px;margin-bottom:14px;}.fc{background:rgba(0,212,255,.06);border:1px solid rgba(0,212,255,.18);border-radius:6px;padding:6px 11px;cursor:pointer;font-size:.65rem;color:#00d4ff;font-family:monospace;transition:all .18s;}.fc.on,.fc:hover{background:rgba(0,212,255,.2);border-color:#00d4ff;}footer{margin-top:22px;font-size:.6rem;color:#222;font-family:monospace;}</style></head><body><h1>🔬 X-RAY VIEWER</h1><p class="sub">DAVID AI · 8 FILTERS · SNAPSHOT</p><p class="quote">"An X-Ray from Mr X — for you to be aware of your body."</p><div class="warn">⚠️ CSS visual effect only. Camera requires HTTPS or localhost. Allow camera when prompted.</div><div class="st" id="st">Camera inactive</div><div class="frame"><video id="v" autoplay playsinline muted></video><div class="ovl"></div><div class="scn" id="scn"></div><div class="flbl" id="flbl"></div></div><div class="btns"><button class="btn y" onclick="go()">▶ Activate</button><button class="btn" onclick="stop()">■ Stop</button><button class="btn" onclick="cycle()">🎨 Next</button><button class="btn" onclick="snap()">📸 Snap</button></div><div class="sec-lbl">SELECT FILTER:</div><div class="filters" id="fl"></div><footer>Powered by DAVID AI — Built by Mr X</footer><script>var st=null,fi=0,fs='+filters+';var fl=document.getElementById("fl");fs.forEach(function(f,i){var d=document.createElement("div");d.className="fc"+(i===0?" on":"");d.textContent=f.name;d.onclick=function(){fi=i;fl.querySelectorAll(".fc").forEach(function(x,j){x.classList.toggle("on",j===i);});var v=document.getElementById("v");if(v.srcObject)v.style.filter=fs[fi].css;document.getElementById("flbl").textContent=f.name;};fl.appendChild(d);});function setSt(t,c){var e=document.getElementById("st");e.textContent=t;e.className="st"+(c?" "+c:"");}async function go(){if(!navigator.mediaDevices){setSt("Open via localhost or HTTPS!","err");return;}setSt("Requesting camera...");try{st=await navigator.mediaDevices.getUserMedia({video:{width:{ideal:1280}}});var v=document.getElementById("v");v.srcObject=st;v.style.filter=fs[fi].css;try{await v.play();}catch(e){}document.getElementById("scn").style.display="block";document.getElementById("flbl").style.display="block";document.getElementById("flbl").textContent=fs[fi].name;setSt("Active: "+fs[fi].name,"ok");}catch(e){setSt(e.name==="NotAllowedError"?"Permission denied — allow camera in browser bar":"Error: "+e.message,"err");}}function stop(){if(st){st.getTracks().forEach(function(t){t.stop();});st=null;}var v=document.getElementById("v");v.srcObject=null;v.style.filter="";document.getElementById("scn").style.display="none";document.getElementById("flbl").style.display="none";setSt("Stopped");}function cycle(){fi=(fi+1)%fs.length;fl.querySelectorAll(".fc").forEach(function(c,i){c.classList.toggle("on",i===fi);});var v=document.getElementById("v");if(v.srcObject)v.style.filter=fs[fi].css;document.getElementById("flbl").textContent=fs[fi].name;}function snap(){var v=document.getElementById("v");if(!v.srcObject){alert("Activate camera first!");return;}var c=document.createElement("canvas");c.width=v.videoWidth||640;c.height=v.videoHeight||480;var ctx=c.getContext("2d");ctx.filter=fs[fi].css;ctx.drawImage(v,0,0);c.toBlob(function(b){var a=document.createElement("a");a.href=URL.createObjectURL(b);a.download="xray-"+Date.now()+".png";a.click();},"image/png");}<\/script></body></html>';
+  var blob=new Blob([html],{type:'text/html'});
+  var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='david-xray-app.html';a.click();
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Visual Tools — Create Studio</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Exo+2:wght@300;400;600&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#04040a;--y:#FFD600;--y2:#FFA500;--yd:#b89a00;--g:#00ff88;--b:#00d4ff;--pu:#c084fc;--r:#ff4455;--text:#f0f0f0;--muted:#555;--card:rgba(6,6,18,.98);}
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{width:100%;min-height:100%;background:var(--bg);color:var(--text);font-family:'Exo 2',sans-serif;overflow-x:hidden;}
+::-webkit-scrollbar{width:5px;}::-webkit-scrollbar-thumb{background:rgba(255,214,0,.2);border-radius:3px;}
+/* HEADER */
+.hdr{position:sticky;top:0;z-index:200;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:7px;padding:11px 22px;background:rgba(4,4,10,.99);border-bottom:1px solid rgba(255,214,0,.07);backdrop-filter:blur(26px);}
+.hdr::after{content:'';position:absolute;bottom:0;left:4%;right:4%;height:1px;background:linear-gradient(90deg,transparent,rgba(255,214,0,.3),transparent);}
+.hdr-logo{font-family:'Orbitron',monospace;font-size:.88rem;letter-spacing:.13em;color:var(--y);}
+.hdr-nick{font-family:'Share Tech Mono',monospace;font-size:.64rem;color:var(--muted);margin-top:1px;}
+.hdr-r{display:flex;align-items:center;gap:7px;flex-wrap:wrap;}
+.nb{padding:6px 13px;border-radius:7px;cursor:pointer;text-decoration:none;font-size:.62rem;font-family:'Share Tech Mono',monospace;transition:all .2s;border:1px solid;background:rgba(255,214,0,.05);border-color:rgba(255,214,0,.16);color:var(--muted);}
+.nb:hover{background:rgba(255,214,0,.14);color:var(--y);border-color:rgba(255,214,0,.45);}
+/* TAB BAR */
+.tab-bar{display:flex;border-bottom:1px solid rgba(255,255,255,.06);position:sticky;top:52px;z-index:100;background:rgba(4,4,10,.97);backdrop-filter:blur(20px);overflow-x:auto;}
+.tab-bar::-webkit-scrollbar{height:0;}
+.tab{padding:13px 20px;cursor:pointer;font-family:'Share Tech Mono',monospace;font-size:.66rem;letter-spacing:.06em;color:var(--muted);border-bottom:2px solid transparent;transition:all .2s;white-space:nowrap;user-select:none;flex-shrink:0;}
+.tab:hover{color:var(--text);}
+.tab.on{color:var(--y);border-bottom-color:var(--y);}
+/* PANELS */
+.panel{display:none;padding:22px 20px 100px;max-width:920px;margin:0 auto;}
+.panel.on{display:block;animation:fi .32s ease both;}
+@keyframes fi{from{opacity:0;transform:translateY(11px);}to{opacity:1;transform:none;}}
+.p-title{font-family:'Orbitron',monospace;font-size:.9rem;color:var(--y);letter-spacing:.1em;margin-bottom:4px;}
+.p-sub{font-family:'Share Tech Mono',monospace;font-size:.65rem;color:var(--muted);margin-bottom:18px;}
+/* TOOLBAR */
+.toolbar{display:flex;flex-wrap:wrap;align-items:center;gap:7px;padding:10px 13px;background:rgba(0,0,0,.42);border:1px solid rgba(255,255,255,.07);border-radius:10px;margin-bottom:12px;}
+.tbtn{padding:7px 13px;border-radius:7px;cursor:pointer;font-family:'Share Tech Mono',monospace;font-size:.63rem;border:1px solid;transition:all .18s;letter-spacing:.04em;background:transparent;white-space:nowrap;}
+.tbtn.y{border-color:rgba(255,214,0,.25);color:var(--y);}
+.tbtn.y:hover,.tbtn.y.on{background:rgba(255,214,0,.16);border-color:rgba(255,214,0,.5);}
+.tbtn.g{border-color:rgba(0,255,136,.22);color:var(--g);}
+.tbtn.g:hover,.tbtn.g.on{background:rgba(0,255,136,.14);}
+.tbtn.b{border-color:rgba(0,212,255,.22);color:var(--b);}
+.tbtn.b:hover{background:rgba(0,212,255,.14);}
+.tbtn.r{border-color:rgba(255,50,50,.22);color:var(--r);}
+.tbtn.r:hover{background:rgba(255,50,50,.14);}
+.tbtn.pu{border-color:rgba(192,132,252,.22);color:var(--pu);}
+.tbtn.pu:hover,.tbtn.pu.on{background:rgba(192,132,252,.14);}
+.lbl{font-family:'Share Tech Mono',monospace;font-size:.61rem;color:var(--muted);}
+.val{font-family:'Share Tech Mono',monospace;font-size:.68rem;color:var(--y);min-width:24px;text-align:right;}
+input[type=color]{height:30px;width:42px;border:1px solid rgba(255,255,255,.1);background:transparent;cursor:pointer;border-radius:6px;padding:2px;}
+input[type=range]{accent-color:var(--y);cursor:pointer;}
+/* CANVAS */
+.cv-wrap{background:#0a0a12;border:1px solid rgba(255,255,255,.1);border-radius:10px;overflow:hidden;margin-bottom:10px;display:block;}
+canvas{display:block;}
+/* FORM INPUTS */
+.f-lbl{display:block;font-family:'Share Tech Mono',monospace;font-size:.63rem;color:var(--yd);letter-spacing:.09em;margin-bottom:5px;}
+.f-inp{width:100%;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:10px 13px;color:var(--text);font-family:'Exo 2',sans-serif;font-size:.88rem;outline:none;transition:border-color .2s;}
+.f-inp:focus{border-color:rgba(255,214,0,.44);}
+.f-sel{width:100%;background:rgba(6,6,18,.95);border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:9px 13px;color:var(--text);font-family:'Share Tech Mono',monospace;font-size:.7rem;outline:none;cursor:pointer;}
+/* GRID LAYOUTS */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.g2b{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.cg-row{display:flex;flex-direction:column;gap:5px;}
+.cg-rr{display:flex;align-items:center;justify-content:space-between;}
+@media(max-width:580px){.g2,.g2b{grid-template-columns:1fr;}}
+/* hint */
+.hint{font-family:'Share Tech Mono',monospace;font-size:.64rem;color:var(--muted);text-align:center;margin-top:6px;}
+</style>
+</head>
+<body>
+<!-- HEADER -->
+<nav class="hdr">
+  <div>
+    <div class="hdr-logo">🎨 VISUAL TOOLS</div>
+    <div class="hdr-nick" id="hdrnick"></div>
+  </div>
+  <div class="hdr-r">
+    <a class="nb" href="universe-studio.html">← Studio</a>
+    <a class="nb" href="universe.html">← Universe</a>
+  </div>
+</nav>
+
+<!-- TAB BAR -->
+<div class="tab-bar">
+  <div class="tab on"  onclick="showTab('draw',this)">🎨 Canvas Draw</div>
+  <div class="tab"    onclick="showTab('pixel',this)">🟪 Pixel Art</div>
+  <div class="tab"    onclick="showTab('colour',this)">🎞️ Colour Grader</div>
+  <div class="tab"    onclick="showTab('typo',this)">📐 Typography</div>
+</div>
+
+<!-- ══════════ CANVAS DRAW ══════════ -->
+<div class="panel on" id="p-draw">
+  <div class="p-title">🎨 Canvas Drawing Studio</div>
+  <div class="p-sub">FREEHAND DRAWING · SHAPES · MOUSE AND TOUCH SUPPORTED</div>
+  <div class="toolbar">
+    <button class="tbtn y on" id="dt-pen"    onclick="setMode('pen',this)">✏️ Pen</button>
+    <button class="tbtn y"    id="dt-brush"  onclick="setMode('brush',this)">🖌️ Brush</button>
+    <button class="tbtn y"    id="dt-line"   onclick="setMode('line',this)">╱ Line</button>
+    <button class="tbtn y"    id="dt-rect"   onclick="setMode('rect',this)">▭ Rect</button>
+    <button class="tbtn y"    id="dt-circle" onclick="setMode('circle',this)">◯ Circle</button>
+    <button class="tbtn y"    id="dt-erase"  onclick="setMode('eraser',this)">⬜ Erase</button>
+    <div style="display:flex;align-items:center;gap:6px;margin-left:4px;">
+      <span class="lbl">Colour:</span>
+      <input type="color" id="d-col" value="#FFD600" oninput="D.color=this.value">
+    </div>
+    <div style="display:flex;align-items:center;gap:6px;">
+      <span class="lbl">Size:</span>
+      <input type="range" id="d-sz" min="1" max="50" value="5" oninput="D.size=+this.value;document.getElementById('d-szv').textContent=this.value" style="width:80px;">
+      <span class="val" id="d-szv">5</span>
+    </div>
+    <button class="tbtn y" onclick="toggleFill()">Fill:<span id="fill-lbl">OFF</span></button>
+    <button class="tbtn r" onclick="clearDraw()" style="margin-left:auto;">🗑️ Clear</button>
+    <button class="tbtn b" onclick="saveDraw()">💾 PNG</button>
+  </div>
+  <div class="cv-wrap">
+    <canvas id="d-cv" width="860" height="460" style="width:100%;cursor:crosshair;max-height:460px;"></canvas>
+  </div>
+  <div class="hint">Mouse or touch to draw. Shapes are drawn by dragging from start point.</div>
+</div>
+
+<!-- ══════════ PIXEL ART ══════════ -->
+<div class="panel" id="p-pixel">
+  <div class="p-title">🟪 Pixel Art Editor</div>
+  <div class="p-sub">24×16 GRID · DRAW · ERASE · FILL · ZOOM · PNG EXPORT</div>
+  <div class="toolbar">
+    <button class="tbtn pu on" id="px-draw-btn" onclick="setPxMode('draw',this)">✏️ Draw</button>
+    <button class="tbtn pu"    id="px-erase-btn" onclick="setPxMode('erase',this)">⬜ Erase</button>
+    <div style="display:flex;align-items:center;gap:6px;margin-left:4px;">
+      <span class="lbl">Colour:</span>
+      <input type="color" id="px-col" value="#FFD600">
+    </div>
+    <button class="tbtn pu" onclick="pxFill()">🪣 Fill All</button>
+    <button class="tbtn r"  onclick="pxClear()" style="margin-left:auto;">🗑️ Clear</button>
+    <button class="tbtn b"  onclick="pxSave()">💾 PNG</button>
+    <button class="tbtn y"  onclick="pxZoom(4)">🔍 +</button>
+    <button class="tbtn y"  onclick="pxZoom(-4)">🔍 −</button>
+  </div>
+  <div style="overflow-x:auto;margin-bottom:10px;">
+    <canvas id="px-cv" style="cursor:crosshair;image-rendering:pixelated;image-rendering:crisp-edges;display:block;border:1px solid rgba(255,255,255,.09);border-radius:6px;"></canvas>
+  </div>
+  <div class="hint">Click or drag to paint pixels. Zoom in for detail work.</div>
+</div>
+
+<!-- ══════════ COLOUR GRADER ══════════ -->
+<div class="panel" id="p-colour">
+  <div class="p-title">🎞️ Colour Grader</div>
+  <div class="p-sub">LOAD ANY IMAGE · ADJUST FILTERS · SAVE OUTPUT</div>
+  <div class="toolbar">
+    <input type="file" id="cg-fi" accept="image/*" onchange="loadCGImg(this)" style="display:none">
+    <button class="tbtn y" onclick="document.getElementById('cg-fi').click()">📁 Load Image</button>
+    <button class="tbtn g" onclick="saveCG()">💾 Save PNG</button>
+    <button class="tbtn r" onclick="resetCG()" style="margin-left:auto;">↺ Reset All</button>
+  </div>
+  <div class="g2b" style="margin-bottom:12px;">
+    <div class="cg-row">
+      <div class="cg-rr"><span class="f-lbl">Brightness</span><span class="val" id="cg-brv">100%</span></div>
+      <input type="range" id="cg-br" min="0" max="300" value="100" oninput="applyCG()" style="width:100%;accent-color:var(--y);">
+    </div>
+    <div class="cg-row">
+      <div class="cg-rr"><span class="f-lbl">Contrast</span><span class="val" id="cg-ctv">100%</span></div>
+      <input type="range" id="cg-ct" min="0" max="400" value="100" oninput="applyCG()" style="width:100%;accent-color:var(--y);">
+    </div>
+    <div class="cg-row">
+      <div class="cg-rr"><span class="f-lbl">Saturation</span><span class="val" id="cg-satv">100%</span></div>
+      <input type="range" id="cg-sat" min="0" max="400" value="100" oninput="applyCG()" style="width:100%;accent-color:var(--y);">
+    </div>
+    <div class="cg-row">
+      <div class="cg-rr"><span class="f-lbl">Hue Rotate</span><span class="val" id="cg-huev">0°</span></div>
+      <input type="range" id="cg-hue" min="0" max="360" value="0" oninput="applyCG()" style="width:100%;accent-color:var(--y);">
+    </div>
+    <div class="cg-row">
+      <div class="cg-rr"><span class="f-lbl">Blur</span><span class="val" id="cg-blv">0px</span></div>
+      <input type="range" id="cg-bl" min="0" max="15" value="0" oninput="applyCG()" style="width:100%;accent-color:var(--y);">
+    </div>
+    <div class="cg-row">
+      <div class="cg-rr"><span class="f-lbl">Invert</span><span class="val" id="cg-invv">0%</span></div>
+      <input type="range" id="cg-inv" min="0" max="100" value="0" oninput="applyCG()" style="width:100%;accent-color:var(--y);">
+    </div>
+  </div>
+  <canvas id="cg-cv" style="width:100%;border-radius:10px;background:rgba(255,255,255,.04);min-height:200px;display:block;border:1px solid rgba(255,255,255,.07);"></canvas>
+  <div class="hint">Load an image, adjust the sliders and save the result as PNG.</div>
+</div>
+
+<!-- ══════════ TYPOGRAPHY ══════════ -->
+<div class="panel" id="p-typo">
+  <div class="p-title">📐 Typography Studio</div>
+  <div class="p-sub">CUSTOM FONTS · COLOURS · SHADOWS · MULTILINE · PNG EXPORT</div>
+  <div class="g2" style="margin-bottom:12px;">
+    <div>
+      <label class="f-lbl">Main Text</label>
+      <input class="f-inp" id="ty-t" value="DAVID UNIVERSE" oninput="renderTypo()">
+      <label class="f-lbl" style="margin-top:10px;">Extra Lines (one per line)</label>
+      <textarea class="f-inp" id="ty-ml" rows="2" placeholder="Second line&#10;Third line" oninput="renderTypo()" style="resize:vertical;font-family:Share Tech Mono,monospace;font-size:.76rem;"></textarea>
+      <label class="f-lbl" style="margin-top:10px;">Font Family</label>
+      <select class="f-sel" id="ty-f" onchange="renderTypo()">
+        <option value="Orbitron">Orbitron</option>
+        <option value="Share Tech Mono">Share Tech Mono</option>
+        <option value="Exo 2">Exo 2</option>
+        <option value="Impact">Impact</option>
+        <option value="Georgia">Georgia</option>
+        <option value="Courier New">Courier New</option>
+        <option value="Arial Black">Arial Black</option>
+        <option value="Verdana">Verdana</option>
+        <option value="Times New Roman">Times New Roman</option>
+      </select>
+      <label class="f-lbl" style="margin-top:10px;">Font Size: <span id="ty-szv">52</span>px</label>
+      <input type="range" id="ty-sz" min="10" max="140" value="52" oninput="document.getElementById('ty-szv').textContent=this.value;renderTypo()" style="width:100%;accent-color:var(--y);">
+      <label class="f-lbl" style="margin-top:8px;">Letter Spacing: <span id="ty-lsv">2</span>px</label>
+      <input type="range" id="ty-ls" min="-5" max="40" value="2" oninput="document.getElementById('ty-lsv').textContent=this.value;renderTypo()" style="width:100%;accent-color:var(--y);">
+      <label class="f-lbl" style="margin-top:8px;">Line Height: <span id="ty-lhv">1.3</span></label>
+      <input type="range" id="ty-lh" min="8" max="28" value="13" oninput="document.getElementById('ty-lhv').textContent=(this.value/10).toFixed(1);renderTypo()" style="width:100%;accent-color:var(--y);">
+    </div>
+    <div>
+      <label class="f-lbl">Text Colour</label>
+      <input type="color" id="ty-c" value="#FFD600" oninput="renderTypo()" style="height:38px;width:100%;border-radius:8px;border:1px solid rgba(255,255,255,.1);background:transparent;cursor:pointer;display:block;margin-bottom:10px;">
+      <label class="f-lbl">Background</label>
+      <input type="color" id="ty-bg" value="#04040a" oninput="renderTypo()" style="height:38px;width:100%;border-radius:8px;border:1px solid rgba(255,255,255,.1);background:transparent;cursor:pointer;display:block;margin-bottom:10px;">
+      <label class="f-lbl">Shadow Colour</label>
+      <input type="color" id="ty-sh" value="#000000" oninput="renderTypo()" style="height:38px;width:100%;border-radius:8px;border:1px solid rgba(255,255,255,.1);background:transparent;cursor:pointer;display:block;margin-bottom:10px;">
+      <label class="f-lbl" style="margin-bottom:7px;">Alignment</label>
+      <div style="display:flex;gap:7px;margin-bottom:10px;">
+        <button class="tbtn y on" id="ty-al" onclick="TY.align='left';setAlign(this);">⬅</button>
+        <button class="tbtn y"    id="ty-ac" onclick="TY.align='center';setAlign(this);">↔</button>
+        <button class="tbtn y"    id="ty-ar" onclick="TY.align='right';setAlign(this);">➡</button>
+      </div>
+      <label class="f-lbl">Shadow Blur: <span id="ty-sbv">20</span>%</label>
+      <input type="range" id="ty-sb" min="0" max="100" value="20" oninput="document.getElementById('ty-sbv').textContent=this.value+'%';renderTypo()" style="width:100%;accent-color:var(--y);margin-bottom:12px;">
+      <button class="tbtn b" onclick="saveTypo()" style="width:100%;padding:11px;justify-content:center;display:flex;">💾 Save PNG</button>
+    </div>
+  </div>
+  <canvas id="ty-cv" style="width:100%;border-radius:10px;display:block;min-height:160px;border:1px solid rgba(255,255,255,.07);"></canvas>
+</div>
+
+<script>
+/* USER LOAD */
+var U = {};
+(function(){
+  var s = localStorage.getItem('david_user');
+  if(!s){ window.location.href='david-ai.html'; return; }
+  try{ U=JSON.parse(s); }catch(e){ window.location.href='david-ai.html'; return; }
+  document.getElementById('hdrnick').textContent='👋 '+(U.nick||'');
+})();
+
+/* TAB SWITCHER */
+function showTab(id, el){
+  document.querySelectorAll('.panel').forEach(function(p){ p.classList.remove('on'); });
+  document.querySelectorAll('.tab').forEach(function(t){ t.classList.remove('on'); });
+  document.getElementById('p-'+id).classList.add('on');
+  el.classList.add('on');
+  if(id==='pixel' && !PX._init) setTimeout(initPixel,60);
+  if(id==='colour' && !CG._init) setTimeout(initCG,60);
+  if(id==='typo') setTimeout(renderTypo,60);
+}
+/* Auto-open from URL param */
+(function(){
+  var t = new URLSearchParams(location.search).get('tool');
+  if(t){
+    var tab = document.querySelector('.tab[onclick*="\''+t+'\'"]');
+    if(tab){ tab.click(); return; }
+  }
+  /* default: init draw */
+  setTimeout(initDraw,80);
+})();
+
+/* ══════════════════════════════════════════
+   CANVAS DRAW
+══════════════════════════════════════════ */
+var D = { mode:'pen', color:'#FFD600', size:5, down:false, lx:0, ly:0, sx:0, sy:0, fill:false, snap:null };
+function initDraw(){
+  var c = document.getElementById('d-cv');
+  if(!c) return;
+  var ctx = c.getContext('2d');
+  ctx.fillStyle='#0a0a12';
+  ctx.fillRect(0,0,c.width,c.height);
+
+  function pos(e){
+    var r=c.getBoundingClientRect();
+    var cl=(e.touches?e.touches[0].clientX:e.clientX)-r.left;
+    var ct=(e.touches?e.touches[0].clientY:e.clientY)-r.top;
+    return { x:cl*(c.width/r.width), y:ct*(c.height/r.height) };
+  }
+  function start(e){
+    e.preventDefault();
+    D.down=true;
+    var p=pos(e); D.lx=p.x; D.ly=p.y; D.sx=p.x; D.sy=p.y;
+    D.snap=ctx.getImageData(0,0,c.width,c.height);
+  }
+  function move(e){
+    e.preventDefault();
+    if(!D.down) return;
+    var p=pos(e);
+    var ctx2=c.getContext('2d');
+    if(D.mode==='eraser'){
+      ctx2.clearRect(p.x-D.size,p.y-D.size,D.size*2,D.size*2);
+      D.lx=p.x; D.ly=p.y; return;
+    }
+    if(D.mode==='rect'||D.mode==='circle'||D.mode==='line'){
+      ctx2.putImageData(D.snap,0,0);
+    }
+    ctx2.strokeStyle=D.color; ctx2.fillStyle=D.color;
+    ctx2.lineWidth=D.size; ctx2.lineCap='round'; ctx2.lineJoin='round';
+    if(D.mode==='pen'){
+      ctx2.globalAlpha=1;
+      ctx2.beginPath(); ctx2.moveTo(D.lx,D.ly); ctx2.lineTo(p.x,p.y); ctx2.stroke();
+      D.lx=p.x; D.ly=p.y;
+    } else if(D.mode==='brush'){
+      ctx2.globalAlpha=.38;
+      for(var i=0;i<4;i++){
+        ctx2.beginPath();
+        ctx2.arc(p.x+(Math.random()-.5)*D.size*1.5, p.y+(Math.random()-.5)*D.size*1.5, D.size*.5, 0, Math.PI*2);
+        ctx2.fill();
+      }
+      ctx2.globalAlpha=1;
+      D.lx=p.x; D.ly=p.y;
+    } else if(D.mode==='line'){
+      ctx2.beginPath(); ctx2.moveTo(D.sx,D.sy); ctx2.lineTo(p.x,p.y); ctx2.stroke();
+    } else if(D.mode==='rect'){
+      ctx2.globalAlpha=.7;
+      if(D.fill) ctx2.fillRect(D.sx,D.sy,p.x-D.sx,p.y-D.sy);
+      else ctx2.strokeRect(D.sx,D.sy,p.x-D.sx,p.y-D.sy);
+      ctx2.globalAlpha=1;
+    } else if(D.mode==='circle'){
+      var rx=(p.x-D.sx)/2, ry=(p.y-D.sy)/2;
+      ctx2.globalAlpha=.7;
+      ctx2.beginPath();
+      ctx2.ellipse(D.sx+rx, D.sy+ry, Math.abs(rx)||1, Math.abs(ry)||1, 0, 0, Math.PI*2);
+      if(D.fill) ctx2.fill(); else ctx2.stroke();
+      ctx2.globalAlpha=1;
+    }
+  }
+  function stop(){ D.down=false; }
+  c.addEventListener('mousedown',start);
+  c.addEventListener('mousemove',move);
+  c.addEventListener('mouseup',stop);
+  c.addEventListener('mouseleave',stop);
+  c.addEventListener('touchstart',start,{passive:false});
+  c.addEventListener('touchmove',move,{passive:false});
+  c.addEventListener('touchend',stop);
+}
+function setMode(m, el){
+  D.mode=m;
+  document.querySelectorAll('#p-draw .toolbar .tbtn').forEach(function(b){ b.classList.remove('on'); });
+  el.classList.add('on');
+}
+function toggleFill(){
+  D.fill=!D.fill;
+  document.getElementById('fill-lbl').textContent=D.fill?'ON':'OFF';
+}
+function clearDraw(){
+  var c=document.getElementById('d-cv');
+  if(!c) return;
+  var ctx=c.getContext('2d');
+  ctx.fillStyle='#0a0a12';
+  ctx.fillRect(0,0,c.width,c.height);
+}
+function saveDraw(){
+  var c=document.getElementById('d-cv');
+  if(!c) return;
+  var a=document.createElement('a');
+  a.href=c.toDataURL('image/png');
+  a.download='david-drawing.png';
+  a.click();
+}
+setTimeout(initDraw,100);
+
+/* ══════════════════════════════════════════
+   PIXEL ART
+══════════════════════════════════════════ */
+var PX = { cols:24, rows:16, sz:22, mode:'draw', down:false, grid:[], _init:false };
+function initPixel(){
+  if(PX._init) return;
+  PX._init=true;
+  var c=document.getElementById('px-cv');
+  if(!c) return;
+  c.width=PX.cols*PX.sz;
+  c.height=PX.rows*PX.sz;
+  PX.grid=Array.from({length:PX.rows},function(){ return new Array(PX.cols).fill('#0a0a12'); });
+  renderPx();
+
+  function gc(e){
+    var r=c.getBoundingClientRect();
+    var cl=(e.touches?e.touches[0].clientX:e.clientX)-r.left;
+    var ct=(e.touches?e.touches[0].clientY:e.clientY)-r.top;
+    return { col:Math.floor(cl*(c.width/r.width)/PX.sz), row:Math.floor(ct*(c.height/r.height)/PX.sz) };
+  }
+  function paint(e){
+    e.preventDefault();
+    var g=gc(e);
+    if(g.col<0||g.col>=PX.cols||g.row<0||g.row>=PX.rows) return;
+    PX.grid[g.row][g.col] = PX.mode==='erase' ? '#0a0a12' : document.getElementById('px-col').value;
+    renderPx();
+  }
+  c.addEventListener('mousedown',function(e){ PX.down=true; paint(e); });
+  c.addEventListener('mousemove',function(e){ if(PX.down) paint(e); });
+  c.addEventListener('mouseup',function(){ PX.down=false; });
+  c.addEventListener('mouseleave',function(){ PX.down=false; });
+  c.addEventListener('touchstart',function(e){ PX.down=true; paint(e); },{passive:false});
+  c.addEventListener('touchmove',function(e){ if(PX.down) paint(e); },{passive:false});
+  c.addEventListener('touchend',function(){ PX.down=false; });
+}
+function renderPx(){
+  var c=document.getElementById('px-cv');
+  if(!c) return;
+  var ctx=c.getContext('2d');
+  for(var r=0;r<PX.rows;r++)
+    for(var cl=0;cl<PX.cols;cl++){
+      ctx.fillStyle=PX.grid[r][cl];
+      ctx.fillRect(cl*PX.sz,r*PX.sz,PX.sz,PX.sz);
+      ctx.strokeStyle='rgba(255,255,255,.05)';
+      ctx.strokeRect(cl*PX.sz,r*PX.sz,PX.sz,PX.sz);
+    }
+}
+function setPxMode(m, el){
+  PX.mode=m;
+  document.querySelectorAll('#p-pixel .toolbar .tbtn.pu').forEach(function(b){ b.classList.remove('on'); });
+  el.classList.add('on');
+}
+function pxFill(){
+  var col=document.getElementById('px-col').value;
+  for(var r=0;r<PX.rows;r++) for(var cl=0;cl<PX.cols;cl++) PX.grid[r][cl]=col;
+  renderPx();
+}
+function pxClear(){
+  PX.grid=Array.from({length:PX.rows},function(){ return new Array(PX.cols).fill('#0a0a12'); });
+  renderPx();
+}
+function pxSave(){
+  var c=document.getElementById('px-cv');
+  if(!c) return;
+  var a=document.createElement('a'); a.href=c.toDataURL('image/png'); a.download='pixel-art.png'; a.click();
+}
+function pxZoom(d){
+  PX.sz=Math.max(10,Math.min(40,PX.sz+d));
+  var c=document.getElementById('px-cv');
+  if(!c) return;
+  c.width=PX.cols*PX.sz; c.height=PX.rows*PX.sz;
+  renderPx();
+}
+
+/* ══════════════════════════════════════════
+   COLOUR GRADER
+══════════════════════════════════════════ */
+var CG = { img:null, _init:false };
+function initCG(){
+  if(CG._init) return;
+  CG._init=true;
+  var c=document.getElementById('cg-cv');
+  if(!c) return;
+  c.width=600; c.height=300;
+  var ctx=c.getContext('2d');
+  ctx.fillStyle='#111'; ctx.fillRect(0,0,600,300);
+  ctx.fillStyle='rgba(255,214,0,.3)';
+  ctx.font='14px Share Tech Mono'; ctx.textAlign='center';
+  ctx.fillText('← Load an image to start grading',300,155);
+}
+function loadCGImg(inp){
+  var f=inp.files[0]; if(!f) return;
+  var r=new FileReader();
+  r.onload=function(e){
+    var img=new Image();
+    img.onload=function(){ CG.img=img; applyCG(); };
+    img.src=e.target.result;
+  };
+  r.readAsDataURL(f);
+}
+function applyCG(){
+  var ids=['cg-br','cg-ct','cg-sat','cg-hue','cg-bl','cg-inv'];
+  var vals={};
+  ids.forEach(function(id){ var el=document.getElementById(id); if(el) vals[id]=el.value; });
+  document.getElementById('cg-brv').textContent=vals['cg-br']+'%';
+  document.getElementById('cg-ctv').textContent=vals['cg-ct']+'%';
+  document.getElementById('cg-satv').textContent=vals['cg-sat']+'%';
+  document.getElementById('cg-huev').textContent=vals['cg-hue']+'°';
+  document.getElementById('cg-blv').textContent=vals['cg-bl']+'px';
+  document.getElementById('cg-invv').textContent=vals['cg-inv']+'%';
+  var filt='brightness('+vals['cg-br']+'%) contrast('+vals['cg-ct']+'%) saturate('+vals['cg-sat']+'%) hue-rotate('+vals['cg-hue']+'deg) blur('+vals['cg-bl']+'px) invert('+vals['cg-inv']+'%)';
+  var c=document.getElementById('cg-cv'); if(!c) return;
+  if(CG.img){
+    c.width=Math.min(CG.img.width,860);
+    c.height=Math.round(CG.img.height*(c.width/CG.img.width));
+    var ctx=c.getContext('2d');
+    ctx.filter=filt;
+    ctx.drawImage(CG.img,0,0,c.width,c.height);
+    ctx.filter='none';
+  } else {
+    c.style.filter=filt;
+  }
+}
+function saveCG(){
+  var c=document.getElementById('cg-cv'); if(!c) return;
+  var a=document.createElement('a'); a.href=c.toDataURL('image/png'); a.download='graded-image.png'; a.click();
+}
+function resetCG(){
+  ['cg-br','cg-ct','cg-sat'].forEach(function(id){ var e=document.getElementById(id); if(e) e.value=100; });
+  ['cg-hue','cg-bl','cg-inv'].forEach(function(id){ var e=document.getElementById(id); if(e) e.value=0; });
+  applyCG();
+}
+
+/* ══════════════════════════════════════════
+   TYPOGRAPHY STUDIO
+══════════════════════════════════════════ */
+var TY = { align:'left' };
+function setAlign(el){
+  document.querySelectorAll('#p-typo .tbtn.y').forEach(function(b){ b.classList.remove('on'); });
+  el.classList.add('on');
+  renderTypo();
+}
+function renderTypo(){
+  var c=document.getElementById('ty-cv'); if(!c) return;
+  var sz=+document.getElementById('ty-sz').value;
+  var ls=+document.getElementById('ty-ls').value;
+  var lh=+document.getElementById('ty-lh').value/10;
+  var main=document.getElementById('ty-t').value||'';
+  var extra=(document.getElementById('ty-ml').value||'').split('\n').filter(Boolean);
+  var lines=[main].concat(extra).filter(Boolean);
+  var shadow=+document.getElementById('ty-sb').value;
+  c.width=860;
+  c.height=Math.max(sz*2.6*(lines.length+.5), 200);
+  var ctx=c.getContext('2d');
+  ctx.fillStyle=document.getElementById('ty-bg').value;
+  ctx.fillRect(0,0,c.width,c.height);
+  ctx.fillStyle=document.getElementById('ty-c').value;
+  ctx.font=sz+'px "'+document.getElementById('ty-f').value+'"';
+  ctx.textAlign=TY.align;
+  ctx.shadowColor=document.getElementById('ty-sh').value;
+  ctx.shadowBlur=sz*(shadow/100)*2;
+  var x = TY.align==='left' ? 28 : TY.align==='right' ? c.width-28 : c.width/2;
+  var startY = sz*1.4;
+  lines.forEach(function(line,i){ ctx.fillText(line, x, startY+i*sz*lh); });
+  ctx.shadowBlur=0;
+}
+function saveTypo(){
+  var c=document.getElementById('ty-cv'); if(!c) return;
+  var a=document.createElement('a'); a.href=c.toDataURL('image/png'); a.download='typography.png'; a.click();
+}
+setTimeout(renderTypo,200);
+</script>
+</body>
+</html>

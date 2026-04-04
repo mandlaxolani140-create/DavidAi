@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Course — Training Academy</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Exo+2:wght@300;400;600&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#04040a;--y:#FFD600;--y2:#FFA500;--yd:#b89a00;--g:#00ff88;--b:#00d4ff;--pu:#c084fc;--r:#ff4455;--text:#f0f0f0;--muted:#555;--card:rgba(6,6,18,.98);}
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{width:100%;min-height:100%;background:var(--bg);color:var(--text);font-family:'Exo 2',sans-serif;overflow-x:hidden;}
+::-webkit-scrollbar{width:5px;}::-webkit-scrollbar-thumb{background:rgba(0,255,136,.2);border-radius:3px;}
+.hdr{position:sticky;top:0;z-index:200;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:7px;padding:11px 22px;background:rgba(4,4,10,.99);border-bottom:1px solid rgba(0,255,136,.07);backdrop-filter:blur(26px);}
+.hdr::after{content:'';position:absolute;bottom:0;left:4%;right:4%;height:1px;background:linear-gradient(90deg,transparent,rgba(0,255,136,.28),transparent);}
+.hdr-logo{font-family:'Orbitron',monospace;font-size:.86rem;letter-spacing:.12em;color:var(--g);}
+.hdr-nick{font-family:'Share Tech Mono',monospace;font-size:.63rem;color:var(--muted);margin-top:1px;}
+.hdr-r{display:flex;align-items:center;gap:7px;flex-wrap:wrap;}
+.nb{padding:6px 13px;border-radius:7px;cursor:pointer;text-decoration:none;font-size:.62rem;font-family:'Share Tech Mono',monospace;transition:all .2s;border:1px solid;background:rgba(0,255,136,.04);border-color:rgba(0,255,136,.16);color:var(--muted);}
+.nb:hover{background:rgba(0,255,136,.14);color:var(--g);border-color:rgba(0,255,136,.45);}
+.page{max-width:820px;margin:0 auto;padding:24px 20px 100px;}
+/* NAV */
+.l-nav{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:9px;margin-bottom:14px;}
+.lnb{padding:8px 17px;border-radius:8px;cursor:pointer;font-family:'Share Tech Mono',monospace;font-size:.64rem;border:1px solid;transition:all .2s;background:transparent;letter-spacing:.04em;white-space:nowrap;}
+.lnb.y{border-color:rgba(255,214,0,.28);color:var(--y);}.lnb.y:hover{background:rgba(255,214,0,.14);}
+.lnb.g{border-color:rgba(0,255,136,.28);color:var(--g);}.lnb.g:hover{background:rgba(0,255,136,.14);}
+.lnb.mu{border-color:rgba(255,255,255,.1);color:var(--muted);}.lnb.mu:hover{background:rgba(255,255,255,.06);}
+/* PROGRESS */
+.prog-w{background:rgba(255,255,255,.06);border-radius:4px;height:6px;overflow:hidden;margin-bottom:5px;}
+.prog-f{height:100%;background:linear-gradient(90deg,var(--g),var(--b));border-radius:4px;transition:width .4s;}
+.prog-l{font-family:'Share Tech Mono',monospace;font-size:.62rem;color:var(--muted);margin-bottom:18px;display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:6px;}
+/* LESSON CARD */
+.lcard{background:var(--card);border:1px solid rgba(255,255,255,.07);border-radius:16px;overflow:hidden;}
+.lcard-hdr{padding:18px 22px;border-bottom:1px solid rgba(255,255,255,.06);}
+.lcard-title{font-family:'Orbitron',monospace;font-size:.9rem;letter-spacing:.09em;margin-bottom:4px;}
+.lcard-sub{font-family:'Share Tech Mono',monospace;font-size:.63rem;color:var(--muted);}
+/* TABS */
+.ltabs{display:flex;border-bottom:1px solid rgba(255,255,255,.06);}
+.ltab{padding:12px 20px;cursor:pointer;font-family:'Share Tech Mono',monospace;font-size:.65rem;letter-spacing:.05em;color:var(--muted);border-bottom:2px solid transparent;transition:all .2s;user-select:none;flex-shrink:0;}
+.ltab:hover{color:var(--text);}
+.ltab.on{color:var(--y);border-bottom-color:var(--y);}
+/* PANELS */
+.lpanel{display:none;padding:22px;}
+.lpanel.on{display:block;animation:fi .3s ease both;}
+@keyframes fi{from{opacity:0;transform:translateY(9px);}to{opacity:1;transform:none;}}
+/* LESSON CONTENT */
+.lc{font-size:.87rem;color:rgba(220,210,255,.72);line-height:1.9;}
+.lc h3{font-family:'Orbitron',monospace;font-size:.74rem;color:var(--y);letter-spacing:.07em;margin:16px 0 9px;}
+.lc h3:first-child{margin-top:0;}
+.lc p{margin-bottom:11px;}
+.lc ul,.lc ol{padding-left:20px;margin-bottom:11px;}
+.lc li{margin-bottom:6px;line-height:1.7;}
+.lc strong{color:rgba(255,255,255,.85);}
+.lc code{background:rgba(255,214,0,.09);border:1px solid rgba(255,214,0,.2);border-radius:4px;padding:1px 8px;font-family:'Share Tech Mono',monospace;font-size:.78rem;color:var(--y);}
+.lc .formula{background:rgba(0,212,255,.07);border:1px solid rgba(0,212,255,.2);border-radius:9px;padding:11px 18px;font-family:'Share Tech Mono',monospace;font-size:.84rem;color:var(--b);margin:10px 0;text-align:center;letter-spacing:.04em;}
+.lc .tip{background:rgba(0,255,136,.05);border-left:3px solid var(--g);padding:10px 15px;border-radius:0 9px 9px 0;margin:11px 0;font-size:.83rem;color:rgba(220,210,255,.68);}
+.lc .warn{background:rgba(255,165,0,.06);border-left:3px solid var(--y2);padding:10px 15px;border-radius:0 9px 9px 0;margin:11px 0;font-size:.83rem;}
+.lc .key{background:rgba(192,132,252,.07);border:1px solid rgba(192,132,252,.18);border-radius:8px;padding:10px 14px;margin:10px 0;font-size:.83rem;color:rgba(220,200,255,.75);}
+/* QUIZ */
+.quiz-q{margin-bottom:18px;}
+.q-txt{font-size:.9rem;font-weight:600;margin-bottom:12px;color:var(--text);}
+.q-opts{display:flex;flex-direction:column;gap:8px;}
+.q-opt{padding:12px 17px;border-radius:10px;cursor:pointer;font-size:.84rem;border:1px solid rgba(255,255,255,.09);transition:all .2s;background:rgba(255,255,255,.025);}
+.q-opt:hover{background:rgba(255,255,255,.07);border-color:rgba(255,255,255,.2);}
+.q-opt.ok{background:rgba(0,255,136,.12);border-color:#00ff88;color:#00ff88;cursor:default;}
+.q-opt.no{background:rgba(255,50,50,.1);border-color:#ff5555;color:#ff5555;cursor:default;}
+.q-res{margin-top:10px;font-family:'Share Tech Mono',monospace;font-size:.72rem;padding:9px 14px;border-radius:8px;display:none;line-height:1.5;}
+/* EXERCISE */
+.ex-box{background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.07);border-radius:10px;padding:18px;}
+.ex-prompt{font-size:.85rem;color:rgba(220,210,255,.75);margin-bottom:14px;line-height:1.75;white-space:pre-line;}
+.ex-ta{width:100%;min-height:120px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.09);border-radius:8px;padding:11px 14px;color:var(--text);font-family:'Exo 2',sans-serif;font-size:.88rem;outline:none;resize:vertical;transition:border-color .2s;line-height:1.6;}
+.ex-ta:focus{border-color:rgba(0,255,136,.38);}
+.ex-actions{display:flex;align-items:center;gap:9px;margin-top:10px;}
+.ex-saved{font-family:'Share Tech Mono',monospace;font-size:.66rem;color:#00ff88;display:none;}
+</style>
+</head>
+<body>
+<nav class="hdr">
+  <div>
+    <div class="hdr-logo" id="course-hdr-title">📚 COURSE</div>
+    <div class="hdr-nick" id="hdrnick"></div>
+  </div>
+  <div class="hdr-r">
+    <a class="nb" href="universe-academy.html">← Academy</a>
+    <a class="nb" href="universe.html">← Universe</a>
+  </div>
+</nav>
+<div class="page">
+  <div class="l-nav" id="l-nav-top"></div>
+  <div class="prog-w"><div class="prog-f" id="prog-f" style="width:0%"></div></div>
+  <div class="prog-l" id="prog-l"></div>
+  <div id="lesson-mount"></div>
+  <div class="l-nav" id="l-nav-bot" style="margin-top:16px;"></div>
+</div>
+<script>
+var U={};
+(function(){
+  var s=localStorage.getItem('david_user');
+  if(!s){window.location.href='david-ai.html';return;}
+  try{U=JSON.parse(s);}catch(e){window.location.href='david-ai.html';return;}
+  document.getElementById('hdrnick').textContent='👋 '+(U.nick||'');
+})();
+var SUB=decodeURIComponent(new URLSearchParams(location.search).get('sub')||'');
+var LIDX=parseInt(new URLSearchParams(location.search).get('l')||'0');
+document.getElementById('course-hdr-title').textContent='📚 '+SUB;
+
+/* ══ PROGRESS STORAGE — scoped to this user's SID so different users on
+   the same device never share or overwrite each other's progress ══ */
+var SID=(U.sid||U.nick||'guest').replace(/\s+/g,'_');
+function pKey(sub){ return 'du_p_'+SID+'_'+sub; }
+function eKey(sub,idx){ return 'du_ex_'+SID+'_'+sub+'_'+idx; }
+function getProgress(sub){ try{return JSON.parse(localStorage.getItem(pKey(sub))||'{}')}catch(e){return {};} }
+function saveProgress(sub,p){ localStorage.setItem(pKey(sub),JSON.stringify(p)); }
+
+/* ══ FIREBASE LOGGING — sends academy activity to viewer ══ */
+const FB='https://david-worldwide-default-rtdb.firebaseio.com';
+const FB_SECRET='qvUWJxHiM91gJBOI1qH0bZkR7ds0fBquYd4foLzT';
+function logAcademy(type,detail,extra){
+  if(!SID||SID==='guest') return;
+  var p=Object.assign({
+    sid:SID, nick:U.nick||'', name:U.name||'',
+    type:type, detail:detail||'', ts:new Date().toISOString()
+  },extra||{});
+  fetch(FB+'/activity/'+SID+'.json?auth='+FB_SECRET,{
+    method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(p)
+  }).catch(function(){});
+}
+
+/* ══════════════════════════════════════════
+   FULL COURSE DATABASE — ALL SUBJECTS
+══════════════════════════════════════════ */
+var COURSES={
+'Football':{ico:'⚽',color:'#00ff88',lessons:[
+  {t:'Rules, Positions & Formations',s:'Laws of the game, player roles, formations',
+   c:'<h3>The Game</h3><p>Two teams of 11 players. Score by putting the ball in the opponent\'s goal. Two 45-minute halves. The team with more goals at the end wins.</p><h3>Key Rules</h3><ul><li><strong>Offside</strong> — attacker cannot be ahead of the last defender when the ball is played to them</li><li><strong>Foul</strong> — dangerous or reckless challenge = free kick from that spot</li><li><strong>Penalty</strong> — foul inside the box = penalty kick from the spot (12 yards)</li><li><strong>Yellow card</strong> — warning. Two yellows = red (sent off immediately)</li><li><strong>Red card</strong> — immediate dismissal. Team plays with 10</li><li><strong>Throw-in</strong> — when ball crosses a touchline, thrown in by the team that did NOT touch it last</li></ul><h3>Positions</h3><ul><li><strong>Goalkeeper (GK)</strong> — last line of defence; can use hands inside their box</li><li><strong>Centre-backs (CB)</strong> — defend the central area, win aerial duels</li><li><strong>Full-backs (LB/RB)</strong> — defend wide areas; join attacks in modern football</li><li><strong>Defensive Midfielder (DM)</strong> — shields backline; breaks up opposition attacks</li><li><strong>Central Midfielder (CM)</strong> — box to box; links defence and attack</li><li><strong>Attacking Midfielder (CAM)</strong> — creates chances, plays between lines</li><li><strong>Wingers (LW/RW)</strong> — provide width, deliver crosses, cut inside to shoot</li><li><strong>Striker (ST/CF)</strong> — scores goals, holds up play, presses defenders</li></ul><h3>Common Formations</h3><ul><li><strong>4-4-2</strong> — classic, balanced, two banks of four, two strikers</li><li><strong>4-3-3</strong> — attacking, dominant midfield, wide trio up front</li><li><strong>4-2-3-1</strong> — one striker supported by three behind, double pivot</li><li><strong>3-5-2</strong> — three centre-backs, wing-backs provide width, two up top</li></ul><div class="tip">💡 Formation is the starting shape. The best teams adapt their shape during the match based on whether they have or don\'t have the ball.</div>',
+   q:[{q:'How many players per team in football?',o:['9','10','11','12'],a:2},{q:'What happens when a foul occurs inside the penalty box?',o:['Yellow card only','Corner kick','Penalty kick from the spot','Free kick from the edge'],a:2},{q:'In a 4-3-3, how many midfielders are there?',o:['2','3','4','5'],a:1}],
+   ex:'TACTICS TASK:\n\nYou are managing a team that is 1-0 up with 20 minutes remaining. The opponent has just equalised and is pressing high.\n\n(a) Which formation would you switch to and why?\n(b) What instruction would you give your central midfielders?\n(c) How would you use your striker in this situation?\n\nWrite 3-4 sentences for each point. Think about protecting the lead while staying dangerous on the counter.'},
+  {t:'Passing, First Touch & Shooting',s:'Core technical skills with correct mechanics',
+   c:'<h3>Passing Technique</h3><ul><li><strong>Short pass (inside of foot)</strong> — stand side-on, plant foot beside the ball, use the flat inner surface of foot, firm and controlled follow-through toward target</li><li><strong>Long pass (instep/laces)</strong> — approach from slight angle, lock ankle, lean back slightly, strike through the vertical centre of the ball, follow through high</li><li><strong>Through ball</strong> — hit into space behind the defence; weight and timing must match the runner\'s pace exactly</li><li><strong>Driven low cross</strong> — low, hard pass across the face of goal; plant foot level with ball, strike through centre</li></ul><h3>First Touch / Control</h3><p>A great first touch gives you time. A bad one takes time away. To cushion the ball: relax the receiving surface on contact, let it absorb pace, and redirect into the space you intend to use next.</p><p>Control surfaces (in order of precision): inside of foot → outside of foot → chest → thigh → head → sole.</p><div class="warn">⚠ Never watch a pass arrive then look at where you want to play it. Scan BEFORE the ball arrives. When it reaches you, you should already know your next action.</div><h3>Shooting</h3><ul><li><strong>Placed shot</strong> — inside of foot, aim for a corner, keep it low. Accuracy > power always.</li><li><strong>Power shot</strong> — approach at an angle, head over ball, instep contact through the centre, lean slightly into it, full follow-through</li><li><strong>Chip/lob</strong> — stab under the ball with a short, sharp follow-through; creates lift and backspin</li><li><strong>Volley</strong> — eye on the ball, make contact early, keep knee over ball, side-foot or instep</li></ul><div class="tip">💡 Messi takes over 200 shots per week in training. Technique is built through volume of correct repetition. Practise both feet from day one.</div>',
+   q:[{q:'Which foot surface gives the most accurate short pass?',o:['Toe','Heel','Inside of foot','Laces'],a:2},{q:'What should you do BEFORE receiving a pass?',o:['Look at your feet','Scan to know your next action','Call for the ball loudly','Stand still'],a:1},{q:'Where should you aim for maximum passing accuracy on a shot?',o:['Top corner','Centre of goal','Low corners','The keeper\'s hands'],a:2}],
+   ex:'TRAINING SESSION DESIGN:\n\nCreate a 20-minute individual session using only a ball and a wall. Include:\n\n(a) 5-minute warm-up with a ball (be specific — what are you doing?)\n(b) 10-minute main drill — passing and first touch (specify reps, distances, both feet)\n(c) 5-minute finishing — shooting drill at a target or chalked goal\n\nFor each exercise, state what technical skill it trains and how you will know if you are improving.'},
+  {t:'Tactics, Fitness & The Mental Game',s:'Tactical awareness, stamina, psychology',
+   c:'<h3>Tactical Awareness</h3><p>The best players scan constantly — before the ball arrives, they already know where teammates and opponents are. This is called "awareness" and it is trainable.</p><ul><li><strong>Pressing</strong> — winning the ball back immediately after losing it, high up the pitch. Requires coordination and intensity.</li><li><strong>Compact shape</strong> — keeping the team tight vertically; makes it hard to play through the lines</li><li><strong>Exploiting width</strong> — stretching the opponent horizontally creates space in the middle</li><li><strong>Counter-attack</strong> — win ball deep, transition quickly before opponents reorganise</li></ul><h3>Physical Demands</h3><p>A professional outfield player runs 10–13km per match with 1–2km of high-intensity sprinting. Your training base:</p><ul><li><strong>Aerobic</strong> — 20-40 min steady jog 3× per week</li><li><strong>Sprint intervals</strong> — 10× 30m with full recovery between each</li><li><strong>Agility</strong> — ladder drills, cone weaves, change of direction</li><li><strong>Recovery</strong> — sleep, nutrition and hydration matter as much as training</li></ul><h3>Psychology</h3><p>Football is 90 minutes of decision-making under pressure. The mental skills that separate good players from great ones:</p><ul><li><strong>Composure</strong> — slowing your mind when the game speeds up</li><li><strong>Resilience</strong> — mistakes happen to everyone. React, then reset.</li><li><strong>Communication</strong> — constant talking. Give information to teammates.</li><li><strong>Confidence</strong> — try things. You will lose the ball. That is football.</li></ul><div class="key">📌 Key insight: Ronaldo and Messi both missed chances and made mistakes in matches where they scored hat-tricks. The difference is not perfection — it is the speed of mental reset after a mistake.</div>',
+   q:[{q:'How far does a pro outfield player typically run per match?',o:['5km','8km','10-13km','20km'],a:2},{q:'What does "compact shape" mean tactically?',o:['Keeping players close together vertically to block passing lanes','Running as fast as possible','Playing with two strikers','Defending with all 11 players'],a:0},{q:'What is the most important mental skill after making a mistake?',o:['Being angry','Arguing with teammates','Fast mental reset — react and move on','Asking the coach for help'],a:2}],
+   ex:'MATCH ANALYSIS:\n\nWatch any football match (live, TV or online). Pick ONE player (not the goalkeeper) and track them for the full match or at least 20 minutes.\n\nWrite:\n(a) Their position and main role in the team\n(b) Three good decisions they made and why each was good\n(c) Two errors or poor decisions and what the better option was\n(d) How they responded mentally after a mistake — what did their body language show?'},
+]},
+'Piano':{ico:'🎹',color:'#00d4ff',lessons:[
+  {t:'Keyboard Layout & Reading Music',s:'Notes, clefs, values, middle C',
+   c:'<h3>The Keyboard Map</h3><p>The piano keyboard repeats in groups of 12 — one octave. Within each octave: <strong>7 white keys</strong> (C D E F G A B) and <strong>5 black keys</strong>.</p><p><strong>Finding any C:</strong> Look for groups of 2 black keys. The white key directly to the LEFT of any group of 2 black keys is always C.</p><p><strong>Middle C (C4)</strong> is the C nearest to the centre of the keyboard. On a full 88-key piano it is the 4th C from the left.</p><h3>The Grand Staff</h3><ul><li><strong>Treble clef (right hand)</strong> — Lines from bottom: E G B D F ("Every Good Boy Does Fine"). Spaces: F A C E (spells FACE).</li><li><strong>Bass clef (left hand)</strong> — Lines from bottom: G B D F A ("Good Boys Do Fine Always"). Spaces: A C E G.</li></ul><p>Middle C sits on a ledger line <em>below</em> the treble clef and <em>above</em> the bass clef — it bridges both staves.</p><h3>Note Values</h3><ul><li>Whole note = 4 beats</li><li>Half note = 2 beats</li><li>Quarter note = 1 beat (one "tap")</li><li>Eighth note = ½ beat</li><li>Sixteenth note = ¼ beat</li></ul><div class="formula">Dotted note = note value + half its value. Dotted quarter = 1.5 beats.</div><div class="tip">💡 Time signature: the top number tells you beats per bar. Bottom number tells you which note gets 1 beat. 4/4 = 4 beats per bar, quarter note = 1 beat. The most common time signature.</div>',
+   q:[{q:'The white key to the LEFT of a group of 2 black keys is always:',o:['D','B','C','E'],a:2},{q:'How many beats does a whole note get (in 4/4)?',o:['1','2','3','4'],a:3},{q:'Treble clef spaces from bottom spell:',o:['EGBDF','ABCD','FACE','GBDF'],a:2}],
+   ex:'MAPPING EXERCISE:\n\n(a) On a keyboard, real or drawn, label every C from left to right.\n\n(b) Write the finger numbers (1=thumb, 5=pinky) for C major scale RIGHT hand:\n   C=1, D=2, E=3, then thumb crosses UNDER, F=?, G=?, A=?, B=?, C=?\n\n(c) Name the note on the 1st (bottom) LINE of the treble clef.\n\n(d) What note sits in the 2nd SPACE of the bass clef?\n\n(e) How many beats does a dotted half note get?'},
+  {t:'Major Scales, Chords & Playing Songs',s:'Scale formula, triads, I-IV-V, first songs',
+   c:'<h3>The Major Scale Formula</h3><p>Every major scale follows the same pattern of Whole (W) and Half (H) steps between notes:</p><div class="formula">W — W — H — W — W — W — H</div><p><strong>C Major</strong>: C D E F G A B C (all white keys — easiest to start)<br><strong>G Major</strong>: G A B C D E F# G (one sharp — F#)<br><strong>F Major</strong>: F G A Bb C D E F (one flat — Bb)</p><h3>Finger Numbers</h3><p>Both hands: thumb=1, index=2, middle=3, ring=4, pinky=5.</p><p>C Major right hand: 1 2 3 | thumb crosses under | 1 2 3 4 5<br>C Major left hand: 5 4 3 2 1 | thumb crosses | 3 2 1</p><h3>Major Triads</h3><p>A triad = root + major 3rd (4 semitones up) + perfect 5th (7 semitones up)</p><ul><li>C Major: C – E – G</li><li>F Major: F – A – C</li><li>G Major: G – B – D</li><li>A Minor: A – C – E (minor 3rd: 3 semitones)</li><li>D Minor: D – F – A</li></ul><h3>The I–IV–V Progression</h3><p>The most important chord progression in Western music. In C major: <strong>C → F → G → C</strong>. Used in thousands of songs across all genres.</p><h3>Ode to Joy (right hand only)</h3><div class="formula">E E F G | G F E D | C C D E | E• D D</div><p>Each letter = one beat. The dot (•) = hold 1.5 beats instead of 1.</p><div class="warn">⚠ Never practise at a speed where you make mistakes. Slow and correct beats fast and wrong. Mistakes practised become habits.</div>',
+   q:[{q:'What is the W-H pattern of a major scale?',o:['W-H-W-W-W-H-W','W-W-H-W-W-W-H','H-W-W-H-W-W-W','W-W-W-H-W-W-H'],a:1},{q:'Which notes make a C major triad?',o:['C-D-E','C-E-G','C-F-G','D-F-A'],a:1},{q:'The I-IV-V progression in C major uses chords:',o:['C Am F','C F G','C G Am','F G C'],a:1}],
+   ex:'WEEK PRACTICE PLAN:\n\nDAY 1-2: C major scale, right hand only, 20 times each session at 60 BPM. Count aloud.\nDAY 3-4: C major scale, left hand only, 20 times. Then play C, F, G chords with right hand.\nDAY 5-7: Ode to Joy right hand — aim for smooth and connected, not fast.\n\nAfter your sessions write:\n(a) Which bar of Ode to Joy was hardest and what made it difficult?\n(b) What improved most between Day 1 and Day 7?\n(c) What is your goal for the following week?'},
+  {t:'Coordination, Rhythm & Playing With Both Hands',s:'Hand independence, timing, metronome use',
+   c:'<h3>The Core Challenge</h3><p>Hand independence is the hardest part of piano for beginners. Your two hands must do different things simultaneously. The brain resists this initially. The solution is systematic practice.</p><h3>The Method</h3><ol><li>Learn RIGHT hand alone until fluent (can play without thinking about notes)</li><li>Learn LEFT hand alone until fluent</li><li>Combine both hands at 50% of target speed</li><li>Only increase tempo when you can play perfectly 3 times in a row</li></ol><h3>Metronome</h3><p>Always use a metronome or click track. Start at 60 BPM or slower. Never increase speed until the current tempo is perfect. Evenness matters more than speed.</p><h3>Left Hand Patterns</h3><ul><li><strong>Root only</strong> — simplest: hold the root note for the whole bar. Use this first.</li><li><strong>Root + 5th</strong> — two notes: root on beat 1, 5th on beat 3. More interesting.</li><li><strong>Alberti bass</strong> — root-5th-3rd-5th pattern (classical style)</li></ul><h3>Ode to Joy — Both Hands</h3><p>Left hand: hold C (beat 1-2), hold G (beat 3-4) for bars 1-8. Right hand: the melody you already know. Combine slowly.</p><div class="tip">💡 If your hands fall apart at a certain bar, slow to half speed and repeat that bar 10 times alone. Then gradually return to full speed. The problem is always in the detail.</div>',
+   q:[{q:'What should you do BEFORE combining both hands?',o:['Try both hands straight away','Practise each hand separately until fluent','Only practise the right hand','Listen to the song 50 times'],a:1},{q:'When should you increase metronome speed?',o:['Every 5 minutes','When it feels boring','After 3 consecutive perfect repetitions','When you can get through it once'],a:2},{q:'The Alberti bass pattern is:',o:['Root-Root-Root-Root','Root-5th-3rd-5th','Root-3rd-5th-Octave','Root only'],a:1}],
+   ex:'COORDINATION SESSION:\n\nSet a timer for 20 minutes. Spend it entirely on Ode to Joy with both hands.\n\n(a) First 5 min: right hand alone — smooth, connected, no stumbles.\n(b) Next 5 min: left hand alone — hold C/G in correct bars.\n(c) Final 10 min: both hands together, very slowly.\n\nRecord yourself (voice memo on your phone). Listen back. Write:\n(a) Does the rhythm stay steady throughout?\n(b) Which hand tends to rush or slow down?\n(c) What single thing would most improve this piece?'},
+]},
+'Stage Acting':{ico:'🎭',color:'#c084fc',lessons:[
+  {t:'Presence, Physicality & Projection',s:'Owning the stage — body, voice, stillness',
+   c:'<h3>What is Stage Presence?</h3><p>Presence is not loudness, size or confidence — it is complete commitment to every moment. When an actor is fully living in the reality of the scene, the audience cannot look away. When they are "performing" rather than being, the audience disconnects.</p><h3>The Body as an Instrument</h3><ul><li><strong>Posture</strong> — weight balanced evenly, knees soft, chest open. Collapsed posture signals defeat. Excessive tension signals fear. Find neutral, open and alive.</li><li><strong>Eyes</strong> — the audience reads your face first and your eyes most. Eyes alive with intention hold focus. Dead eyes, regardless of what the voice does, kill a scene.</li><li><strong>Gesture</strong> — honest gesture originates from impulse in the core (solar plexus). Planned gestures read as false. Let the impulse happen, then let the body respond to it.</li><li><strong>Stillness</strong> — a completely still actor commands enormous focus. Unnecessary movement is noise. Every movement must be motivated by something real.</li></ul><h3>Vocal Projection</h3><p>Projection is not shouting. It is sending resonance forward through supported breath and forward placement.</p><ul><li>Breathe from the diaphragm — belly expands outward, not chest rising</li><li>Place the sound in the "mask" — forehead, cheekbones, front of skull</li><li>Open the back of the throat (as if about to yawn)</li><li>Consonants carry clarity. Vowels carry emotion. Both are tools.</li></ul><div class="key">📌 "The strongest position on a proscenium stage is downstage centre facing the audience. The corners are the weakest. Experienced actors instinctively angle toward strong positions."</div>',
+   q:[{q:'Stage presence comes from:',o:['Being physically large and loud','Complete commitment to every moment','Having the most lines','Being naturally charismatic'],a:1},{q:'Vocal projection means:',o:['Shouting as loudly as possible','Supported breath with forward resonance','Using a microphone','Speaking very slowly'],a:1},{q:'Honest gesture originates from:',o:['The hands','Pre-planned choreography','Impulse in the core/solar plexus','What the director tells you'],a:2}],
+   ex:'EXERCISE — do this now:\n\nStand up. Say the sentence "I know who you are." five times with five completely different internal realities:\n1. You are terrified and hiding it completely\n2. You are absolutely, calmly certain\n3. You are deeply sad and trying not to show it\n4. You find it darkly amusing\n5. It is a cold, clinical threat\n\nDo NOT change the words. Change ONLY your internal reality and let everything else follow.\n\nAfterward, write what changed in your voice, face and body for each version. What surprised you most?'},
+  {t:'Objective, Obstacle & Stanislavski',s:'The system, given circumstances, tactics',
+   c:'<h3>Stanislavski\'s System</h3><p>Konstantin Stanislavski (1863–1938) created the foundation of modern acting. His system underlies almost all contemporary training worldwide.</p><h3>Given Circumstances</h3><p>The facts of the world of the play. Before any scene, answer: <strong>Who am I? Where am I? When is it? What just happened before this? What do I want? Why right now?</strong> Every choice must be rooted in these facts.</p><h3>Objective</h3><p>What does my character want in this specific moment? Always a strong <strong>action verb</strong>: "to convince", "to escape", "to protect", "to humiliate", "to seduce".</p><p>Weak objectives: "to feel sad" (that is a result), "to say these lines" (that is the script). Strong objectives create action.</p><h3>Obstacle</h3><p>What stands between the character and their objective? The obstacle creates conflict. Conflict creates drama. Without obstacle there is no scene.</p><h3>Tactics</h3><p>How the character tries to get what they want, moment by moment. Tactics change constantly as each one succeeds or fails: plead → threaten → charm → ignore → seduce → cry. The scene IS the battle of tactics.</p><h3>The Magic "If"</h3><p>"What would I truthfully do IF I were actually in this situation?" You use your own imagination to place yourself in the character\'s reality. You are not pretending to be someone else — you are asking what YOU would do.</p><div class="tip">💡 The strongest objective is always specific to this scene, this moment, this other person. "To get love from her" is weak. "To make HER admit that she still needs me" is strong. Specificity creates truth.</div>',
+   q:[{q:'What is a character\'s "objective"?',o:['Their emotional state','What they want, expressed as an action verb','The script they say','The director\'s instruction'],a:1},{q:'What creates conflict and drama in a scene?',o:['Loud voices and strong emotions','The obstacle between character and their objective','Two actors who disagree off-stage','A confusing script'],a:1},{q:'The Magic "If" asks:',o:['What magic powers does the character have?','What would I do IF these circumstances were real?','How do I memorise lines?','What if I forget my lines?'],a:1}],
+   ex:'SCENE ANALYSIS:\n\nChoose ANY scene from a film, play or TV show you know well.\n\nFor EACH character in the scene, identify:\n(a) Their OBJECTIVE — state it as one action verb + specific target: "to [verb] [who/what]"\n(b) Their main OBSTACLE\n(c) At least 3 TACTICS they use (in the order they appear in the scene)\n(d) The moment where a tactic clearly changes — what triggers the shift?\n\nWrite a short paragraph explaining what this analysis reveals about why the scene works.'},
+  {t:'Meisner Technique & Emotional Truth',s:'Living truthfully, repetition exercise, indicating vs being',
+   c:'<h3>Sanford Meisner (1905–1997)</h3><p>Meisner developed his technique at the Neighborhood Playhouse in New York. His central principle: <em>"Acting is living truthfully under imaginary circumstances."</em></p><h3>The Repetition Exercise</h3><p>Meisner\'s foundational training exercise. Two actors sit facing each other. One observes something literally and visibly true about the other and says it. The other repeats it back. Continue until something real changes — an impulse, a genuine reaction — and that change becomes the focus.</p><p>Example: "You seem distracted." → "I seem distracted." → "You seem distracted." → (genuine shift) → "You\'re smiling now." → "I\'m smiling now."</p><p>The exercise trains: genuine observation, staying present, responding from real impulse rather than plan.</p><h3>Indicating vs Being</h3><p><strong>Indicating</strong> = showing the emotion externally without genuinely feeling it. Performing sadness instead of being sad. The audience always senses the difference — indicating reads as false.</p><p>Meisner\'s solution: "Don\'t do anything until something makes you do it." Wait for genuine impulse. If nothing moves you, find the truthful reason why your character WOULD be moved.</p><h3>The Pinch and the Ouch</h3><p>Meisner\'s metaphor: in life, someone pinches you and you say "ouch." That ouch is real — caused by something external. In bad acting, actors say "ouch" before the pinch — they plan the response before the stimulus. Meisner training reverses this. Receive first. Respond from what you receive.</p><div class="tip">💡 The actor\'s instrument is not their body or voice — it is their emotional and psychological availability. This takes years to fully open. Start now by simply committing to genuine observation of the other actor rather than managing your own performance.</div>',
+   q:[{q:'Meisner\'s central principle is:',o:['Always project loudly','Acting is living truthfully under imaginary circumstances','Memorise lines perfectly','Plan every reaction in advance'],a:1},{q:'"Indicating" in acting means:',o:['Following stage directions','Showing emotion externally without genuinely feeling it','A blocking technique','An improvisation rule'],a:1},{q:'The Repetition Exercise primarily trains:',o:['Voice projection','Line memorisation','Genuine presence and response to the other actor','Physical movement'],a:2}],
+   ex:'MEISNER REPETITION EXERCISE:\n\nDo this with a partner if possible. If alone, use a mirror.\n\n(a) Sit facing your partner. Observe one thing that is literally, visibly true about them right now. Say it simply: "You are tapping your foot."\n(b) They repeat: "I am tapping my foot."\n(c) Continue. Let changes happen naturally. When you genuinely notice something shift, let that become the focus.\n\nIf alone: observe yourself in a mirror. Let whatever is genuinely there become the content.\n\nAfterward write:\n(a) What was uncomfortable about this exercise and why?\n(b) Was there a moment when something genuinely shifted? What caused it?\n(c) How is this different from conventional scene rehearsal?'},
+]},
+'Mathematics':{ico:'📐',color:'#FFD600',lessons:[
+  {t:'Algebra — Variables, Equations & Problem Solving',s:'Expressions, solving linear equations, applications',
+   c:'<h3>What is Algebra?</h3><p>Algebra uses letters (variables) to represent unknown quantities. This lets us write general rules and solve for unknowns in any situation.</p><h3>Key Vocabulary</h3><ul><li><strong>Variable</strong> — a letter representing an unknown: x, y, n, t</li><li><strong>Coefficient</strong> — the number multiplying a variable. In <code>5x</code>, the coefficient is 5</li><li><strong>Expression</strong> — terms combined without equals sign: <code>3x + 7</code></li><li><strong>Equation</strong> — two expressions set equal: <code>3x + 7 = 22</code></li><li><strong>Like terms</strong> — terms with the same variable to the same power: <code>3x</code> and <code>5x</code> are like terms</li></ul><h3>Solving Linear Equations</h3><p>Rule: whatever you do to one side, you must do to the other.</p><p><strong>Example 1:</strong> Solve <code>2x + 8 = 20</code></p><ul><li>Subtract 8 from both sides: <code>2x = 12</code></li><li>Divide both sides by 2: <code>x = 6</code></li><li>Check: 2(6)+8=20 ✓</li></ul><p><strong>Example 2:</strong> Solve <code>3(x - 4) = 21</code></p><ul><li>Expand: <code>3x - 12 = 21</code></li><li>Add 12: <code>3x = 33</code></li><li>Divide by 3: <code>x = 11</code></li></ul><p><strong>Example 3:</strong> Solve <code>5x - 3 = 2x + 9</code></p><ul><li>Subtract 2x: <code>3x - 3 = 9</code></li><li>Add 3: <code>3x = 12</code></li><li>Divide by 3: <code>x = 4</code></li></ul><div class="formula">ax + b = c → x = (c − b) ÷ a</div><div class="tip">💡 Always substitute your answer back into the original equation to verify. This takes 10 seconds and catches most errors.</div>',
+   q:[{q:'Solve: 4x + 5 = 21',o:['x = 3','x = 4','x = 5','x = 6'],a:1},{q:'Solve: 2(x + 3) = 14',o:['x = 4','x = 5','x = 6','x = 7'],a:0},{q:'Solve: 6x - 4 = 3x + 11',o:['x = 4','x = 5','x = 7','x = 3'],a:1}],
+   ex:'SOLVE AND VERIFY — show full working for each:\n\n(a) 7x - 9 = 26\n(b) 4(2x + 1) = 36\n(c) 8x - 5 = 3x + 20\n(d) x/3 + 4 = 9\n\nFor each: write every step, then check by substituting your answer back in.\n\nAnswers: a=5, b=4, c=5, d=15'},
+  {t:'Geometry — Areas, Angles & Pythagoras',s:'Area formulas, angle rules, right triangles',
+   c:'<h3>Area Formulas (must know)</h3><ul><li>Rectangle: <code>A = l × w</code></li><li>Triangle: <code>A = ½ × base × height</code></li><li>Circle: <code>A = π r²</code> &nbsp;|&nbsp; Circumference: <code>C = 2πr</code></li><li>Parallelogram: <code>A = base × height</code></li><li>Trapezium: <code>A = ½(a + b) × h</code></li></ul><h3>Angle Rules</h3><ul><li>Angles in a triangle sum to <strong>180°</strong></li><li>Angles on a straight line sum to <strong>180°</strong></li><li>Angles around a point sum to <strong>360°</strong></li><li>Vertically opposite angles are <strong>equal</strong></li><li>Corresponding angles (parallel lines): <strong>equal</strong></li><li>Alternate (Z) angles (parallel lines): <strong>equal</strong></li><li>Co-interior (C) angles: <strong>add to 180°</strong></li></ul><h3>Pythagoras\' Theorem</h3><p>In any right-angled triangle:</p><div class="formula">a² + b² = c²</div><p>where c is the <strong>hypotenuse</strong> (longest side, opposite the right angle).</p><p><strong>Example:</strong> sides 3 and 4 → c² = 9 + 16 = 25 → c = 5</p><p><strong>Finding a leg:</strong> sides 5 and 13 → a² = 13² − 5² = 169 − 25 = 144 → a = 12</p><div class="tip">💡 Pythagorean triples to memorise: 3-4-5, 5-12-13, 8-15-17, 7-24-25. These come up constantly in exams.</div>',
+   q:[{q:'Area of a triangle: base=12, height=7',o:['84','42','72','36'],a:1},{q:'Right triangle: sides 5 and 12. Hypotenuse?',o:['17','13','15','14'],a:1},{q:'What do angles in a triangle always sum to?',o:['90°','180°','270°','360°'],a:1}],
+   ex:'CALCULATE — show all working:\n\n(a) Area of a circle with radius 6 (use π = 3.14)\n(b) Missing side: right triangle with sides 9 and 40. Find hypotenuse.\n(c) Find angle x: triangle with angles 65°, 78° and x°\n(d) Area of trapezium: parallel sides 8cm and 14cm, height 5cm\n(e) Is a triangle with sides 6, 8, 10 a right triangle? Show how you know.\n\nAnswers: a=113.04, b=41, c=37°, d=55cm², e=yes (36+64=100)'},
+  {t:'Quadratics, Functions & Graphs',s:'Expanding, factorising, plotting curves',
+   c:'<h3>Expanding Brackets</h3><p>Use FOIL (First, Outer, Inner, Last) or the grid method.</p><p><code>(x + 3)(x + 5) = x² + 5x + 3x + 15 = x² + 8x + 15</code></p><p><code>(x - 4)(x + 2) = x² + 2x - 4x - 8 = x² - 2x - 8</code></p><h3>Factorising Quadratics</h3><p>To factorise <code>x² + bx + c</code>: find two numbers that multiply to <code>c</code> and add to <code>b</code>.</p><p><code>x² + 7x + 12</code>: numbers that × to 12 and + to 7 = 3 and 4 → <code>(x+3)(x+4)</code></p><p><code>x² - 5x + 6</code>: numbers that × to 6 and + to −5 = −2 and −3 → <code>(x−2)(x−3)</code></p><h3>The Quadratic Formula</h3><div class="formula">x = (−b ± √(b² − 4ac)) / 2a &nbsp;&nbsp; for ax² + bx + c = 0</div><h3>Graphs of Functions</h3><ul><li>Linear: <code>y = mx + c</code> — straight line; m = gradient, c = y-intercept</li><li>Quadratic: <code>y = x²</code> — parabola; symmetrical curve with vertex at turning point</li><li>The discriminant <code>b² - 4ac</code>: if positive = 2 roots, if zero = 1 root, if negative = no real roots</li></ul><div class="tip">💡 The vertex of y = ax² + bx + c is at x = −b/2a. This is also the axis of symmetry.</div>',
+   q:[{q:'Expand (x+4)(x+3)',o:['x²+7x+7','x²+7x+12','x²+12','x²+4x+3x'],a:1},{q:'Factorise x² + 9x + 20',o:['(x+4)(x+5)','(x+3)(x+7)','(x+2)(x+10)','(x+5)(x+4)'],a:0},{q:'Using the discriminant: b²-4ac = -5. How many real roots?',o:['2 roots','1 root','No real roots','Infinite roots'],a:2}],
+   ex:'EXPAND, FACTORISE & SOLVE:\n\n(a) Expand and simplify: (x+6)(x-2)\n(b) Expand and simplify: (2x+3)(x-4)\n(c) Factorise: x² + 11x + 28\n(d) Factorise: x² - 3x - 18\n(e) Solve using the quadratic formula: 2x² + 5x - 3 = 0\n(f) Find the vertex of y = x² - 6x + 8\n\nAnswers: a=x²+4x-12, b=2x²-5x-12, c=(x+4)(x+7), d=(x-6)(x+3), e=x=0.5 or x=-3, f=(3,-1)'},
+]},
+'Physics':{ico:'⚛️',color:'#FFD600',lessons:[
+  {t:'Newton\'s Laws of Motion',s:'Inertia, F=ma, equal and opposite reactions',
+   c:'<h3>First Law — Inertia</h3><p>An object at rest stays at rest. An object in motion stays in motion at constant velocity. This continues unless a <strong>net external force</strong> acts on it.</p><p><strong>Inertia</strong> = resistance to change in motion. Greater mass = greater inertia.</p><p>Examples: a ball on a frictionless surface rolls forever (friction is the external force that stops it in reality); a passenger lurches forward when a bus brakes suddenly.</p><h3>Second Law — F = ma</h3><div class="formula">Force (N) = Mass (kg) × Acceleration (m/s²)</div><p>Examples:<br>Push 2kg box with 10N → a = 10/2 = 5 m/s²<br>Push 5kg box with 10N → a = 10/5 = 2 m/s²<br>Push 2kg box to give 8 m/s² → F = 2×8 = 16N</p><h3>Third Law — Equal & Opposite</h3><p>For every action there is an equal and opposite reaction. The forces act on <em>different</em> objects.</p><p>Examples: jumping (you push Earth down, Earth pushes you up); rocket propulsion (exhaust gas pushed down, rocket pushed up); swimming (you push water backward, water pushes you forward).</p><div class="key">📌 Third law pairs always act on different objects and are always equal in magnitude and opposite in direction — they NEVER cancel each other out because they act on different objects.</div>',
+   q:[{q:'A 6kg object accelerates at 4 m/s². What force is acting on it?',o:['1.5N','10N','24N','24 m/s²'],a:2},{q:'Which law explains why a passenger lurches forward when a bus brakes?',o:['Second Law','Third Law','First Law (inertia)','None of them'],a:2},{q:'Third law force pairs always:',o:['Act on the same object','Cancel each other out','Act on different objects','Have different magnitudes'],a:2}],
+   ex:'HOME EXPERIMENT:\n\nInertia demonstration: Place books on a flat piece of paper on a smooth table. Pull the paper SLOWLY — books move with it. Pull SHARPLY and quickly — books stay behind.\n\n(a) Which law explains each result? Explain your reasoning.\n(b) Calculate: if a 70kg person running at constant velocity requires a 350N braking force to stop, what is their deceleration? Show the formula and working.\n(c) Give TWO more real-world examples of Newton\'s Third Law not mentioned in the lesson, and identify both forces in each pair.'},
+  {t:'Energy, Work, Power & Conservation',s:'KE, PE, W=Fd, conservation principle',
+   c:'<h3>Work</h3><div class="formula">Work (J) = Force (N) × Distance (m) × cos θ</div><p>Work is only done when a force causes displacement in the direction of the force. Holding a heavy box still = zero work done (no displacement).</p><h3>Kinetic Energy</h3><div class="formula">KE = ½ mv²</div><p>A 3kg ball at 4 m/s: KE = ½ × 3 × 16 = <strong>24 Joules</strong><br>Double the speed → 4× the KE. Note how sensitive KE is to speed changes.</p><h3>Gravitational Potential Energy</h3><div class="formula">GPE = mgh &nbsp; (g = 9.8 m/s² on Earth)</div><p>A 2kg book held 3m high: GPE = 2 × 9.8 × 3 = <strong>58.8 J</strong></p><h3>Conservation of Energy</h3><p>Energy cannot be created or destroyed — only converted between forms.</p><p>A falling object: at the top, all energy = GPE. At the bottom, all energy = KE (ignoring air resistance). At any point between: GPE + KE = constant.</p><div class="formula">At any height: ½mv² + mgh = constant = mgh₀ (original height)</div><h3>Power</h3><div class="formula">Power (W) = Work Done (J) / Time (s) &nbsp;&nbsp;OR&nbsp;&nbsp; Power = Force × velocity</div><div class="tip">💡 1 Watt = 1 Joule per second. A human walking upstairs produces about 200-300W. A professional cyclist can sustain ~400W. A car engine produces ~100,000W (100kW).</div>',
+   q:[{q:'A 4kg ball moves at 5 m/s. What is its kinetic energy?',o:['20J','50J','40J','100J'],a:1},{q:'5kg object, height 8m. GPE? (g=9.8)',o:['40J','490J','392J','400J'],a:2},{q:'A machine does 600J of work in 5 seconds. What is its power?',o:['3000W','120W','600W','5W'],a:1}],
+   ex:'ENERGY CALCULATIONS — show all working:\n\n(a) A 60kg person climbs a 4m staircase. Calculate their gain in GPE. (g=9.8)\n(b) That same person then slides down a frictionless slide back to the bottom. What is their KE at the bottom? (use conservation)\n(c) What is their speed at the bottom? (rearrange KE formula)\n(d) A motor lifts a 50kg crate 6m in 15 seconds. Calculate: work done, and power of the motor.\n(e) A 0.5kg ball is thrown upward with KE of 40J. What maximum height does it reach? (g=9.8)'},
+]},
+'Computer Science':{ico:'💻',color:'#FFD600',lessons:[
+  {t:'Algorithms, Complexity & Sorting',s:'Algorithm design, Big O, sorting methods',
+   c:'<h3>What is an Algorithm?</h3><p>A precise, unambiguous, finite set of instructions to solve a problem. Must be: <strong>Clear</strong>, <strong>Finite</strong> (terminates), and <strong>Effective</strong> (each step achievable).</p><h3>Big O Notation — Time Complexity</h3><ul><li><code>O(1)</code> — constant: same speed regardless of input size. E.g. accessing array by index</li><li><code>O(log n)</code> — logarithmic: binary search — halves the problem each step</li><li><code>O(n)</code> — linear: scan through every element once</li><li><code>O(n log n)</code> — merge sort, quicksort — efficient sorting</li><li><code>O(n²)</code> — quadratic: nested loops over same data — slow for large input</li><li><code>O(2ⁿ)</code> — exponential: brute-force problems — impractical beyond n≈30</li></ul><h3>Sorting Algorithms</h3><p><strong>Bubble Sort O(n²)</strong> — compare adjacent pairs, swap if out of order, repeat n times. Simple but slow.</p><p><strong>Selection Sort O(n²)</strong> — find minimum, place at front, repeat for remaining elements.</p><p><strong>Merge Sort O(n log n)</strong> — divide array in half recursively, sort each half, merge back. Efficient and reliable.</p><p><strong>Binary Search O(log n)</strong> — only works on sorted data. Compare target to middle element; eliminate half the array each step.</p><div class="tip">💡 In real software: never implement your own sort. Language built-ins use Timsort or similar (O(n log n) average). But understanding these algorithms is fundamental to computer science thinking.</div>',
+   q:[{q:'What is the time complexity of binary search?',o:['O(1)','O(n)','O(log n)','O(n²)'],a:2},{q:'Which sorting algorithm has O(n log n) complexity?',o:['Bubble sort','Selection sort','Merge sort','Insertion sort'],a:2},{q:'O(n²) typically indicates:',o:['A single loop','Constant time operation','Nested loops over the same data','Logarithmic reduction'],a:2}],
+   ex:'TRACE THROUGH SORTING:\n\nTrace through Bubble Sort on this array: [8, 3, 1, 7, 2, 5]\n\n(a) Write out the array state after each complete pass.\n(b) How many passes are needed before the array is fully sorted?\n(c) How many total comparisons were made?\n(d) Why is Merge Sort preferred for large arrays? Write a brief explanation comparing the two approaches.'},
+  {t:'Data Structures — Arrays, Stacks, Queues, Trees',s:'How data is organised and why it matters',
+   c:'<h3>Arrays</h3><p>Ordered collection at indexed positions. Access by index: O(1). Search: O(n). Ideal for random access and fixed-size data.</p><h3>Stack (LIFO — Last In, First Out)</h3><p>Like a stack of plates. Operations: PUSH (add to top), POP (remove from top). Access only the top element.</p><p>Uses: undo/redo functions, call stacks in programming, expression evaluation, backtracking algorithms.</p><h3>Queue (FIFO — First In, First Out)</h3><p>Like a queue at a shop. Operations: ENQUEUE (add to back), DEQUEUE (remove from front).</p><p>Uses: print job queues, message queues, BFS graph traversal, task scheduling.</p><h3>Linked List</h3><p>Each node holds data AND a pointer to the next node. No fixed size. Insertion/deletion at head: O(1). Search: O(n). No random access.</p><h3>Binary Search Tree (BST)</h3><p>Each node has at most 2 children. Rule: left child value < parent value < right child value.</p><p>Search, insert, delete: O(log n) average for balanced tree, O(n) worst case (when degenerate = linked list).</p><div class="tip">💡 Choosing the right data structure is often more impactful on performance than any algorithm optimisation. Ask: what operations do I need most? Then choose accordingly.</div>',
+   q:[{q:'What order does a Stack remove items?',o:['FIFO — first in first out','LIFO — last in first out','Random order','Sorted order'],a:1},{q:'Where is the smallest value in a BST?',o:['Root','Rightmost node','Leftmost node','Any leaf'],a:2},{q:'What is the time complexity of inserting at the head of a linked list?',o:['O(n)','O(log n)','O(1)','O(n²)'],a:2}],
+   ex:'DATA STRUCTURE SIMULATION:\n\n(a) STACK: Starting with empty stack, simulate: PUSH 5, PUSH 12, PUSH 3, POP, PUSH 8, POP, POP. Draw the stack state after each operation.\n\n(b) QUEUE: Starting with empty queue, simulate: ENQUEUE A, ENQUEUE B, ENQUEUE C, DEQUEUE, ENQUEUE D, DEQUEUE. Draw the queue after each operation.\n\n(c) BST: Insert these values in order into a BST: 10, 5, 15, 3, 8, 13, 20. Draw the resulting tree. Then describe what happens when you search for value 8.'},
+]},
+'Artificial Intelligence':{ico:'🤖',color:'#c084fc',lessons:[
+  {t:'What is AI — Types, History & Foundations',s:'Narrow vs general AI, milestones, Turing Test',
+   c:'<h3>Defining AI</h3><p>Artificial Intelligence is the simulation of human intelligence processes by computer systems. These processes include: <strong>learning</strong> (acquiring information and rules), <strong>reasoning</strong> (using rules to reach conclusions) and <strong>self-correction</strong> (improving from feedback).</p><h3>Three Levels of AI</h3><ul><li><strong>Narrow AI (ANI)</strong> — excels at ONE specific task. All AI that currently exists is ANI. Examples: speech recognition, image classification, recommendation engines, chess-playing programs, large language models.</li><li><strong>General AI (AGI)</strong> — can perform any intellectual task a human can. Does NOT yet exist. Active research area.</li><li><strong>Superintelligent AI (ASI)</strong> — surpasses human intelligence in all domains. Theoretical. Subject of significant long-term risk debate.</li></ul><h3>Key Historical Milestones</h3><ul><li><strong>1950</strong> — Alan Turing proposes the Turing Test: a machine passes if a human judge cannot reliably distinguish it from a human in text conversation</li><li><strong>1956</strong> — The term "Artificial Intelligence" coined at the Dartmouth Conference by John McCarthy</li><li><strong>1997</strong> — IBM Deep Blue defeats world chess champion Garry Kasparov</li><li><strong>2012</strong> — AlexNet deep learning breakthrough on ImageNet — accuracy jump that sparked modern AI</li><li><strong>2016</strong> — DeepMind AlphaGo defeats world Go champion Lee Sedol</li><li><strong>2022</strong> — ChatGPT releases; large language models enter mainstream use</li></ul><div class="tip">💡 All current AI, no matter how impressive, is Narrow AI. Even the most advanced language models can only do what they were trained to do. They cannot generalise across genuinely novel domains the way humans can.</div>',
+   q:[{q:'What type of AI currently exists in the real world?',o:['General AI (AGI)','Superintelligent AI (ASI)','Narrow AI (ANI)','Hybrid AGI'],a:2},{q:'Who proposed the Turing Test in 1950?',o:['John McCarthy','Geoffrey Hinton','Alan Turing','Yann LeCun'],a:2},{q:'AlphaGo was significant because:',o:['It played chess','It was the first AI','It defeated the world Go champion, a game previously thought too complex for AI','It wrote code'],a:2}],
+   ex:'RESEARCH & ANALYSIS:\n\nIdentify 3 examples of Narrow AI you interact with in daily life (e.g. phone keyboard prediction, Spotify recommendations, face unlock).\n\nFor each one write:\n(a) What specific task it performs\n(b) What type of data it was likely trained on\n(c) One clear limitation it has\n(d) What would need to change for it to be "General AI" instead of Narrow AI?'},
+  {t:'Machine Learning — Supervised, Unsupervised & Reinforcement',s:'How machines learn from data',
+   c:'<h3>What is Machine Learning?</h3><p>ML is AI that learns from data without being explicitly programmed for each specific task. Instead of writing rules, you show the system examples and it finds patterns.</p><h3>Supervised Learning</h3><p>Trained on <strong>labelled data</strong>: inputs paired with correct outputs. The model learns to map inputs to outputs.</p><p>Uses: spam detection, medical image diagnosis, sentiment analysis, price prediction, fraud detection.</p><h3>Unsupervised Learning</h3><p>Finds <strong>patterns in unlabelled data</strong>. No "correct" answers provided — the model discovers structure.</p><p>Uses: customer segmentation, anomaly detection, data compression, recommendation systems, topic modelling.</p><h3>Reinforcement Learning</h3><p>An agent learns by <strong>taking actions in an environment</strong> and receiving rewards or penalties. Learns through trial and error over many iterations.</p><p>Uses: game playing (AlphaGo, Atari), robotics control, self-driving cars, trading strategies.</p><h3>Neural Networks & Deep Learning</h3><p>Inspired loosely by the brain. Layers of nodes (neurons) connected by weighted edges. Data flows forward; errors flow backward (backpropagation) to adjust weights.</p><ul><li><strong>Input layer</strong> — receives raw data</li><li><strong>Hidden layers</strong> — extract progressively abstract features (deep learning = many hidden layers)</li><li><strong>Output layer</strong> — produces final prediction</li></ul><div class="formula">Output = Activation(sum of (weights × inputs) + bias)</div><div class="tip">💡 Deep learning requires large amounts of data and compute. The reason AI has advanced so dramatically since 2012 is not primarily better algorithms — it is access to much more data and much more powerful hardware (GPUs).</div>',
+   q:[{q:'Supervised learning requires:',o:['Unlabelled data only','Labelled input-output pairs','A reward signal','No training data'],a:1},{q:'Reinforcement learning learns through:',o:['Labelled examples','Clustering similar data','Trial and error with reward signals','Backpropagation only'],a:2},{q:'What does backpropagation do in a neural network?',o:['Feeds data forward through layers','Adjusts weights based on prediction errors','Creates the training dataset','Selects the activation function'],a:1}],
+   ex:'SYSTEM DESIGN:\n\nYou want to build an ML system to detect whether a review is positive or negative.\n\n(a) Which type of ML would you use? Why?\n(b) Describe your training data — what would it look like?\n(c) What would your labels be?\n(d) Name two features the model might learn to recognise as "positive"\n(e) What could go wrong? Name two specific failure modes and what causes them.'},
+  {t:'AI Ethics, Bias & Responsible Development',s:'Fairness, transparency, safety, societal impact',
+   c:'<h3>Why AI Ethics Matters</h3><p>AI systems are making consequential decisions about people — who gets a loan, who gets hired, how criminal sentences are suggested, what medical diagnoses are made. Getting this right matters enormously.</p><h3>Algorithmic Bias</h3><p>AI systems inherit biases from their training data. If the data reflects historical inequalities, the model will perpetuate and potentially amplify them.</p><p>Famous example: COMPAS — a recidivism prediction tool used in US courts was found to predict higher re-offending risk for Black defendants at roughly twice the rate of white defendants, even when controlling for other factors.</p><h3>Types of Bias</h3><ul><li><strong>Historical bias</strong> — existing human prejudices reflected in data</li><li><strong>Representation bias</strong> — certain groups under-represented in training data</li><li><strong>Measurement bias</strong> — how variables are measured differs across groups</li><li><strong>Feedback loops</strong> — biased predictions lead to biased actions lead to more biased data</li></ul><h3>AI Safety</h3><p>Ensuring AI systems do what we actually want, not just what we told them. The alignment problem: a system that optimises exactly what you specified but not what you intended.</p><h3>Principles of Responsible AI</h3><ul><li><strong>Transparency</strong> — being able to explain how and why a decision was made</li><li><strong>Fairness</strong> — equal performance and impact across demographic groups</li><li><strong>Accountability</strong> — clear responsibility when AI causes harm</li><li><strong>Privacy</strong> — protecting personal data used in training and inference</li><li><strong>Safety</strong> — preventing unintended harmful outcomes</li></ul>',
+   q:[{q:'Algorithmic bias primarily originates from:',o:['Slow computers','Biases present in training data','Programming errors','Using too little data'],a:1},{q:'The "alignment problem" in AI safety refers to:',o:['Getting computers to connect to networks','AI doing what you specified but not what you intended','Making AI work across different countries','Aligning AI company goals with profit'],a:1},{q:'Which of these is NOT a principle of responsible AI?',o:['Transparency','Accountability','Maximum performance at any cost','Fairness'],a:2}],
+   ex:'BIAS ANALYSIS:\n\nAn AI is trained to screen job applications for a technology company. The training data consists of the last 10 years of successful hires at that company.\n\n(a) Identify THREE specific ways this system could exhibit bias.\n(b) For each bias type, name which type it is (historical, representation, etc.)\n(c) For each, suggest one technical or process change that could reduce it.\n(d) Should this system be used to make final hiring decisions, or only as a screening aid? Justify your answer with reference to ethics and accountability.'},
+]}
+};
+
+/* Add basic placeholder lessons for remaining subjects */
+var PLACEHOLDER_SUBJECTS=['Basketball','Athletics','Swimming','Martial Arts','Fitness Coaching','Guitar','Singing','Music Theory','Composing','Sound Production','Film Acting','Voice Acting','Emotional Control','Character Building','Chemistry','Biology','Engineering','History','Geography','Economics','Psychology','Philosophy','Literature','Languages','Astronomy','Environmental Science','Medicine Basics','Architecture','Business & Entrepreneurship','Digital Media'];
+PLACEHOLDER_SUBJECTS.forEach(function(sub){
+  if(COURSES[sub]) return;
+  var icons={'Basketball':'🏀','Athletics':'🏃','Swimming':'🏊','Martial Arts':'🥋','Fitness Coaching':'💪','Guitar':'🎸','Singing':'🎤','Music Theory':'🎼','Composing':'🎵','Sound Production':'🎛️','Film Acting':'🎬','Voice Acting':'🎙️','Emotional Control':'🧠','Character Building':'🎪','Chemistry':'🧪','Biology':'🧬','Engineering':'⚙️','History':'📜','Geography':'🌍','Economics':'💹','Psychology':'🧠','Philosophy':'🤔','Literature':'📖','Languages':'🗣️','Astronomy':'🔭','Environmental Science':'🌱','Medicine Basics':'🏥','Architecture':'🏛️','Business & Entrepreneurship':'💼','Digital Media':'📱'};
+  var colors={'Basketball':'#00ff88','Athletics':'#00ff88','Swimming':'#00ff88','Martial Arts':'#00ff88','Fitness Coaching':'#00ff88','Guitar':'#00d4ff','Singing':'#00d4ff','Music Theory':'#00d4ff','Composing':'#00d4ff','Sound Production':'#00d4ff','Film Acting':'#c084fc','Voice Acting':'#c084fc','Emotional Control':'#c084fc','Character Building':'#c084fc'};
+  var col=colors[sub]||'#FFD600';
+  var ico=icons[sub]||'📚';
+  COURSES[sub]={ico:ico,color:col,lessons:[
+    {t:'Introduction to '+sub,s:'Core concepts, fundamentals and getting started',
+     c:'<h3>Welcome to '+sub+'</h3><p>This course covers the essential foundations of '+sub+'. Every lesson includes structured notes, a quiz to test your understanding, and a practical exercise to apply what you have learned.</p><h3>What You Will Learn</h3><ul><li>Core principles and terminology specific to '+sub+'</li><li>Foundational skills and techniques</li><li>How to practise effectively and track progress</li><li>Common mistakes to avoid as a beginner</li><li>How to move from beginner to intermediate level</li></ul><h3>How to Approach This Course</h3><p>Read the lesson content carefully before attempting the quiz. The quiz tests comprehension, not memorisation. After the quiz, complete the exercise — this is where the real learning happens. Save your exercise answers so you can review your progress over time.</p><div class="tip">💡 Consistent practice over time beats intense short bursts. Even 15-20 minutes of quality focused practice every day will produce noticeable results within two weeks.</div>',
+     q:[{q:'What is the best approach to learning '+sub+'?',o:['Random practice with no structure','Consistent daily practice with focus','Only practising when motivated','Copying others without understanding'],a:1},{q:'What does a beginner in '+sub+' most benefit from?',o:['Advanced techniques immediately','Solid foundations and fundamentals','Skipping basics','Watching others only'],a:1}],
+     ex:'FOUNDATION EXERCISE:\n\nBefore the next lesson, take 30 minutes to research '+sub+' and write:\n\n(a) Three things you already know about '+sub+'\n(b) Three things you want to learn from this course\n(c) One person who is excellent at '+sub+' that you can learn from (write their name and one specific thing they do well)\n(d) What does success look like for you in this subject after 4 weeks of study?'},
+    {t:'Core Skills in '+sub,s:'Essential techniques and practical foundations',
+     c:'<h3>Building Your Foundation</h3><p>Every field has a set of core skills that underpin everything else. In '+sub+', mastering the fundamentals means you have a platform to build any advanced skill on later.</p><h3>Deliberate Practice</h3><p>Research by Anders Ericsson (the scientist behind the "10,000 hours" concept) found that what separates experts from amateurs is not just time spent — it is the quality of practice. <strong>Deliberate practice</strong> means:</p><ul><li>Working on specific weaknesses, not just things you are already good at</li><li>Immediate feedback on whether you are doing it correctly</li><li>High concentration — not distracted, mindless repetition</li><li>Operating just outside your current comfort zone</li></ul><h3>Tracking Progress</h3><p>Keep a practice journal. Note what you worked on, what was difficult, and what improved. Progress in complex skills is rarely linear — plateaus are normal and necessary.</p><div class="tip">💡 The moment a skill becomes unconscious and automatic is when you have truly learned it. Until then, it requires conscious effort — which is normal and expected.</div>',
+     q:[{q:'Deliberate practice differs from regular practice because it:',o:['Takes longer','Focuses on specific weaknesses with immediate feedback','Is done alone','Uses expensive equipment'],a:1},{q:'Progress in complex skills is usually:',o:['Perfectly linear and consistent','Rapid at first then stops','Non-linear — plateaus are normal','Only visible to experts'],a:2}],
+     ex:'DELIBERATE PRACTICE PLAN:\n\nDesign a 2-week practice plan for '+sub+'.\n\nFor each day of the first week specify:\n(a) The specific skill or technique you will focus on\n(b) The exact exercise or drill you will use (be specific)\n(c) How long you will spend (be realistic — quality over quantity)\n(d) How you will know if you improved\n\nAfter completing Day 3, write a brief reflection: what was harder than expected? What came more naturally?'}
+  ]};
+});
+
+/* ── RENDER LESSON ── */
+var CL={subject:SUB,idx:LIDX,progress:getProgress(SUB)};
+function renderLesson(){
+  var sub=CL.subject, idx=CL.idx;
+  var course=COURSES[sub];
+  if(!course){document.getElementById('lesson-mount').innerHTML='<div style="text-align:center;padding:40px;font-family:Share Tech Mono,monospace;color:var(--muted);">Course not found. <a href="universe-academy.html" style="color:var(--g);">← Back to Academy</a></div>';return;}
+  var total=course.lessons.length;
+  var lesson=course.lessons[idx];
+
+  /* progress % — count distinct lessons visited */
+  var lessonsVisited=Object.keys(CL.progress).filter(function(k){return k[0]==='l';}).length;
+  var pct=Math.round((lessonsVisited/total)*100);
+  document.getElementById('prog-f').style.width=pct+'%';
+
+  /* label + reset buttons */
+  var allDone=lessonsVisited>=total;
+  document.getElementById('prog-l').innerHTML=
+    '<span>'+(U.nick||'')+' · '+sub+' · Lesson '+(idx+1)+' of '+total+
+    ' &nbsp;·&nbsp; <strong style="color:'+(pct===100?'var(--g)':'var(--y)')+'">'+pct+'% complete</strong></span>'+
+    '<span style="display:flex;gap:7px;margin-top:6px;flex-wrap:wrap;">'+
+      '<button class="lnb mu" style="font-size:.58rem;padding:5px 12px;" onclick="resetCourse()">↺ Reset This Course</button>'+
+      '<button class="lnb" style="font-size:.58rem;padding:5px 12px;border-color:rgba(255,50,50,.25);color:#ff6666;" onclick="resetAll()">🗑 Reset All Progress</button>'+
+    '</span>';
+
+  var navBtns=function(id){return '<div class="l-nav" id="'+id+'" style="margin-bottom:'+('top'===id?'16px':'0px')+'">'+
+    (idx>0?'<button class="lnb y" onclick="navLesson(-1)">← Prev Lesson</button>':'')+
+    '<button class="lnb mu" onclick="window.location.href=\'universe-academy.html\'">↑ All Subjects</button>'+
+    (idx<total-1?'<button class="lnb g" onclick="navLesson(1)">Next Lesson →</button>':
+     '<button class="lnb g" onclick="window.location.href=\'universe-academy.html\'">✓ Course Complete →</button>')+
+    '</div>';};
+  var html=navBtns('l-nav-top')+
+    '<div class="lcard">'+
+      '<div class="lcard-hdr" style="border-color:'+course.color+'22;background:'+course.color+'08">'+
+        '<div class="lcard-title" style="color:'+course.color+'">'+course.ico+' '+lesson.t+'</div>'+
+        '<div class="lcard-sub">'+lesson.s+'</div>'+
+      '</div>'+
+      '<div class="ltabs">'+
+        '<div class="ltab on" onclick="swTab(this,\'lp-lesson-'+idx+'\')">📖 Lesson</div>'+
+        '<div class="ltab" onclick="swTab(this,\'lp-quiz-'+idx+'\')">🧠 Quiz</div>'+
+        '<div class="ltab" onclick="swTab(this,\'lp-ex-'+idx+'\')">💪 Exercise</div>'+
+      '</div>'+
+      '<div class="lpanel on" id="lp-lesson-'+idx+'"><div class="lc">'+lesson.c+'</div></div>'+
+      '<div class="lpanel" id="lp-quiz-'+idx+'">'+buildQuiz(lesson.q, idx)+'</div>'+
+      '<div class="lpanel" id="lp-ex-'+idx+'">'+buildExercise(lesson.ex, idx)+'</div>'+
+    '</div>'+navBtns('l-nav-bot');
+  document.getElementById('lesson-mount').innerHTML=html;
+
+  /* Restore saved exercise answer */
+  var saved=localStorage.getItem(eKey(sub,idx));
+  var ta=document.getElementById('ex-ta-'+idx);
+  if(ta&&saved) ta.value=saved;
+
+  /* Restore quiz answers if already answered */
+  var qp=CL.progress['q'+idx];
+  if(qp){
+    var lesson2=course.lessons[idx];
+    if(lesson2&&lesson2.q){
+      lesson2.q.forEach(function(q,qi){
+        if(qp['q'+qi]!==undefined){
+          var qEl=document.getElementById('qq-'+idx+'-'+qi);if(!qEl)return;
+          qEl.querySelectorAll('.q-opt').forEach(function(o){o.onclick=null;o.style.cursor='default';});
+          /* mark correct */
+          qEl.querySelectorAll('.q-opt')[q.a].classList.add('ok');
+          var res=document.getElementById('qr-'+idx+'-'+qi);
+          if(res){res.style.display='block';
+            if(qp['q'+qi]===true){res.textContent='✔ Correct! Well done, '+(U.nick||'')+'.';res.style.background='rgba(0,255,136,.1)';res.style.color='#00ff88';}
+            else{res.textContent='✖ You previously chose a wrong answer — correct is highlighted.';res.style.background='rgba(255,80,80,.1)';res.style.color='#ff7070';}
+          }
+        }
+      });
+    }
+  }
+
+  /* Mark lesson as viewed */
+  if(!CL.progress['l'+idx]){
+    CL.progress['l'+idx]=true;
+    logAcademy('academy_lesson',SUB+' — Lesson '+(idx+1)+': '+lesson.t,{
+      subject:SUB, lessonIdx:idx+1, lessonTitle:lesson.t, totalLessons:total
+    });
+  }
+  saveProgress(sub,CL.progress);
+}
+
+function buildQuiz(qs, li){
+  if(!qs||!qs.length) return '<div style="padding:16px;font-family:Share Tech Mono,monospace;font-size:.72rem;color:var(--muted);">No quiz for this lesson.</div>';
+  return '<div style="padding:4px 0;">'+qs.map(function(q,qi){
+    return '<div class="quiz-q" id="qq-'+li+'-'+qi+'">'+
+      '<div class="q-txt">'+(qi+1)+'. '+q.q+'</div>'+
+      '<div class="q-opts">'+q.o.map(function(opt,oi){
+        return '<div class="q-opt" onclick="ansQ('+li+','+qi+','+oi+','+q.a+')">'+opt+'</div>';
+      }).join('')+'</div>'+
+      '<div class="q-res" id="qr-'+li+'-'+qi+'"></div>'+
+    '</div>';
+  }).join('')+'</div>';
+}
+
+function buildExercise(ex, idx){
+  return '<div class="ex-box">'+
+    '<div class="ex-prompt">'+ex+'</div>'+
+    '<textarea class="ex-ta" id="ex-ta-'+idx+'" placeholder="Write your answer, observations and notes here..."></textarea>'+
+    '<div class="ex-actions">'+
+      '<button class="lnb g" onclick="saveEx('+idx+')">✔ Save Answer</button>'+
+      '<span class="ex-saved" id="ex-saved-'+idx+'">✓ Saved!</span>'+
+    '</div>'+
+  '</div>';
+}
+
+function ansQ(li, qi, chosen, correct){
+  var qEl=document.getElementById('qq-'+li+'-'+qi); if(!qEl) return;
+  qEl.querySelectorAll('.q-opt').forEach(function(o){ o.onclick=null; o.style.cursor='default'; });
+  qEl.querySelectorAll('.q-opt')[chosen].classList.add(chosen===correct?'ok':'no');
+  if(chosen!==correct) qEl.querySelectorAll('.q-opt')[correct].classList.add('ok');
+  var res=document.getElementById('qr-'+li+'-'+qi);
+  if(res){
+    res.style.display='block';
+    res.textContent=chosen===correct?'✔ Correct! Well done, '+(U.nick||'')+'.' :'✖ Not quite — the correct answer is highlighted in green.';
+    res.style.background=chosen===correct?'rgba(0,255,136,.1)':'rgba(255,80,80,.1)';
+    res.style.color=chosen===correct?'#00ff88':'#ff7070';
+  }
+  if(!CL.progress['q'+li]) CL.progress['q'+li]={};
+  CL.progress['q'+li]['q'+qi]=chosen===correct;
+  saveProgress(CL.subject,CL.progress);
+  /* Log to viewer */
+  logAcademy('academy_quiz',CL.subject+' — Q'+(qi+1)+': '+(chosen===correct?'Correct':'Wrong'),{
+    subject:CL.subject, lessonIdx:li+1, questionIdx:qi+1,
+    correct:chosen===correct, question:COURSES[CL.subject]&&COURSES[CL.subject].lessons[li]?COURSES[CL.subject].lessons[li].q[qi].q:''
+  });
+}
+
+function swTab(el, pid){
+  var wrap=el.closest('.lcard');
+  wrap.querySelectorAll('.ltab').forEach(function(t){t.classList.remove('on');});
+  wrap.querySelectorAll('.lpanel').forEach(function(p){p.classList.remove('on');});
+  el.classList.add('on');
+  var panel=document.getElementById(pid); if(panel) panel.classList.add('on');
+}
+
+function navLesson(dir){
+  var course=COURSES[CL.subject]; if(!course) return;
+  CL.idx=Math.max(0,Math.min(course.lessons.length-1,CL.idx+dir));
+  window.scrollTo(0,0);
+  renderLesson();
+}
+
+function saveEx(idx){
+  var ta=document.getElementById('ex-ta-'+idx); if(!ta) return;
+  localStorage.setItem(eKey(CL.subject,idx), ta.value);
+  var saved=document.getElementById('ex-saved-'+idx);
+  if(saved){saved.style.display='inline';setTimeout(function(){saved.style.display='none';},2000);}
+  logAcademy('academy_exercise',CL.subject+' — Exercise Lesson '+(idx+1)+' saved',{
+    subject:CL.subject, lessonIdx:idx+1, charCount:ta.value.length
+  });
+}
+
+/* ══ RESET FUNCTIONS ══ */
+function resetCourse(){
+  if(!confirm('Reset ALL progress for "'+CL.subject+'"?\n\nThis clears your lesson history, quiz answers and saved exercises for this course. Cannot be undone.')) return;
+  localStorage.removeItem(pKey(CL.subject));
+  var course=COURSES[CL.subject];
+  if(course) course.lessons.forEach(function(_,i){localStorage.removeItem(eKey(CL.subject,i));});
+  CL.progress={};
+  CL.idx=0;
+  showResetToast('✓ "'+CL.subject+'" progress reset.');
+  renderLesson();
+}
+
+function resetAll(){
+  if(!confirm('Reset ALL course progress for '+(U.nick||'you')+'?\n\nThis clears every lesson, quiz and exercise answer across every course on this device. Cannot be undone.')) return;
+  var toRemove=[];
+  for(var i=0;i<localStorage.length;i++){
+    var k=localStorage.key(i);
+    if(k&&(k.startsWith('du_p_'+SID+'_')||k.startsWith('du_ex_'+SID+'_'))) toRemove.push(k);
+  }
+  toRemove.forEach(function(k){localStorage.removeItem(k);});
+  CL.progress={};
+  CL.idx=0;
+  showResetToast('✓ All course progress cleared for '+(U.nick||'you')+'.');
+  renderLesson();
+}
+
+function showResetToast(msg){
+  var t=document.getElementById('reset-toast');
+  if(!t){
+    t=document.createElement('div');t.id='reset-toast';
+    t.style.cssText='position:fixed;bottom:28px;left:50%;transform:translateX(-50%);background:rgba(0,255,136,.12);border:1px solid rgba(0,255,136,.35);color:#00ff88;font-family:Share Tech Mono,monospace;font-size:.72rem;padding:10px 22px;border-radius:9px;z-index:999;pointer-events:none;transition:opacity .4s;white-space:nowrap;';
+    document.body.appendChild(t);
+  }
+  t.textContent=msg;t.style.opacity='1';
+  clearTimeout(t._t);t._t=setTimeout(function(){t.style.opacity='0';},3000);
+}
+
+renderLesson();
+</script>
+</body>
+</html>

@@ -1,0 +1,843 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Video Editor — Create Studio</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Exo+2:wght@300;400;600&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#04040a;--y:#FFD600;--y2:#FFA500;--yd:#b89a00;
+  --g:#00ff88;--b:#00d4ff;--pu:#c084fc;--r:#ff4455;
+  --text:#f0f0f0;--muted:#555;--card:rgba(6,6,18,.98);
+  --panel:rgba(8,8,20,.97);
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{width:100%;min-height:100%;background:var(--bg);color:var(--text);font-family:'Exo 2',sans-serif;overflow-x:hidden;}
+::-webkit-scrollbar{width:4px;height:4px;}
+::-webkit-scrollbar-thumb{background:rgba(255,214,0,.2);border-radius:2px;}
+/* HEADER */
+.hdr{position:sticky;top:0;z-index:200;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:7px;padding:10px 20px;background:rgba(4,4,10,.99);border-bottom:1px solid rgba(255,214,0,.07);backdrop-filter:blur(26px);}
+.hdr::after{content:'';position:absolute;bottom:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(255,214,0,.35),transparent);}
+.hdr-logo{font-family:'Orbitron',monospace;font-size:.86rem;letter-spacing:.13em;color:var(--y);}
+.hdr-nick{font-family:'Share Tech Mono',monospace;font-size:.63rem;color:var(--muted);margin-top:1px;}
+.hdr-r{display:flex;align-items:center;gap:7px;flex-wrap:wrap;}
+.nb{padding:5px 12px;border-radius:7px;cursor:pointer;text-decoration:none;font-size:.61rem;font-family:'Share Tech Mono',monospace;transition:all .2s;border:1px solid;background:rgba(255,214,0,.04);border-color:rgba(255,214,0,.16);color:var(--muted);}
+.nb:hover{background:rgba(255,214,0,.14);color:var(--y);border-color:rgba(255,214,0,.45);}
+
+/* ── EDITOR LAYOUT ── */
+.editor{display:flex;flex-direction:column;height:calc(100vh - 52px);overflow:hidden;}
+
+/* TOP ROW: preview + panels */
+.editor-top{display:flex;flex:1;min-height:0;overflow:hidden;}
+
+/* PREVIEW AREA */
+.preview-area{flex:1;min-width:0;display:flex;flex-direction:column;background:#000;position:relative;}
+.preview-wrap{flex:1;min-height:0;display:flex;align-items:center;justify-content:center;background:#000;position:relative;overflow:hidden;}
+#preview-canvas{max-width:100%;max-height:100%;display:block;background:#111;}
+.preview-overlay{position:absolute;inset:0;pointer-events:none;}
+/* crop handles */
+.crop-overlay{position:absolute;border:2px dashed rgba(255,214,0,.7);pointer-events:none;display:none;}
+
+/* PLAYBACK BAR */
+.playback-bar{background:var(--panel);border-top:1px solid rgba(255,255,255,.07);padding:10px 14px;flex-shrink:0;}
+.pb-controls{display:flex;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap;}
+.pb-btn{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:7px;cursor:pointer;font-family:'Share Tech Mono',monospace;font-size:.62rem;padding:6px 12px;color:var(--text);transition:all .18s;white-space:nowrap;}
+.pb-btn:hover{background:rgba(255,255,255,.14);}
+.pb-btn.y{border-color:rgba(255,214,0,.3);color:var(--y);}.pb-btn.y:hover{background:rgba(255,214,0,.14);}
+.pb-btn.g{border-color:rgba(0,255,136,.3);color:var(--g);}.pb-btn.g:hover{background:rgba(0,255,136,.12);}
+.pb-btn.r{border-color:rgba(255,50,50,.3);color:var(--r);}.pb-btn.r:hover{background:rgba(255,50,50,.12);}
+.pb-btn.b{border-color:rgba(0,212,255,.3);color:var(--b);}.pb-btn.b:hover{background:rgba(0,212,255,.12);}
+.pb-btn.active{background:rgba(255,214,0,.2);border-color:rgba(255,214,0,.6);color:var(--y);}
+.time-display{font-family:'Share Tech Mono',monospace;font-size:.7rem;color:var(--y);min-width:110px;}
+.speed-sel{background:rgba(6,6,18,.9);border:1px solid rgba(255,255,255,.1);border-radius:6px;padding:5px 8px;color:var(--text);font-family:'Share Tech Mono',monospace;font-size:.62rem;outline:none;cursor:pointer;}
+
+/* SCRUBBER / TIMELINE */
+.timeline-wrap{position:relative;}
+.scrubber{width:100%;height:6px;accent-color:var(--y);cursor:pointer;display:block;}
+.trim-row{display:flex;gap:8px;align-items:center;margin-top:7px;flex-wrap:wrap;}
+.trim-lbl{font-family:'Share Tech Mono',monospace;font-size:.6rem;color:var(--muted);}
+.trim-inp{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:5px;padding:4px 8px;color:var(--text);font-family:'Share Tech Mono',monospace;font-size:.62rem;width:70px;outline:none;}
+.trim-inp:focus{border-color:rgba(255,214,0,.4);}
+
+/* SIDE PANELS */
+.side-panels{width:280px;flex-shrink:0;display:flex;flex-direction:column;border-left:1px solid rgba(255,255,255,.06);overflow-y:auto;background:var(--panel);}
+.tool-tabs{display:flex;border-bottom:1px solid rgba(255,255,255,.07);overflow-x:auto;flex-shrink:0;}
+.tool-tabs::-webkit-scrollbar{height:0;}
+.ttab{padding:9px 12px;cursor:pointer;font-family:'Share Tech Mono',monospace;font-size:.58rem;letter-spacing:.05em;color:var(--muted);border-bottom:2px solid transparent;transition:all .18s;white-space:nowrap;flex-shrink:0;}
+.ttab:hover{color:var(--text);}
+.ttab.on{color:var(--y);border-bottom-color:var(--y);}
+.tool-panel{display:none;padding:14px;}
+.tool-panel.on{display:block;}
+/* tool section */
+.ts{margin-bottom:16px;}
+.ts-title{font-family:'Share Tech Mono',monospace;font-size:.6rem;color:var(--yd);letter-spacing:.09em;margin-bottom:8px;padding-bottom:5px;border-bottom:1px solid rgba(255,255,255,.05);}
+.ts-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px;}
+.ts-sl{display:flex;flex-direction:column;gap:4px;margin-bottom:8px;}
+.sl-rr{display:flex;align-items:center;justify-content:space-between;}
+.sl-lbl{font-family:'Share Tech Mono',monospace;font-size:.6rem;color:var(--muted);}
+.sl-val{font-family:'Share Tech Mono',monospace;font-size:.62rem;color:var(--y);min-width:32px;text-align:right;}
+.sl-inp{width:100%;accent-color:var(--y);cursor:pointer;height:3px;}
+.small-inp{width:100%;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.09);border-radius:6px;padding:7px 10px;color:var(--text);font-family:'Exo 2',sans-serif;font-size:.82rem;outline:none;transition:border-color .2s;margin-bottom:6px;}
+.small-inp:focus{border-color:rgba(255,214,0,.4);}
+.small-sel{width:100%;background:rgba(6,6,18,.9);border:1px solid rgba(255,255,255,.09);border-radius:6px;padding:7px 10px;color:var(--text);font-family:'Share Tech Mono',monospace;font-size:.62rem;outline:none;cursor:pointer;margin-bottom:6px;}
+input[type=color].col-pick{height:32px;width:100%;border:1px solid rgba(255,255,255,.1);background:transparent;cursor:pointer;border-radius:6px;display:block;margin-bottom:6px;}
+
+/* ── NO VIDEO STATE ── */
+.no-video{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:16px;padding:30px;}
+.no-video-ico{font-size:3.5rem;opacity:.35;}
+.no-video-title{font-family:'Orbitron',monospace;font-size:.82rem;color:var(--y);letter-spacing:.1em;text-align:center;}
+.no-video-sub{font-family:'Share Tech Mono',monospace;font-size:.68rem;color:var(--muted);text-align:center;line-height:1.7;}
+.load-btn{padding:13px 28px;background:linear-gradient(135deg,var(--y),var(--y2));border:none;border-radius:10px;font-family:'Orbitron',monospace;font-size:.72rem;font-weight:700;color:#000;cursor:pointer;letter-spacing:.1em;box-shadow:0 0 24px rgba(255,214,0,.32);transition:all .22s;}
+.load-btn:hover{box-shadow:0 0 40px rgba(255,214,0,.55);transform:translateY(-2px);}
+
+/* STICKER / TEXT ITEM CHIPS */
+.overlay-list{display:flex;flex-direction:column;gap:5px;margin-top:6px;}
+.overlay-item{display:flex;align-items:center;justify-content:space-between;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:7px;padding:7px 10px;cursor:pointer;transition:all .18s;}
+.overlay-item:hover,.overlay-item.sel{background:rgba(255,214,0,.07);border-color:rgba(255,214,0,.25);}
+.ov-name{font-family:'Share Tech Mono',monospace;font-size:.62rem;color:var(--text);}
+.ov-rm{font-size:.7rem;color:var(--r);cursor:pointer;padding:0 4px;}
+.ov-rm:hover{color:#ff7777;}
+
+/* INFO PANEL */
+.info-chip{background:rgba(255,214,0,.06);border:1px solid rgba(255,214,0,.14);border-radius:8px;padding:8px 12px;font-family:'Share Tech Mono',monospace;font-size:.64rem;color:rgba(220,210,255,.55);line-height:1.7;margin-bottom:10px;}
+.info-chip strong{color:var(--y);}
+
+@media(max-width:700px){
+  .editor-top{flex-direction:column;}
+  .side-panels{width:100%;height:260px;border-left:none;border-top:1px solid rgba(255,255,255,.06);}
+}
+</style>
+</head>
+<body>
+<nav class="hdr">
+  <div>
+    <div class="hdr-logo">🎬 VIDEO EDITOR</div>
+    <div class="hdr-nick" id="hdrnick"></div>
+  </div>
+  <div class="hdr-r">
+    <a class="nb" href="universe-studio.html">← Studio</a>
+    <a class="nb" href="universe.html">← Universe</a>
+  </div>
+</nav>
+
+<input type="file" id="video-file-inp" accept="video/*" style="display:none" onchange="loadVideoFile(this)">
+
+<div class="editor">
+  <!-- TOP: preview + tools -->
+  <div class="editor-top">
+
+    <!-- PREVIEW -->
+    <div class="preview-area">
+      <div class="preview-wrap" id="preview-wrap">
+        <!-- No-video state -->
+        <div class="no-video" id="no-video-state">
+          <div class="no-video-ico">🎬</div>
+          <div class="no-video-title">VIDEO EDITOR</div>
+          <div class="no-video-sub">Load a video from your device.<br>Supports MP4, WebM, MOV and most formats.<br>All processing happens in your browser.</div>
+          <button class="load-btn" onclick="document.getElementById('video-file-inp').click()">📁 LOAD VIDEO</button>
+          <div style="font-family:Share Tech Mono,monospace;font-size:.62rem;color:var(--muted);text-align:center;max-width:280px;">After loading — trim, colour grade, add text overlays, adjust speed, apply filters and export frames.</div>
+        </div>
+        <!-- Canvas preview (hidden until video loaded) -->
+        <canvas id="preview-canvas" style="display:none;"></canvas>
+        <!-- Hidden video element for source -->
+        <video id="vid-src" style="display:none;" playsinline></video>
+        <!-- Crop overlay -->
+        <div class="crop-overlay" id="crop-overlay"></div>
+      </div>
+    </div>
+
+    <!-- SIDE TOOL PANELS -->
+    <div class="side-panels">
+      <div class="tool-tabs">
+        <div class="ttab on" onclick="showTool('colour',this)">🎨 Colour</div>
+        <div class="ttab" onclick="showTool('text',this)">📝 Text</div>
+        <div class="ttab" onclick="showTool('crop',this)">✂️ Crop</div>
+        <div class="ttab" onclick="showTool('filter',this)">✨ Filters</div>
+        <div class="ttab" onclick="showTool('transform',this)">↔ Transform</div>
+        <div class="ttab" onclick="showTool('export',this)">💾 Export</div>
+      </div>
+
+      <!-- COLOUR PANEL -->
+      <div class="tool-panel on" id="tp-colour">
+        <div class="ts">
+          <div class="ts-title">COLOUR GRADING</div>
+          <div class="ts-sl"><div class="sl-rr"><span class="sl-lbl">Brightness</span><span class="sl-val" id="v-br">100%</span></div><input type="range" class="sl-inp" id="sl-br" min="0" max="300" value="100" oninput="updateFilter()"></div>
+          <div class="ts-sl"><div class="sl-rr"><span class="sl-lbl">Contrast</span><span class="sl-val" id="v-ct">100%</span></div><input type="range" class="sl-inp" id="sl-ct" min="0" max="400" value="100" oninput="updateFilter()"></div>
+          <div class="ts-sl"><div class="sl-rr"><span class="sl-lbl">Saturation</span><span class="sl-val" id="v-sat">100%</span></div><input type="range" class="sl-inp" id="sl-sat" min="0" max="400" value="100" oninput="updateFilter()"></div>
+          <div class="ts-sl"><div class="sl-rr"><span class="sl-lbl">Hue Rotate</span><span class="sl-val" id="v-hue">0°</span></div><input type="range" class="sl-inp" id="sl-hue" min="0" max="360" value="0" oninput="updateFilter()"></div>
+          <div class="ts-sl"><div class="sl-rr"><span class="sl-lbl">Exposure</span><span class="sl-val" id="v-exp">0</span></div><input type="range" class="sl-inp" id="sl-exp" min="-100" max="100" value="0" oninput="updateFilter()"></div>
+          <div class="ts-sl"><div class="sl-rr"><span class="sl-lbl">Shadows</span><span class="sl-val" id="v-sh">0</span></div><input type="range" class="sl-inp" id="sl-sh" min="-100" max="100" value="0" oninput="updateFilter()"></div>
+          <div class="ts-sl"><div class="sl-rr"><span class="sl-lbl">Highlights</span><span class="sl-val" id="v-hl">0</span></div><input type="range" class="sl-inp" id="sl-hl" min="-100" max="100" value="0" oninput="updateFilter()"></div>
+          <div class="ts-sl"><div class="sl-rr"><span class="sl-lbl">Blur</span><span class="sl-val" id="v-bl">0px</span></div><input type="range" class="sl-inp" id="sl-bl" min="0" max="20" value="0" oninput="updateFilter()"></div>
+          <div class="ts-sl"><div class="sl-rr"><span class="sl-lbl">Invert</span><span class="sl-val" id="v-inv">0%</span></div><input type="range" class="sl-inp" id="sl-inv" min="0" max="100" value="0" oninput="updateFilter()"></div>
+        </div>
+        <div class="ts-row">
+          <button class="pb-btn y" onclick="resetColour()">↺ Reset</button>
+        </div>
+      </div>
+
+      <!-- TEXT PANEL -->
+      <div class="tool-panel" id="tp-text">
+        <div class="ts">
+          <div class="ts-title">ADD TEXT OVERLAY</div>
+          <input class="small-inp" id="txt-content" placeholder="Type your text here..." value="DAVID">
+          <select class="small-sel" id="txt-font">
+            <option value="Orbitron">Orbitron</option>
+            <option value="Share Tech Mono">Share Tech Mono</option>
+            <option value="Exo 2">Exo 2</option>
+            <option value="Impact">Impact</option>
+            <option value="Arial Black">Arial Black</option>
+            <option value="Georgia">Georgia</option>
+            <option value="Courier New">Courier New</option>
+            <option value="Verdana">Verdana</option>
+          </select>
+          <div class="ts-sl"><div class="sl-rr"><span class="sl-lbl">Size</span><span class="sl-val" id="v-tsz">48px</span></div><input type="range" class="sl-inp" id="sl-tsz" min="12" max="200" value="48" oninput="document.getElementById('v-tsz').textContent=this.value+'px';renderFrame()"></div>
+          <div class="ts-sl"><div class="sl-rr"><span class="sl-lbl">X Position</span><span class="sl-val" id="v-tx">50%</span></div><input type="range" class="sl-inp" id="sl-tx" min="0" max="100" value="50" oninput="document.getElementById('v-tx').textContent=this.value+'%';renderFrame()"></div>
+          <div class="ts-sl"><div class="sl-rr"><span class="sl-lbl">Y Position</span><span class="sl-val" id="v-ty">80%</span></div><input type="range" class="sl-inp" id="sl-ty" min="0" max="100" value="80" oninput="document.getElementById('v-ty').textContent=this.value+'%';renderFrame()"></div>
+          <div class="ts-sl"><div class="sl-rr"><span class="sl-lbl">Opacity</span><span class="sl-val" id="v-top">100%</span></div><input type="range" class="sl-inp" id="sl-top" min="0" max="100" value="100" oninput="document.getElementById('v-top').textContent=this.value+'%';renderFrame()"></div>
+          <label class="sl-lbl" style="display:block;margin-bottom:4px;">Text Colour</label>
+          <input type="color" id="txt-col" value="#FFD600" class="col-pick" oninput="renderFrame()">
+          <label class="sl-lbl" style="display:block;margin-bottom:4px;">Background</label>
+          <select class="small-sel" id="txt-bg">
+            <option value="none">None</option>
+            <option value="black">Black box</option>
+            <option value="semi">Semi-transparent</option>
+            <option value="white">White box</option>
+          </select>
+          <div class="ts-sl"><div class="sl-rr"><span class="sl-lbl">Shadow Blur</span><span class="sl-val" id="v-tsh">4px</span></div><input type="range" class="sl-inp" id="sl-tsh" min="0" max="40" value="4" oninput="document.getElementById('v-tsh').textContent=this.value+'px';renderFrame()"></div>
+          <button class="pb-btn y" onclick="addTextOverlay()" style="width:100%;text-align:center;margin-top:4px;">+ Add Text</button>
+        </div>
+        <div class="ts">
+          <div class="ts-title">OVERLAYS ON CANVAS</div>
+          <div class="overlay-list" id="overlay-list"><div style="font-family:Share Tech Mono,monospace;font-size:.62rem;color:var(--muted);">No overlays yet.</div></div>
+        </div>
+      </div>
+
+      <!-- CROP PANEL -->
+      <div class="tool-panel" id="tp-crop">
+        <div class="ts">
+          <div class="ts-title">CROP & ASPECT RATIO</div>
+          <div class="info-chip">Set crop region. Values are percentage of the video frame.</div>
+          <div class="ts-sl"><div class="sl-rr"><span class="sl-lbl">Left %</span><span class="sl-val" id="v-cl">0%</span></div><input type="range" class="sl-inp" id="sl-cl" min="0" max="49" value="0" oninput="updateCrop()"></div>
+          <div class="ts-sl"><div class="sl-rr"><span class="sl-lbl">Right %</span><span class="sl-val" id="v-cr">0%</span></div><input type="range" class="sl-inp" id="sl-cr" min="0" max="49" value="0" oninput="updateCrop()"></div>
+          <div class="ts-sl"><div class="sl-rr"><span class="sl-lbl">Top %</span><span class="sl-val" id="v-ct2">0%</span></div><input type="range" class="sl-inp" id="sl-ct2" min="0" max="49" value="0" oninput="updateCrop()"></div>
+          <div class="ts-sl"><div class="sl-rr"><span class="sl-lbl">Bottom %</span><span class="sl-val" id="v-cb">0%</span></div><input type="range" class="sl-inp" id="sl-cb" min="0" max="49" value="0" oninput="updateCrop()"></div>
+          <div class="ts-title" style="margin-top:12px;">PRESETS</div>
+          <div class="ts-row">
+            <button class="pb-btn" onclick="cropPreset(0,0,0,0)">Original</button>
+            <button class="pb-btn" onclick="cropPreset(12.5,12.5,0,0)">16:9</button>
+            <button class="pb-btn" onclick="cropPreset(0,0,12.5,12.5)">4:3</button>
+            <button class="pb-btn" onclick="cropPreset(25,25,0,0)">1:1</button>
+            <button class="pb-btn" onclick="cropPreset(33,33,0,0)">9:16</button>
+          </div>
+          <button class="pb-btn y" onclick="resetCrop()" style="width:100%;margin-top:8px;">↺ Reset Crop</button>
+        </div>
+      </div>
+
+      <!-- FILTER PANEL -->
+      <div class="tool-panel" id="tp-filter">
+        <div class="ts">
+          <div class="ts-title">PRESET FILTERS</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:7px;">
+            <button class="pb-btn" onclick="applyPreset('none')" style="text-align:center;">Original</button>
+            <button class="pb-btn" onclick="applyPreset('vivid')" style="text-align:center;">🌈 Vivid</button>
+            <button class="pb-btn" onclick="applyPreset('cinematic')" style="text-align:center;">🎬 Cinematic</button>
+            <button class="pb-btn" onclick="applyPreset('bw')" style="text-align:center;">⬛ B&W</button>
+            <button class="pb-btn" onclick="applyPreset('vintage')" style="text-align:center;">📷 Vintage</button>
+            <button class="pb-btn" onclick="applyPreset('cold')" style="text-align:center;">❄️ Cold</button>
+            <button class="pb-btn" onclick="applyPreset('warm')" style="text-align:center;">🔥 Warm</button>
+            <button class="pb-btn" onclick="applyPreset('moody')" style="text-align:center;">🌑 Moody</button>
+            <button class="pb-btn" onclick="applyPreset('fade')" style="text-align:center;">🌫️ Fade</button>
+            <button class="pb-btn" onclick="applyPreset('neon')" style="text-align:center;">💜 Neon</button>
+            <button class="pb-btn" onclick="applyPreset('summer')" style="text-align:center;">☀️ Summer</button>
+            <button class="pb-btn" onclick="applyPreset('horror')" style="text-align:center;">🔴 Horror</button>
+          </div>
+        </div>
+        <div class="ts">
+          <div class="ts-title">VIGNETTE</div>
+          <div class="ts-sl"><div class="sl-rr"><span class="sl-lbl">Intensity</span><span class="sl-val" id="v-vig">0%</span></div><input type="range" class="sl-inp" id="sl-vig" min="0" max="100" value="0" oninput="document.getElementById('v-vig').textContent=this.value+'%';renderFrame()"></div>
+        </div>
+        <div class="ts">
+          <div class="ts-title">NOISE / GRAIN</div>
+          <div class="ts-sl"><div class="sl-rr"><span class="sl-lbl">Amount</span><span class="sl-val" id="v-grain">0%</span></div><input type="range" class="sl-inp" id="sl-grain" min="0" max="100" value="0" oninput="document.getElementById('v-grain').textContent=this.value+'%';renderFrame()"></div>
+        </div>
+      </div>
+
+      <!-- TRANSFORM PANEL -->
+      <div class="tool-panel" id="tp-transform">
+        <div class="ts">
+          <div class="ts-title">ROTATE & FLIP</div>
+          <div class="ts-row">
+            <button class="pb-btn" onclick="rotate(-90)">↺ −90°</button>
+            <button class="pb-btn" onclick="rotate(90)">↻ +90°</button>
+            <button class="pb-btn" onclick="rotate(180)">↕ 180°</button>
+          </div>
+          <div class="ts-row">
+            <button class="pb-btn" onclick="flip('h')">⇔ Flip H</button>
+            <button class="pb-btn" onclick="flip('v')">⇕ Flip V</button>
+          </div>
+          <div class="ts-sl" style="margin-top:8px;"><div class="sl-rr"><span class="sl-lbl">Custom Rotate</span><span class="sl-val" id="v-rot">0°</span></div><input type="range" class="sl-inp" id="sl-rot" min="-180" max="180" value="0" oninput="document.getElementById('v-rot').textContent=this.value+'°';TRANSFORM.rot=+this.value;renderFrame()"></div>
+        </div>
+        <div class="ts">
+          <div class="ts-title">ZOOM / SCALE</div>
+          <div class="ts-sl"><div class="sl-rr"><span class="sl-lbl">Scale</span><span class="sl-val" id="v-scl">100%</span></div><input type="range" class="sl-inp" id="sl-scl" min="50" max="200" value="100" oninput="document.getElementById('v-scl').textContent=this.value+'%';TRANSFORM.scale=this.value/100;renderFrame()"></div>
+          <div class="ts-sl"><div class="sl-rr"><span class="sl-lbl">Pan X</span><span class="sl-val" id="v-px">0</span></div><input type="range" class="sl-inp" id="sl-px" min="-500" max="500" value="0" oninput="document.getElementById('v-px').textContent=this.value;TRANSFORM.panX=+this.value;renderFrame()"></div>
+          <div class="ts-sl"><div class="sl-rr"><span class="sl-lbl">Pan Y</span><span class="sl-val" id="v-py">0</span></div><input type="range" class="sl-inp" id="sl-py" min="-500" max="500" value="0" oninput="document.getElementById('v-py').textContent=this.value;TRANSFORM.panY=+this.value;renderFrame()"></div>
+          <button class="pb-btn y" onclick="resetTransform()" style="width:100%;margin-top:4px;">↺ Reset All</button>
+        </div>
+      </div>
+
+      <!-- EXPORT PANEL -->
+      <div class="tool-panel" id="tp-export">
+        <div class="ts">
+          <div class="ts-title">EXPORT CURRENT FRAME</div>
+          <div class="info-chip"><strong>PNG / JPEG frame export</strong> works fully in browser. Full video export requires server-side processing — use the frame sequence method below for video output.</div>
+          <button class="pb-btn g" onclick="exportFrame('png')" style="width:100%;text-align:center;margin-bottom:7px;">💾 Export Frame as PNG</button>
+          <button class="pb-btn g" onclick="exportFrame('jpeg')" style="width:100%;text-align:center;">💾 Export Frame as JPEG</button>
+        </div>
+        <div class="ts">
+          <div class="ts-title">FRAME SEQUENCE EXPORT</div>
+          <div class="info-chip">Export every Nth frame as PNG. Import the sequence into CapCut, Premiere, DaVinci or any NLE to reconstruct video with your edits applied.</div>
+          <div class="ts-sl"><div class="sl-rr"><span class="sl-lbl">Every N frames</span><span class="sl-val" id="v-step">1</span></div><input type="range" class="sl-inp" id="sl-step" min="1" max="10" value="1" oninput="document.getElementById('v-step').textContent=this.value"></div>
+          <button class="pb-btn b" onclick="exportSequence()" style="width:100%;text-align:center;margin-bottom:7px;">📦 Export Frame Sequence</button>
+          <div id="export-progress" style="font-family:Share Tech Mono,monospace;font-size:.64rem;color:var(--g);display:none;margin-top:6px;"></div>
+        </div>
+        <div class="ts">
+          <div class="ts-title">CANVAS SIZE</div>
+          <div class="ts-row">
+            <button class="pb-btn" onclick="setCanvasSize(1920,1080)">1920×1080</button>
+            <button class="pb-btn" onclick="setCanvasSize(1280,720)">1280×720</button>
+            <button class="pb-btn" onclick="setCanvasSize(1080,1920)">1080×1920</button>
+            <button class="pb-btn" onclick="setCanvasSize(1080,1080)">1080×1080</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PLAYBACK BAR -->
+  <div class="playback-bar" id="playback-bar" style="display:none;">
+    <div class="pb-controls">
+      <button class="pb-btn" onclick="stepFrame(-10)" title="−10 frames">|◀◀</button>
+      <button class="pb-btn" onclick="stepFrame(-1)" title="Previous frame">|◀</button>
+      <button class="pb-btn y" id="play-btn" onclick="togglePlay()">▶ PLAY</button>
+      <button class="pb-btn" onclick="stepFrame(1)" title="Next frame">▶|</button>
+      <button class="pb-btn" onclick="stepFrame(10)" title="+10 frames">▶▶|</button>
+      <button class="pb-btn r" onclick="document.getElementById('video-file-inp').click()">📁 Load New</button>
+      <span class="time-display" id="time-disp">00:00 / 00:00</span>
+      <span class="sl-lbl">Speed:</span>
+      <select class="speed-sel" id="speed-sel" onchange="setSpeed(this.value)">
+        <option value="0.25">0.25×</option>
+        <option value="0.5">0.5×</option>
+        <option value="0.75">0.75×</option>
+        <option value="1" selected>1×</option>
+        <option value="1.25">1.25×</option>
+        <option value="1.5">1.5×</option>
+        <option value="2">2×</option>
+        <option value="4">4×</option>
+      </select>
+      <button class="pb-btn" id="mute-btn" onclick="toggleMute()">🔊</button>
+      <button class="pb-btn b" onclick="setTrimIn()">[ IN</button>
+      <button class="pb-btn b" onclick="setTrimOut()">OUT ]</button>
+      <button class="pb-btn g" onclick="applyTrim()">✂️ Apply Trim</button>
+    </div>
+    <div class="timeline-wrap">
+      <input type="range" class="scrubber" id="scrubber" min="0" max="1000" value="0"
+             oninput="scrubTo(this.value)" style="width:100%;">
+      <div class="trim-row">
+        <span class="trim-lbl">TRIM IN:</span>
+        <input class="trim-inp" id="trim-in" value="0.000" placeholder="0.000">
+        <span class="trim-lbl">OUT:</span>
+        <input class="trim-inp" id="trim-out" value="" placeholder="end">
+        <span class="trim-lbl" id="trim-dur"></span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ── USER LOAD ── */
+var U = {};
+(function(){
+  var s=localStorage.getItem('david_user');
+  if(!s){window.location.href='david-ai.html';return;}
+  try{U=JSON.parse(s);}catch(e){window.location.href='david-ai.html';return;}
+  document.getElementById('hdrnick').textContent='👋 '+(U.nick||'');
+})();
+
+/* ══════════════════════════════════════════
+   EDITOR STATE
+══════════════════════════════════════════ */
+var VID = null;       /* HTMLVideoElement */
+var CANVAS = null;    /* output canvas */
+var CTX = null;
+var RAF = null;       /* animation frame */
+var PLAYING = false;
+var MUTED = false;
+
+var FILTER = {
+  br:100, ct:100, sat:100, hue:0, exp:0, sh:0, hl:0, bl:0, inv:0
+};
+var CROP = { l:0, r:0, t:0, b:0 };
+var TRANSFORM = { rot:0, scale:1, panX:0, panY:0, flipH:false, flipV:false };
+var OVERLAYS = [];   /* [{type:'text', ...params}] */
+var TRIM = { in:0, out:Infinity };
+var GRAIN_AMOUNT = 0;
+var VIG_AMOUNT = 0;
+var OUTPUT_W = 0, OUTPUT_H = 0;
+var SELECTED_OV = -1;
+
+/* ── TAB SWITCHER ── */
+function showTool(id,el){
+  document.querySelectorAll('.tool-panel').forEach(function(p){p.classList.remove('on');});
+  document.querySelectorAll('.ttab').forEach(function(t){t.classList.remove('on');});
+  document.getElementById('tp-'+id).classList.add('on');
+  el.classList.add('on');
+}
+
+/* ══════════════════════════════════════════
+   VIDEO LOADING
+══════════════════════════════════════════ */
+function loadVideoFile(inp){
+  var f=inp.files[0]; if(!f) return;
+  var url=URL.createObjectURL(f);
+  var v=document.getElementById('vid-src');
+  v.src=url;
+  v.load();
+  v.onloadedmetadata=function(){
+    VID=v;
+    OUTPUT_W=v.videoWidth||1280;
+    OUTPUT_H=v.videoHeight||720;
+    TRIM.in=0; TRIM.out=v.duration;
+    document.getElementById('trim-out').value=v.duration.toFixed(3);
+    TRIM.dur=v.duration;
+    setupCanvas();
+    document.getElementById('no-video-state').style.display='none';
+    document.getElementById('preview-canvas').style.display='block';
+    document.getElementById('playback-bar').style.display='block';
+    v.currentTime=0;
+    requestAnimationFrame(renderFrame);
+    updateTimeDip();
+  };
+  v.onerror=function(){alert('Could not load video. Try a different format (MP4 recommended).');};
+}
+
+function setupCanvas(){
+  CANVAS=document.getElementById('preview-canvas');
+  CTX=CANVAS.getContext('2d');
+  CANVAS.width=OUTPUT_W;
+  CANVAS.height=OUTPUT_H;
+  /* Fit canvas visually */
+  var wrap=document.getElementById('preview-wrap');
+  var ww=wrap.clientWidth, wh=wrap.clientHeight;
+  var scale=Math.min(ww/OUTPUT_W, wh/OUTPUT_H);
+  CANVAS.style.width=Math.floor(OUTPUT_W*scale)+'px';
+  CANVAS.style.height=Math.floor(OUTPUT_H*scale)+'px';
+}
+
+/* ══════════════════════════════════════════
+   RENDER LOOP
+══════════════════════════════════════════ */
+function renderFrame(){
+  if(!VID||!CTX) return;
+  var W=CANVAS.width, H=CANVAS.height;
+  CTX.clearRect(0,0,W,H);
+  CTX.save();
+
+  /* Apply transforms */
+  CTX.translate(W/2+TRANSFORM.panX, H/2+TRANSFORM.panY);
+  CTX.rotate(TRANSFORM.rot*Math.PI/180);
+  CTX.scale(
+    TRANSFORM.scale*(TRANSFORM.flipH?-1:1),
+    TRANSFORM.scale*(TRANSFORM.flipV?-1:1)
+  );
+  CTX.translate(-W/2, -H/2);
+
+  /* Crop: compute source rect from crop percentages */
+  var vw=VID.videoWidth||W, vh=VID.videoHeight||H;
+  var sx=vw*CROP.l/100,  sy=vh*CROP.t/100;
+  var sw=vw*(1-CROP.l/100-CROP.r/100);
+  var sh=vh*(1-CROP.t/100-CROP.b/100);
+  if(sw<1)sw=1; if(sh<1)sh=1;
+
+  /* Build CSS filter string */
+  var br=FILTER.br;
+  /* Exposure: shift brightness */
+  br=Math.max(0,Math.min(400, br + FILTER.exp*1.5));
+  var filt='brightness('+br+'%) contrast('+FILTER.ct+'%) saturate('+FILTER.sat+'%) hue-rotate('+FILTER.hue+'deg)';
+  if(FILTER.bl>0) filt+=' blur('+FILTER.bl+'px)';
+  if(FILTER.inv>0) filt+=' invert('+FILTER.inv+'%)';
+  CTX.filter=filt;
+
+  CTX.drawImage(VID, sx, sy, sw, sh, 0, 0, W, H);
+  CTX.filter='none';
+  CTX.restore();
+
+  /* Vignette */
+  var vig=+document.getElementById('sl-vig').value;
+  if(vig>0){
+    var vgrad=CTX.createRadialGradient(W/2,H/2,H*.25,W/2,H/2,H*.8);
+    vgrad.addColorStop(0,'rgba(0,0,0,0)');
+    vgrad.addColorStop(1,'rgba(0,0,0,'+(vig/100*.9)+')');
+    CTX.fillStyle=vgrad;
+    CTX.fillRect(0,0,W,H);
+  }
+
+  /* Film grain */
+  var grain=+document.getElementById('sl-grain').value;
+  if(grain>0){
+    var imgData=CTX.getImageData(0,0,W,H);
+    var d=imgData.data;
+    var amt=grain/100*80;
+    for(var i=0;i<d.length;i+=4){
+      var n=(Math.random()-.5)*amt;
+      d[i]=Math.max(0,Math.min(255,d[i]+n));
+      d[i+1]=Math.max(0,Math.min(255,d[i+1]+n));
+      d[i+2]=Math.max(0,Math.min(255,d[i+2]+n));
+    }
+    CTX.putImageData(imgData,0,0);
+  }
+
+  /* Draw text overlays */
+  OVERLAYS.forEach(function(ov, idx){
+    if(ov.type!=='text') return;
+    var x=ov.x*W/100, y=ov.y*H/100;
+    CTX.save();
+    CTX.globalAlpha=ov.opacity/100;
+    CTX.font=ov.size+'px "'+ov.font+'"';
+    CTX.textAlign='center';
+    CTX.shadowBlur=ov.shadow||4; CTX.shadowColor='rgba(0,0,0,.8)';
+    /* Background box */
+    if(ov.bg==='black'||ov.bg==='semi'||ov.bg==='white'){
+      var m=CTX.measureText(ov.text);
+      var bx=x-m.width/2-8, by=y-ov.size, bw=m.width+16, bh=ov.size+12;
+      CTX.shadowBlur=0;
+      CTX.fillStyle=ov.bg==='black'?'rgba(0,0,0,.9)':ov.bg==='semi'?'rgba(0,0,0,.5)':'rgba(255,255,255,.9)';
+      CTX.fillRect(bx,by,bw,bh);
+    }
+    CTX.fillStyle=ov.color;
+    CTX.fillText(ov.text,x,y);
+    /* Selection border */
+    if(idx===SELECTED_OV){
+      CTX.shadowBlur=0;
+      var m2=CTX.measureText(ov.text);
+      CTX.strokeStyle='rgba(255,214,0,.8)'; CTX.lineWidth=2;
+      CTX.setLineDash([4,3]);
+      CTX.strokeRect(x-m2.width/2-10, y-ov.size-4, m2.width+20, ov.size+16);
+      CTX.setLineDash([]);
+    }
+    CTX.restore();
+  });
+
+  if(PLAYING) RAF=requestAnimationFrame(renderFrame);
+}
+
+/* ══════════════════════════════════════════
+   PLAYBACK CONTROLS
+══════════════════════════════════════════ */
+function togglePlay(){
+  if(!VID) return;
+  PLAYING=!PLAYING;
+  var btn=document.getElementById('play-btn');
+  if(PLAYING){
+    VID.play();
+    btn.textContent='⏸ PAUSE'; btn.className='tbtn y' ; // keep style
+    btn.style.color='var(--y)';
+    /* Respect trim out */
+    function checkTrim(){
+      if(!PLAYING) return;
+      if(VID.currentTime>=TRIM.out){ VID.currentTime=TRIM.in; if(!PLAYING) return; }
+      updateTimeDip();
+      updateScrubber();
+      renderFrame();
+      if(PLAYING) RAF=requestAnimationFrame(checkTrim);
+    }
+    RAF=requestAnimationFrame(checkTrim);
+  } else {
+    VID.pause();
+    btn.textContent='▶ PLAY';
+    cancelAnimationFrame(RAF);
+    renderFrame();
+  }
+}
+
+function stepFrame(n){
+  if(!VID) return;
+  PLAYING=false; VID.pause();
+  document.getElementById('play-btn').textContent='▶ PLAY';
+  cancelAnimationFrame(RAF);
+  var fps=30; VID.currentTime=Math.max(0,Math.min(VID.duration,VID.currentTime+n/fps));
+  VID.onseeked=function(){renderFrame();updateTimeDip();updateScrubber();VID.onseeked=null;};
+}
+
+function scrubTo(val){
+  if(!VID) return;
+  VID.currentTime=VID.duration*(val/1000);
+  VID.onseeked=function(){renderFrame();updateTimeDip();VID.onseeked=null;};
+}
+
+function updateScrubber(){
+  if(!VID||!VID.duration) return;
+  document.getElementById('scrubber').value=Math.round((VID.currentTime/VID.duration)*1000);
+}
+
+function updateTimeDip(){
+  if(!VID) return;
+  var c=VID.currentTime||0, d=VID.duration||0;
+  document.getElementById('time-disp').textContent=fmt(c)+' / '+fmt(d);
+}
+
+function fmt(s){
+  var m=Math.floor(s/60), sec=Math.floor(s%60);
+  return (m<10?'0':'')+m+':'+(sec<10?'0':'')+sec;
+}
+
+function setSpeed(v){
+  if(VID) VID.playbackRate=+v;
+}
+
+function toggleMute(){
+  if(!VID) return;
+  MUTED=!MUTED; VID.muted=MUTED;
+  document.getElementById('mute-btn').textContent=MUTED?'🔇':'🔊';
+}
+
+function setTrimIn(){
+  if(!VID) return;
+  TRIM.in=VID.currentTime;
+  document.getElementById('trim-in').value=TRIM.in.toFixed(3);
+  updateTrimDur();
+}
+
+function setTrimOut(){
+  if(!VID) return;
+  TRIM.out=VID.currentTime;
+  document.getElementById('trim-out').value=TRIM.out.toFixed(3);
+  updateTrimDur();
+}
+
+function applyTrim(){
+  if(!VID) return;
+  var inVal=parseFloat(document.getElementById('trim-in').value)||0;
+  var outVal=parseFloat(document.getElementById('trim-out').value)||VID.duration;
+  TRIM.in=Math.max(0,inVal);
+  TRIM.out=Math.min(VID.duration,outVal);
+  VID.currentTime=TRIM.in;
+  updateTrimDur();
+}
+
+function updateTrimDur(){
+  var d=TRIM.out-TRIM.in;
+  document.getElementById('trim-dur').textContent='Duration: '+d.toFixed(2)+'s';
+}
+
+/* ══════════════════════════════════════════
+   COLOUR FILTERS
+══════════════════════════════════════════ */
+function updateFilter(){
+  var ids=['br','ct','sat','hue','exp','sh','hl','bl','inv'];
+  var units=['%','%','%','°','','','','px','%'];
+  ids.forEach(function(id,i){
+    var el=document.getElementById('sl-'+id);
+    var vEl=document.getElementById('v-'+id);
+    if(el&&vEl){
+      FILTER[id]=+el.value;
+      vEl.textContent=el.value+units[i];
+    }
+  });
+  if(!PLAYING) renderFrame();
+}
+
+function resetColour(){
+  var defs={br:100,ct:100,sat:100,hue:0,exp:0,sh:0,hl:0,bl:0,inv:0};
+  Object.keys(defs).forEach(function(k){
+    FILTER[k]=defs[k];
+    var el=document.getElementById('sl-'+k); if(el) el.value=defs[k];
+  });
+  updateFilter();
+}
+
+/* ── PRESETS ── */
+var PRESETS={
+  none:   {br:100,ct:100,sat:100,hue:0,exp:0,bl:0,inv:0},
+  vivid:  {br:110,ct:130,sat:180,hue:0,exp:10,bl:0,inv:0},
+  cinematic:{br:90,ct:120,sat:80,hue:0,exp:-10,bl:0,inv:0},
+  bw:     {br:100,ct:120,sat:0,hue:0,exp:0,bl:0,inv:0},
+  vintage:{br:95,ct:90,sat:70,hue:20,exp:-5,bl:0,inv:0},
+  cold:   {br:100,ct:110,sat:90,hue:200,exp:0,bl:0,inv:0},
+  warm:   {br:105,ct:105,sat:110,hue:340,exp:5,bl:0,inv:0},
+  moody:  {br:80,ct:140,sat:60,hue:0,exp:-20,bl:0,inv:0},
+  fade:   {br:115,ct:75,sat:65,hue:0,exp:15,bl:0,inv:0},
+  neon:   {br:100,ct:150,sat:250,hue:270,exp:0,bl:0,inv:0},
+  summer: {br:110,ct:110,sat:140,hue:15,exp:10,bl:0,inv:0},
+  horror: {br:70,ct:150,sat:30,hue:0,exp:-15,bl:0,inv:0}
+};
+
+function applyPreset(name){
+  var p=PRESETS[name]; if(!p) return;
+  Object.keys(p).forEach(function(k){
+    FILTER[k]=p[k];
+    var el=document.getElementById('sl-'+k); if(el) el.value=p[k];
+  });
+  updateFilter();
+}
+
+/* ══════════════════════════════════════════
+   CROP
+══════════════════════════════════════════ */
+function updateCrop(){
+  CROP.l=+document.getElementById('sl-cl').value;
+  CROP.r=+document.getElementById('sl-cr').value;
+  CROP.t=+document.getElementById('sl-ct2').value;
+  CROP.b=+document.getElementById('sl-cb').value;
+  document.getElementById('v-cl').textContent=CROP.l+'%';
+  document.getElementById('v-cr').textContent=CROP.r+'%';
+  document.getElementById('v-ct2').textContent=CROP.t+'%';
+  document.getElementById('v-cb').textContent=CROP.b+'%';
+  if(!PLAYING) renderFrame();
+}
+
+function cropPreset(l,r,t,b){
+  CROP={l:l,r:r,t:t,b:b};
+  document.getElementById('sl-cl').value=l;
+  document.getElementById('sl-cr').value=r;
+  document.getElementById('sl-ct2').value=t;
+  document.getElementById('sl-cb').value=b;
+  updateCrop();
+}
+
+function resetCrop(){ cropPreset(0,0,0,0); }
+
+/* ══════════════════════════════════════════
+   TRANSFORM
+══════════════════════════════════════════ */
+function rotate(deg){
+  TRANSFORM.rot=(TRANSFORM.rot+deg)%360;
+  document.getElementById('sl-rot').value=TRANSFORM.rot;
+  document.getElementById('v-rot').textContent=TRANSFORM.rot+'°';
+  if(!PLAYING) renderFrame();
+}
+
+function flip(dir){
+  if(dir==='h') TRANSFORM.flipH=!TRANSFORM.flipH;
+  else TRANSFORM.flipV=!TRANSFORM.flipV;
+  if(!PLAYING) renderFrame();
+}
+
+function resetTransform(){
+  TRANSFORM={rot:0,scale:1,panX:0,panY:0,flipH:false,flipV:false};
+  document.getElementById('sl-rot').value=0; document.getElementById('v-rot').textContent='0°';
+  document.getElementById('sl-scl').value=100; document.getElementById('v-scl').textContent='100%';
+  document.getElementById('sl-px').value=0; document.getElementById('v-px').textContent='0';
+  document.getElementById('sl-py').value=0; document.getElementById('v-py').textContent='0';
+  if(!PLAYING) renderFrame();
+}
+
+/* ══════════════════════════════════════════
+   TEXT OVERLAYS
+══════════════════════════════════════════ */
+function addTextOverlay(){
+  var txt=document.getElementById('txt-content').value.trim()||'Text';
+  var ov={
+    type:'text',
+    text:txt,
+    font:document.getElementById('txt-font').value,
+    size:+document.getElementById('sl-tsz').value,
+    x:+document.getElementById('sl-tx').value,
+    y:+document.getElementById('sl-ty').value,
+    opacity:+document.getElementById('sl-top').value,
+    color:document.getElementById('txt-col').value,
+    bg:document.getElementById('txt-bg').value,
+    shadow:+document.getElementById('sl-tsh').value
+  };
+  OVERLAYS.push(ov);
+  SELECTED_OV=OVERLAYS.length-1;
+  renderOverlayList();
+  if(!PLAYING) renderFrame();
+}
+
+function renderOverlayList(){
+  var el=document.getElementById('overlay-list'); if(!el) return;
+  if(!OVERLAYS.length){
+    el.innerHTML='<div style="font-family:Share Tech Mono,monospace;font-size:.62rem;color:var(--muted);">No overlays yet.</div>';
+    return;
+  }
+  el.innerHTML=OVERLAYS.map(function(ov,i){
+    return '<div class="overlay-item'+(i===SELECTED_OV?' sel':'')+'" onclick="selectOverlay('+i+')" >'+
+      '<span class="ov-name">'+ov.text.substring(0,18)+(ov.text.length>18?'...':'')+'</span>'+
+      '<span class="ov-rm" onclick="event.stopPropagation();removeOverlay('+i+')" title="Remove">✕</span>'+
+    '</div>';
+  }).join('');
+}
+
+function selectOverlay(i){
+  SELECTED_OV=i;
+  renderOverlayList();
+  if(!PLAYING) renderFrame();
+}
+
+function removeOverlay(i){
+  OVERLAYS.splice(i,1);
+  if(SELECTED_OV>=OVERLAYS.length) SELECTED_OV=OVERLAYS.length-1;
+  renderOverlayList();
+  if(!PLAYING) renderFrame();
+}
+
+/* ══════════════════════════════════════════
+   EXPORT
+══════════════════════════════════════════ */
+function exportFrame(fmt){
+  if(!CANVAS||!VID){ alert('Load a video first.'); return; }
+  PLAYING=false; VID.pause();
+  cancelAnimationFrame(RAF);
+  renderFrame();
+  var mime=fmt==='jpeg'?'image/jpeg':'image/png';
+  var a=document.createElement('a');
+  a.href=CANVAS.toDataURL(mime,0.95);
+  a.download='david-frame-'+Math.round(VID.currentTime*1000)+'ms.'+fmt;
+  a.click();
+}
+
+function setCanvasSize(w,h){
+  if(!CANVAS) return;
+  OUTPUT_W=w; OUTPUT_H=h;
+  CANVAS.width=w; CANVAS.height=h;
+  setupCanvas();
+  if(!PLAYING) renderFrame();
+}
+
+function exportSequence(){
+  if(!VID||!CANVAS){ alert('Load a video first.'); return; }
+  var step=+document.getElementById('sl-step').value||1;
+  var fps=30;
+  var frameInterval=step/fps;
+  var start=TRIM.in, end=Math.min(TRIM.out,VID.duration);
+  var frames=[]; var t=start;
+  while(t<=end){ frames.push(t); t+=frameInterval; }
+  var prog=document.getElementById('export-progress');
+  prog.style.display='block';
+  var idx=0;
+  function next(){
+    if(idx>=frames.length){
+      prog.textContent='✓ Exported '+idx+' frames. Import the PNGs into your NLE to reconstruct the video.';
+      return;
+    }
+    VID.currentTime=frames[idx];
+    VID.onseeked=function(){
+      renderFrame();
+      var a=document.createElement('a');
+      a.href=CANVAS.toDataURL('image/png',0.9);
+      a.download='frame-'+(String(idx).padStart(5,'0'))+'.png';
+      a.click();
+      prog.textContent='Exporting frame '+(idx+1)+' / '+frames.length+'...';
+      idx++;
+      VID.onseeked=null;
+      setTimeout(next,120);
+    };
+  }
+  next();
+}
+</script>
+</body>
+</html>

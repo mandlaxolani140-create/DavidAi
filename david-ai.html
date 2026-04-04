@@ -1,0 +1,1662 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>DAVID AI</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Exo+2:wght@300;400;600&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#04040a;--y:#FFD600;--y2:#FFA500;--yd:#b89a00;--g:#00ff88;--b:#00d4ff;--pu:#c084fc;--r:#ff4455;--text:#f0f0f0;--muted:#3a3a4a;--card:rgba(5,5,16,.97);--bf:rgba(255,214,0,.07);}
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{width:100%;min-height:100%;background:var(--bg);color:var(--text);font-family:'Exo 2',sans-serif;overflow-x:hidden;}
+::-webkit-scrollbar{width:5px;}::-webkit-scrollbar-thumb{background:rgba(255,214,0,.2);border-radius:3px;}
+#bgc{position:fixed;inset:0;z-index:0;pointer-events:none;}
+.gorb{position:fixed;border-radius:50%;pointer-events:none;z-index:0;filter:blur(120px);}
+.gorb.a{width:750px;height:750px;background:radial-gradient(circle,rgba(255,214,0,.055),transparent 65%);top:-280px;left:-200px;animation:gorb 18s ease-in-out infinite;}
+.gorb.b{width:600px;height:600px;background:radial-gradient(circle,rgba(255,100,0,.04),transparent 65%);bottom:-230px;right:-170px;animation:gorb 22s ease-in-out infinite reverse;}
+.gorb.c{width:400px;height:400px;background:radial-gradient(circle,rgba(255,214,0,.03),transparent 65%);top:40%;left:55%;transform:translate(-50%,-50%);animation:gorb 15s ease-in-out infinite 4s;}
+@keyframes gorb{0%,100%{transform:scale(1)translate(0,0);}40%{transform:scale(1.12)translate(30px,22px);}70%{transform:scale(.9)translate(-22px,38px);}}
+body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,14,.065) 2px,rgba(0,0,14,.065) 4px);}
+#ai{min-height:100vh;display:flex;flex-direction:column;position:relative;z-index:1;}
+/* HEADER */
+.hdr{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;padding:13px 26px;border-bottom:1px solid var(--bf);background:rgba(3,3,10,.98);position:sticky;top:0;z-index:100;backdrop-filter:blur(26px);}
+.hdr::after{content:'';position:absolute;bottom:0;left:4%;right:4%;height:1px;background:linear-gradient(90deg,transparent,rgba(255,214,0,.38),transparent);}
+.hdr-left{display:flex;flex-direction:column;gap:2px;}
+.hdr-title{font-family:'Orbitron',monospace;font-size:.95rem;color:var(--y);letter-spacing:.18em;text-shadow:0 0 22px rgba(255,214,0,.55);animation:hbr 4s ease-in-out infinite;}
+@keyframes hbr{0%,100%{text-shadow:0 0 22px rgba(255,214,0,.55);}50%{text-shadow:0 0 42px rgba(255,214,0,.9),0 0 70px rgba(255,214,0,.3);}}
+.hdr-nick{font-family:'Share Tech Mono',monospace;font-size:.66rem;color:rgba(255,214,0,.42);letter-spacing:.07em;}
+.hdr-right{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.livdot{width:8px;height:8px;border-radius:50%;background:var(--g);box-shadow:0 0 9px var(--g);animation:dblink 2s ease-in-out infinite;flex-shrink:0;}
+@keyframes dblink{0%,100%{opacity:1;}50%{opacity:.28;}}
+.hbtn{padding:6px 13px;border-radius:8px;cursor:pointer;font-size:.62rem;font-family:'Share Tech Mono',monospace;letter-spacing:.04em;transition:all .22s;border:1px solid;}
+.hbtn.out{background:rgba(255,50,50,.05);border-color:rgba(255,50,50,.2);color:var(--r);}.hbtn.out:hover{background:rgba(255,50,50,.15);}
+.wb-badge{display:none;align-items:center;gap:6px;background:rgba(0,255,136,.07);border:1px solid rgba(0,255,136,.22);border-radius:14px;padding:4px 12px;font-family:'Share Tech Mono',monospace;font-size:.6rem;color:rgba(0,255,136,.75);animation:bpop .4s cubic-bezier(.34,1.56,.64,1);}
+.wb-badge.show{display:flex;}
+@keyframes bpop{from{opacity:0;transform:scale(.8);}to{opacity:1;transform:scale(1);}}
+.wbdot{width:6px;height:6px;border-radius:50%;background:var(--g);animation:dblink 1.8s ease-in-out infinite;}
+/* MAIN */
+.main{flex:1;display:flex;flex-direction:column;align-items:center;padding:28px 18px 170px;max-width:740px;margin:0 auto;width:100%;}
+.main>*{animation:elin .45s ease both;}
+.main>*:nth-child(1){animation-delay:.05s;}.main>*:nth-child(2){animation-delay:.1s;}.main>*:nth-child(3){animation-delay:.16s;}.main>*:nth-child(4){animation-delay:.22s;}.main>*:nth-child(5){animation-delay:.28s;}.main>*:nth-child(6){animation-delay:.34s;}.main>*:nth-child(7){animation-delay:.4s;}
+@keyframes elin{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:none;}}
+.orb-wrap{display:flex;flex-direction:column;align-items:center;margin-bottom:10px;}
+.orb-wrap.sub-hidden,.vbars.sub-hidden{display:none!important;}
+.orbc{width:200px;height:200px;position:relative;display:flex;align-items:center;justify-content:center;margin-bottom:14px;}
+.orbc::before{content:'';position:absolute;inset:-20px;border-radius:50%;background:conic-gradient(from 0deg,transparent 30%,rgba(255,214,0,.09) 50%,transparent 70%);animation:hspin 6s linear infinite;}
+@keyframes hspin{to{transform:rotate(360deg);}}
+.orbr{position:absolute;border-radius:50%;border:1px solid rgba(255,214,0,.15);animation:rpulse 2.6s ease-in-out infinite;}
+.orbr:nth-child(2){width:200px;height:200px;}.orbr:nth-child(3){width:155px;height:155px;animation-delay:.5s;border-color:rgba(255,214,0,.1);}.orbr:nth-child(4){width:116px;height:116px;animation-delay:1s;border-color:rgba(255,214,0,.2);}
+@keyframes rpulse{0%,100%{transform:scale(1);opacity:.1;}50%{transform:scale(1.07);opacity:.38;}}
+.orb-core{width:80px;height:80px;border-radius:50%;z-index:2;position:relative;background:radial-gradient(circle at 32% 30%,#fff8cc,#FFD600 40%,#7a4d00);box-shadow:0 0 35px rgba(255,214,0,.6),0 0 70px rgba(255,214,0,.25),0 0 8px rgba(255,255,200,.5) inset;}
+.orb-core::after{content:'';position:absolute;top:11%;left:17%;width:30%;height:23%;border-radius:50%;background:rgba(255,255,255,.5);filter:blur(5px);}
+.vbars{display:flex;gap:5px;align-items:center;justify-content:center;height:46px;margin-bottom:8px;}
+.vb{width:5px;border-radius:4px;background:linear-gradient(to top,rgba(255,140,0,.85),var(--y));animation:bidle 1.9s ease-in-out infinite;min-height:4px;}
+.vb:nth-child(1){height:8px;}.vb:nth-child(2){height:18px;animation-delay:.14s;}.vb:nth-child(3){height:34px;animation-delay:.28s;}.vb:nth-child(4){height:22px;animation-delay:.42s;}.vb:nth-child(5){height:12px;animation-delay:.56s;}.vb:nth-child(6){height:28px;animation-delay:.7s;}.vb:nth-child(7){height:16px;animation-delay:.84s;}.vb:nth-child(8){height:9px;animation-delay:.98s;}
+@keyframes bidle{0%,100%{transform:scaleY(1);opacity:.45;}50%{transform:scaleY(1.65);opacity:1;}}
+.sub-badge{display:none;align-items:center;gap:8px;border:1px solid rgba(255,214,0,.18);border-radius:20px;padding:6px 16px;background:rgba(255,214,0,.04);font-family:'Share Tech Mono',monospace;font-size:.63rem;color:var(--yd);letter-spacing:.05em;margin-bottom:12px;}
+.sub-badge.show{display:flex;}
+.sbdot{width:7px;height:7px;border-radius:50%;background:var(--y);box-shadow:0 0 6px var(--y);animation:dblink 1.8s ease-in-out infinite;}
+.subdiv{max-width:680px;width:100%;text-align:center;min-height:50px;margin-bottom:18px;padding:0 10px;}
+.subdiv.sub-mode{background:rgba(255,214,0,.025);border:1px solid rgba(255,214,0,.12);border-radius:13px;padding:16px 20px;min-height:68px;position:relative;}
+.subdiv.sub-mode::before{content:'';position:absolute;top:0;left:10%;right:10%;height:1px;background:linear-gradient(90deg,transparent,rgba(255,214,0,.3),transparent);}
+.sw{display:inline-block;font-size:1.05rem;font-weight:600;color:var(--y);margin:0 2px;opacity:0;animation:win .28s ease forwards;text-shadow:0 0 14px rgba(255,214,0,.55);}
+.subdiv.sub-mode .sw{font-size:1.12rem;}
+@keyframes win{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:none;}}
+.pathways{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;max-width:700px;width:100%;margin-bottom:18px;}
+.pbox{display:flex;align-items:center;gap:10px;background:rgba(255,214,0,.04);border:1px solid rgba(255,214,0,.18);border-radius:13px;padding:12px 22px;cursor:pointer;text-decoration:none;font-family:'Share Tech Mono',monospace;font-size:.72rem;color:var(--y);position:relative;overflow:hidden;transition:transform .22s,box-shadow .22s,background .22s;animation:pbr 3.5s ease-in-out infinite;}
+.pbox:nth-child(2){animation-delay:.8s;}.pbox:nth-child(3){animation-delay:1.6s;}
+@keyframes pbr{0%,100%{border-color:rgba(255,214,0,.18);}50%{box-shadow:0 0 24px rgba(255,214,0,.22);border-color:rgba(255,214,0,.52);}}
+.pbox::after{content:'';position:absolute;top:0;left:-130%;width:50%;height:100%;background:linear-gradient(105deg,transparent,rgba(255,255,255,.12),transparent);animation:pbsw 3.5s linear infinite;}
+.pbox:nth-child(2)::after{animation-delay:.8s;}.pbox:nth-child(3)::after{animation-delay:1.6s;}
+@keyframes pbsw{0%{left:-130%;}45%,100%{left:150%;}}
+.pbox:hover{background:rgba(255,214,0,.11);border-color:var(--y);transform:translateY(-5px) scale(1.03);box-shadow:0 10px 38px rgba(255,214,0,.3);animation:none;}
+.pbox-ico{font-size:1.4rem;flex-shrink:0;filter:drop-shadow(0 0 6px rgba(255,214,0,.45));}
+.pbox-name{font-weight:700;letter-spacing:.08em;font-size:.75rem;}
+.pbox-sub{font-size:.56rem;color:rgba(255,214,0,.36);margin-top:2px;}
+.tools{max-width:700px;width:100%;margin-bottom:14px;}
+.trow{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;}
+.tc{background:rgba(255,214,0,.05);border:1px solid rgba(255,214,0,.15);border-radius:22px;padding:7px 18px;font-size:.73rem;cursor:pointer;color:var(--y);font-family:'Share Tech Mono',monospace;transition:all .22s;letter-spacing:.04em;}
+.tc:hover{background:rgba(255,214,0,.16);border-color:rgba(255,214,0,.6);transform:translateY(-2px);box-shadow:0 4px 16px rgba(255,214,0,.15);}
+.card{max-width:700px;width:100%;margin-bottom:14px;background:var(--card);border:1px solid var(--bf);border-radius:15px;padding:22px 26px;display:none;position:relative;overflow:hidden;animation:capp .3s ease;}
+.card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(255,214,0,.38),transparent);}
+.card.show{display:block;}.card.wflex.show{display:flex;align-items:center;gap:22px;flex-wrap:wrap;}
+@keyframes capp{from{opacity:0;transform:translateY(-12px);}to{opacity:1;transform:none;}}
+.wi2{font-size:3.4rem;filter:drop-shadow(0 0 14px rgba(255,214,0,.3));}
+.winfo .wc{font-family:'Orbitron',monospace;color:var(--y);font-size:.82rem;letter-spacing:.07em;}
+.winfo .wt{font-size:2.5rem;font-weight:700;line-height:1.1;}
+.winfo .wd{color:var(--muted);font-size:.77rem;margin-top:4px;}
+.tdisp{font-family:'Share Tech Mono',monospace;font-size:1.6rem;color:var(--y);text-shadow:0 0 14px rgba(255,214,0,.4);margin-left:auto;}
+.big-clock{font-family:'Orbitron',monospace;font-size:3rem;color:var(--y);text-shadow:0 0 32px rgba(255,214,0,.5);letter-spacing:.08em;text-align:center;margin-bottom:4px;}
+.big-date{font-family:'Share Tech Mono',monospace;font-size:.72rem;color:var(--muted);text-align:center;letter-spacing:.06em;margin-bottom:18px;}
+.alarm-section{border-top:1px solid rgba(255,214,0,.1);padding-top:16px;}
+.alarm-title{font-family:'Orbitron',monospace;font-size:.7rem;color:var(--y);letter-spacing:.1em;margin-bottom:12px;}
+.alarm-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;}
+.ainp{background:rgba(255,255,255,.04);border:1px solid rgba(255,214,0,.2);border-radius:8px;padding:8px 12px;color:var(--y);font-family:'Orbitron',monospace;font-size:1rem;outline:none;width:130px;}
+.ainp:focus{border-color:rgba(255,214,0,.5);}
+.alinp{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:8px 12px;color:var(--text);font-family:'Exo 2',sans-serif;font-size:.85rem;outline:none;flex:1;min-width:110px;}
+.alinp:focus{border-color:rgba(255,214,0,.35);}
+.abtn{padding:8px 16px;border-radius:8px;cursor:pointer;font-family:'Share Tech Mono',monospace;font-size:.65rem;border:1px solid;transition:all .2s;}
+.abtn.set{background:rgba(255,214,0,.1);border-color:rgba(255,214,0,.35);color:var(--y);}.abtn.set:hover{background:rgba(255,214,0,.22);}
+.abtn.up{background:rgba(0,212,255,.07);border-color:rgba(0,212,255,.25);color:var(--b);}.abtn.up:hover{background:rgba(0,212,255,.16);}
+.abtn.rm{background:rgba(255,50,50,.07);border-color:rgba(255,50,50,.22);color:var(--r);}.abtn.rm:hover{background:rgba(255,50,50,.16);}
+.sound-row{display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap;}
+.sound-lbl{font-family:'Share Tech Mono',monospace;font-size:.63rem;color:var(--muted);}
+.sound-name{font-family:'Share Tech Mono',monospace;font-size:.63rem;color:rgba(0,212,255,.7);}
+.alarm-list{display:flex;flex-direction:column;gap:7px;max-height:200px;overflow-y:auto;}
+.alarm-item{display:flex;align-items:center;justify-content:space-between;background:rgba(255,214,0,.04);border:1px solid rgba(255,214,0,.1);border-radius:9px;padding:9px 13px;gap:8px;flex-wrap:wrap;}
+.alarm-item.ringing{border-color:var(--y);background:rgba(255,214,0,.13);animation:rflash .5s ease-in-out infinite alternate;}
+@keyframes rflash{from{box-shadow:0 0 0 rgba(255,214,0,0);}to{box-shadow:0 0 20px rgba(255,214,0,.5);}}
+.ai-time{font-family:'Orbitron',monospace;font-size:.88rem;color:var(--y);}
+.ai-lbl{font-family:'Share Tech Mono',monospace;font-size:.65rem;color:var(--muted);flex:1;}
+.ai-st{font-size:.6rem;font-family:'Share Tech Mono',monospace;padding:2px 8px;border-radius:6px;}
+.ai-st.on{background:rgba(0,255,136,.1);color:var(--g);border:1px solid rgba(0,255,136,.25);}
+.ai-st.off{background:rgba(255,255,255,.04);color:var(--muted);}
+.ptitle{font-family:'Orbitron',monospace;color:var(--y);font-size:.83rem;letter-spacing:.09em;margin-bottom:14px;}
+.pgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.f{margin-bottom:12px;}
+.f label{display:block;font-size:.68rem;color:var(--yd);letter-spacing:.11em;margin-bottom:5px;font-family:'Share Tech Mono',monospace;}
+.f input,.f textarea,.f select{width:100%;background:rgba(255,255,255,.03);border:1px solid rgba(255,214,0,.14);border-radius:9px;padding:10px 13px;color:var(--text);font-family:'Exo 2',sans-serif;font-size:.9rem;outline:none;transition:all .2s;}
+.f input:focus,.f textarea:focus,.f select:focus{border-color:var(--y);}
+.f textarea{resize:vertical;min-height:60px;}
+.bgen{width:100%;margin-top:12px;padding:12px;background:linear-gradient(135deg,var(--y),var(--y2));border:none;border-radius:9px;color:#000;font-family:'Orbitron',monospace;font-size:.77rem;font-weight:700;letter-spacing:.09em;cursor:pointer;transition:opacity .2s;}
+.bgen:hover{opacity:.85;}
+.pout{margin-top:12px;background:rgba(0,0,0,.5);border:1px solid rgba(255,214,0,.08);border-radius:9px;padding:12px;font-family:'Share Tech Mono',monospace;font-size:.65rem;color:#999;max-height:200px;overflow-y:auto;white-space:pre;display:none;}
+.chatbox{max-width:700px;width:100%;background:var(--card);border:1px solid var(--bf);border-radius:15px;padding:20px;min-height:180px;max-height:360px;overflow-y:auto;margin-bottom:14px;position:relative;}
+.chatbox::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(255,214,0,.28),transparent);}
+.cm{margin-bottom:14px;animation:msgin .24s ease;}
+@keyframes msgin{from{opacity:0;transform:translateY(7px);}to{opacity:1;transform:none;}}
+.cm .cl{font-size:.63rem;font-family:'Share Tech Mono',monospace;margin-bottom:5px;letter-spacing:.05em;}
+.cm.david .cl{color:var(--y);}
+.cm.user .cl{color:var(--muted);text-align:right;}
+.cm.david .ct{display:inline-block;max-width:90%;color:#ffe98a;font-size:.92rem;line-height:1.7;padding:12px 16px;background:rgba(255,214,0,.04);border-left:2px solid rgba(255,214,0,.38);border-radius:0 12px 12px 0;}
+.cm.user{text-align:right;overflow:hidden;}
+.cm.user .ct{display:inline-block;max-width:90%;color:#e8e8f0;font-size:.92rem;line-height:1.7;padding:12px 16px;background:rgba(255,255,255,.04);border-right:2px solid rgba(255,255,255,.14);border-radius:12px 0 0 12px;float:right;clear:both;}
+.cm .ct img{max-width:230px;border-radius:9px;margin-top:7px;display:block;}
+.cm .ct video{max-width:270px;border-radius:9px;margin-top:7px;display:block;}
+.tdot{display:inline-block;width:7px;height:7px;background:var(--y);border-radius:50%;margin:0 2px;animation:tdot .8s ease-in-out infinite;}
+.tdot:nth-child(2){animation-delay:.16s;}.tdot:nth-child(3){animation-delay:.32s;}
+@keyframes tdot{0%,60%,100%{transform:translateY(0);opacity:.4;}30%{transform:translateY(-6px);opacity:1;}}
+.mrx{max-width:700px;width:100%;margin-bottom:18px;background:rgba(4,4,12,.97);border:1px solid rgba(255,214,0,.13);border-radius:16px;padding:22px 26px;position:relative;overflow:hidden;cursor:pointer;transition:border-color .3s;}
+.mrx::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(255,214,0,.5),transparent);}
+.mrx:hover{border-color:rgba(255,214,0,.3);}
+.bk{position:absolute;width:14px;height:14px;border-color:rgba(255,214,0,.3);}
+.bk.tl{top:10px;left:10px;border-top:1px solid;border-left:1px solid;}.bk.tr{top:10px;right:10px;border-top:1px solid;border-right:1px solid;}
+.bk.bl{bottom:10px;left:10px;border-bottom:1px solid;border-left:1px solid;}.bk.br{bottom:10px;right:10px;border-bottom:1px solid;border-right:1px solid;}
+.mrx-shine{position:absolute;top:0;left:-120%;width:50%;height:100%;background:linear-gradient(105deg,transparent,rgba(255,214,0,.06),transparent);transition:left .5s;}
+.mrx:hover .mrx-shine{left:150%;}
+.mrx-sub{font-family:'Share Tech Mono',monospace;font-size:.63rem;color:var(--muted);letter-spacing:.07em;margin-bottom:16px;}
+.mrx-red{display:inline-block;background:rgba(255,214,0,.08);border:1px solid rgba(255,214,0,.18);border-radius:4px;padding:1px 8px;font-family:'Share Tech Mono',monospace;font-size:.72rem;color:rgba(255,214,0,.5);animation:redactblink 3s ease-in-out infinite;}
+@keyframes redactblink{0%,90%,100%{opacity:1;}95%{opacity:.3;}}
+.mrx-body{font-size:.83rem;color:rgba(240,230,200,.72);line-height:1.8;}
+.mrx-body p{margin-bottom:10px;}.mrx-body p:last-child{margin-bottom:0;}
+.mrx-opening{font-size:1.05rem;font-weight:600;color:rgba(255,214,0,.92);line-height:1.55;margin-bottom:16px;}
+.mrx-quote{display:block;margin:8px 0 5px 12px;color:rgba(255,214,0,.55);font-size:.86rem;line-height:1.6;border-left:2px solid rgba(255,214,0,.18);padding-left:12px;}
+.mrx-footer{margin-top:18px;padding-top:12px;border-top:1px solid rgba(255,214,0,.07);display:flex;justify-content:flex-end;}
+.mrx-sig{font-size:.9rem;font-style:italic;color:var(--y);}
+.inpzone{max-width:700px;width:100%;display:flex;gap:9px;align-items:flex-end;position:fixed;bottom:0;left:50%;transform:translateX(-50%);padding:14px 18px 18px;background:rgba(3,3,10,.98);border-top:1px solid var(--bf);z-index:50;backdrop-filter:blur(26px);}
+.inpzone::before{content:'';position:absolute;top:0;left:8%;right:8%;height:1px;background:linear-gradient(90deg,transparent,rgba(255,214,0,.28),transparent);}
+.inpzone textarea{flex:1;background:rgba(255,255,255,.03);border:1px solid rgba(255,214,0,.16);border-radius:12px;padding:12px 15px;color:var(--text);font-family:'Exo 2',sans-serif;font-size:.93rem;resize:none;height:48px;outline:none;transition:border-color .22s;line-height:1.5;}
+.inpzone textarea:focus{border-color:rgba(255,214,0,.55);box-shadow:0 0 0 3px rgba(255,214,0,.07);}
+.ibtn{border:none;border-radius:12px;width:48px;height:48px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1.05rem;flex-shrink:0;transition:all .18s;}
+.ibtn.send{background:linear-gradient(135deg,var(--y),var(--y2));color:#000;font-size:1.1rem;box-shadow:0 0 18px rgba(255,214,0,.35);}
+.ibtn.send:hover{transform:scale(1.08);box-shadow:0 0 34px rgba(255,214,0,.65);}
+.ibtn.mic{background:rgba(255,214,0,.06);border:1px solid rgba(255,214,0,.18);color:var(--y);}
+.ibtn.mic:hover,.ibtn.mic.on{background:rgba(255,214,0,.18);border-color:var(--y);}
+.modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.84);z-index:300;align-items:center;justify-content:center;backdrop-filter:blur(12px);}
+.modal.show{display:flex;}
+.mbox{background:#05050f;border:1px solid rgba(255,214,0,.18);border-radius:18px;padding:28px;max-width:400px;width:93%;animation:mpop .3s cubic-bezier(.34,1.56,.64,1);position:relative;overflow:hidden;}
+.mbox::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(255,214,0,.5),transparent);}
+@keyframes mpop{from{opacity:0;transform:scale(.88);}to{opacity:1;transform:scale(1);}}
+.mtitle{font-family:'Orbitron',monospace;color:var(--y);font-size:.88rem;letter-spacing:.1em;margin-bottom:14px;}
+.mclose{float:right;background:none;border:none;color:var(--muted);font-size:1.2rem;cursor:pointer;}
+.mclose:hover{color:var(--y);}
+.scgrid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:9px;}
+.sci2{background:rgba(255,214,0,.04);border:1px solid rgba(255,214,0,.11);border-radius:10px;padding:13px;cursor:pointer;transition:all .22s;text-align:center;}
+.sci2:hover{background:rgba(255,214,0,.1);border-color:rgba(255,214,0,.4);transform:translateY(-2px);}
+.sci2 .icon{font-size:1.5rem;margin-bottom:4px;}
+.sci2 .lbl{font-size:.65rem;color:var(--y);font-family:'Share Tech Mono',monospace;letter-spacing:.04em;}
+#scres{margin-top:10px;font-size:.73rem;color:var(--yd);font-family:'Share Tech Mono',monospace;line-height:1.65;min-height:18px;}
+/* PREMIUM LOCK CARD */
+.premium-card{display:none;max-width:700px;width:100%;background:rgba(4,4,18,.98);border:1px solid rgba(192,132,252,.25);border-radius:16px;padding:26px;margin-bottom:14px;position:relative;overflow:hidden;text-align:center;animation:capp .3s ease;}
+.premium-card.show{display:block;}
+.premium-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(192,132,252,.5),transparent);}
+.premium-card::after{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 0%,rgba(192,132,252,.05),transparent 70%);pointer-events:none;}
+.prem-ico{font-size:2.4rem;margin-bottom:10px;filter:drop-shadow(0 0 12px rgba(192,132,252,.4));}
+.prem-title{font-family:'Orbitron',monospace;color:var(--pu);font-size:.85rem;letter-spacing:.14em;margin-bottom:10px;}
+.prem-text{font-size:.85rem;color:rgba(200,180,240,.65);line-height:1.75;max-width:440px;margin:0 auto 18px;}
+.prem-btn{display:inline-block;padding:10px 28px;background:linear-gradient(135deg,rgba(192,132,252,.15),rgba(192,132,252,.05));border:1px solid rgba(192,132,252,.4);border-radius:10px;font-family:'Orbitron',monospace;font-size:.65rem;color:var(--pu);letter-spacing:.1em;cursor:pointer;transition:all .22s;}
+.prem-btn:hover{background:rgba(192,132,252,.22);border-color:rgba(192,132,252,.7);}
+@media(max-width:580px){.pgrid{grid-template-columns:1fr;}.scgrid{grid-template-columns:1fr;}.hdr-title{font-size:.82rem;}.orbc{width:155px;height:155px;}.orb-core{width:62px;height:62px;}.big-clock{font-size:2.2rem;}}
+</style>
+</head>
+<body>
+<canvas id="bgc"></canvas>
+<div class="gorb a"></div><div class="gorb b"></div><div class="gorb c"></div>
+<div id="ai">
+
+<div class="hdr">
+  <div class="hdr-left">
+    <div class="hdr-title">⬡ DAVID AI</div>
+    <div class="hdr-nick" id="hdrnick">—</div>
+  </div>
+  <div class="hdr-right">
+    <div class="livdot"></div>
+    <div class="wb-badge" id="wb-badge"><span class="wbdot"></span><span id="wb-text">Welcome back</span></div>
+    <button class="hbtn out" onclick="logout()">⬡ Switch User</button>
+  </div>
+</div>
+
+<div class="main" id="main">
+  <div class="orb-wrap" id="orb-wrap">
+    <div class="orbc"><div class="orbr"></div><div class="orbr"></div><div class="orbr"></div><div class="orb-core" id="orb"></div></div>
+    <div class="vbars" id="vbars"><div class="vb"></div><div class="vb"></div><div class="vb"></div><div class="vb"></div><div class="vb"></div><div class="vb"></div><div class="vb"></div><div class="vb"></div></div>
+  </div>
+  <div class="sub-badge" id="sub-badge"><span class="sbdot"></span>📝 SUBTITLE MODE — TEXT ONLY</div>
+  <div class="subdiv" id="subdiv"></div>
+
+  <div class="pathways">
+    <a class="pbox" href="david-games.html" onclick="logNav('David Games')">
+      <span class="pbox-ico">🎮</span>
+      <div><div class="pbox-name">GAMES</div><div class="pbox-sub">david-games.html</div></div>
+    </a>
+    <a class="pbox" href="david-projects.html" onclick="logNav('David Projects')">
+      <span class="pbox-ico">📦</span>
+      <div><div class="pbox-name">PROJECTS</div><div class="pbox-sub">david-projects.html</div></div>
+    </a>
+    <a class="pbox" href="universe.html" onclick="logNav('David Universe')">
+      <span class="pbox-ico">🌌</span>
+      <div><div class="pbox-name">DAVID UNIVERSE</div><div class="pbox-sub">universe.html</div></div>
+    </a>
+  </div>
+
+  <div class="mrx">
+    <div class="bk tl"></div><div class="bk tr"></div><div class="bk bl"></div><div class="bk br"></div>
+    <div class="mrx-shine"></div>
+    <div class="mrx-sub">IDENTITY: <span class="mrx-red">██████████</span> &nbsp;·&nbsp; CLASSIFIED</div>
+    <div class="mrx-body">
+      <p class="mrx-opening">You noticed this for a reason.<br>Most people wouldn't.</p>
+      <p>There is a person behind DAVID AI. Not a company. Not a team. One individual — known only as <strong style="color:rgba(255,214,0,.75);">Mr X</strong>. He built everything you are using right now. Alone. In silence. Without asking for recognition.</p>
+      <p>Nobody knows his real name. Nobody has seen his face. He has never done an interview, never posted a photo. The only thing he has ever released is his work — and this is it.</p>
+      <p>He once left a single line behind: <em class="mrx-quote">"I built what I needed. I hope you needed it too."</em></p>
+    </div>
+    <div class="mrx-footer"><span class="mrx-sig"><em>— Mr X</em></span></div>
+  </div>
+
+  <div class="tools"><div class="trow">
+    <span class="tc" onclick="openTool('pwa')">📱 PWA Generator</span>
+    <span class="tc" onclick="openTool('weather')">🌤️ Weather</span>
+    <span class="tc" onclick="openTool('time')">🕐 Time &amp; Alarms</span>
+    <span class="tc" onclick="document.getElementById('chatbox').scrollIntoView({behavior:'smooth'})">💬 Chat</span>
+  </div></div>
+
+  <div class="card" id="pwa-panel">
+    <div class="ptitle">📱 PWA APP GENERATOR</div>
+    <div class="pgrid">
+      <div class="f"><label>APP NAME</label><input type="text" id="pn" placeholder="My App"></div>
+      <div class="f"><label>SHORT NAME</label><input type="text" id="ps" placeholder="App"></div>
+      <div class="f"><label>THEME COLOR</label><input type="color" id="pc" value="#FFD600"></div>
+      <div class="f"><label>DESCRIPTION</label><input type="text" id="pd" placeholder="A cool app"></div>
+    </div>
+    <div class="f" style="margin-top:6px;grid-column:1/-1;"><label>APP PURPOSE / FEATURES</label><textarea id="pp" placeholder="Describe what your app should do..."></textarea></div>
+    <button class="bgen" onclick="genPWA()">⚡ GENERATE PWA CODE</button>
+    <pre class="pout" id="pout"></pre>
+    <div id="pdl" style="display:none;margin-top:10px;text-align:center;"><button class="bgen" style="width:auto;padding:10px 24px;" onclick="dlPWA()">⬇ Download ZIP</button></div>
+  </div>
+
+  <div class="card wflex" id="wcard">
+    <div class="wi2" id="wicon">🌤️</div>
+    <div class="winfo"><div class="wc" id="wcity">Detecting location...</div><div class="wt" id="wtemp">--°C</div><div class="wd" id="wdesc">—</div></div>
+    <div class="tdisp" id="tdisp">--:--:--</div>
+  </div>
+
+  <div class="card" id="time-panel">
+    <div class="big-clock" id="big-clock">00:00:00</div>
+    <div class="big-date" id="big-date">—</div>
+    <div class="alarm-section">
+      <div class="alarm-title">⏰ ALARMS</div>
+      <div class="sound-row">
+        <span class="sound-lbl">Alarm sound:</span>
+        <span class="sound-name" id="sound-name">Default tone</span>
+        <button class="abtn up" onclick="document.getElementById('alarm-audio-inp').click()">📁 Upload MP3</button>
+        <input type="file" id="alarm-audio-inp" accept="audio/*" style="display:none" onchange="loadAlarmSound(this)">
+      </div>
+      <div class="alarm-row">
+        <input type="time" id="alarm-time" class="ainp" value="07:00">
+        <input type="text" id="alarm-label" class="alinp" placeholder="Alarm label (optional)">
+        <button class="abtn set" onclick="addAlarm()">+ Set</button>
+      </div>
+      <div class="alarm-list" id="alarm-list"></div>
+    </div>
+  </div>
+
+  <!-- PREMIUM LOCK CARD — shown when topic is unrecognised -->
+  <div class="premium-card" id="premium-card">
+    <div class="prem-ico">🔒</div>
+    <div class="prem-title">PREMIUM KNOWLEDGE</div>
+    <p class="prem-text" id="prem-text">This topic is available in the paid version of DAVID AI. Upgrade your account to unlock the full knowledge base, advanced modules, and exclusive capabilities.</p>
+    <button class="prem-btn" onclick="document.getElementById('premium-card').classList.remove('show');alert('Contact Mr X to upgrade your DAVID AI account.')">UPGRADE ACCOUNT ›</button>
+  </div>
+
+  <div style="max-width:700px;width:100%;display:flex;justify-content:flex-end;padding:0 2px 6px;">
+    <button onclick="document.getElementById('chatbox').innerHTML='';" title="Clear chat"
+      style="display:flex;align-items:center;gap:5px;background:rgba(255,68,85,.06);border:1px solid rgba(255,68,85,.22);border-radius:8px;padding:5px 13px;cursor:pointer;font-family:'Share Tech Mono',monospace;font-size:.6rem;color:rgba(255,100,100,.75);letter-spacing:.05em;transition:all .22s;"
+      onmouseover="this.style.background='rgba(255,68,85,.16)';this.style.borderColor='rgba(255,68,85,.55)';this.style.color='#ff4455';"
+      onmouseout="this.style.background='rgba(255,68,85,.06)';this.style.borderColor='rgba(255,68,85,.22)';this.style.color='rgba(255,100,100,.75)';">
+      ↺ NEW CHAT
+    </button>
+  </div>
+  <div class="chatbox" id="chatbox"></div>
+</div>
+</div>
+
+<div class="inpzone">
+  <button class="ibtn mic" id="micbtn" onclick="toggleMic()">🎙️</button>
+  <textarea id="cinp" placeholder="Ask DAVID anything..." onkeydown="onKey(event)"></textarea>
+  <button class="ibtn send" onclick="send()">➤</button>
+</div>
+
+<div class="modal" id="scmodal">
+  <div class="mbox">
+    <button class="mclose" onclick="document.getElementById('scmodal').classList.remove('show')">✕</button>
+    <div class="mtitle">🖥️ SYSTEM CONTROL</div>
+    <div class="scgrid">
+      <div class="sci2" onclick="sca('bat')"><div class="icon">🔋</div><div class="lbl">Battery</div></div>
+      <div class="sci2" onclick="sca('net')"><div class="icon">📶</div><div class="lbl">Network</div></div>
+      <div class="sci2" onclick="sca('scr')"><div class="icon">🖥️</div><div class="lbl">Screen</div></div>
+      <div class="sci2" onclick="sca('mem')"><div class="icon">💾</div><div class="lbl">Memory</div></div>
+    </div>
+    <div id="scres"></div>
+  </div>
+</div>
+
+<audio id="alarm-audio" loop></audio>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script>
+const FB_MAIN = 'https://david-worldwide-default-rtdb.firebaseio.com';
+const FB_IC   = 'https://david-connection-plus-default-rtdb.asia-southeast1.firebasedatabase.app';
+const IC_PATH = FB_IC + '/info_center.json';
+const FB_SECRET='qvUWJxHiM91gJBOI1qH0bZkR7ds0fBquYd4foLzT';
+function fbQ(){return '?auth='+FB_SECRET;}
+
+var U={},SID='';
+var FB=FB_MAIN;
+var IC_ENTRIES=[];  /* loaded once on startup from FB_IC, searched instantly in memory */
+var IS_SUB_MODE=false;
+var IS_RETURNING=false;
+var VISIT_COUNT=0;
+var weatherFetched=false;
+var alarms=[];
+var customAudioUrl=null;
+var lastReplyKey='';
+var recognition=null;
+
+/* ══════════════════════════════════════════
+   KNOWLEDGE BASE — keyword-scored engine
+   Each entry: { kw:[], responses:[] }
+   kw = keywords that trigger this topic
+   responses = array of reply strings (randomly picked)
+   n = placeholder replaced with user nick
+══════════════════════════════════════════ */
+var KB=[
+  /* FEED */
+  {kw:['feed','activity','updates','recent','notifications','real-time','realtime','live stream','events log','history','timeline','what happened','inbox','session log'],
+   responses:[
+    'The Feed, [n], is your real-time activity centre. It shows a live chronological timeline of everything in your session — all chat messages, module opens (Weather, Alarms, PWA), alarm events, Firebase-synced activity, and session markers. It updates automatically — no refresh needed. Your Feed lives in the David Viewer control panel.',
+    '[n], the Feed is the heartbeat of DAVID AI — every action you take is logged in real time. Chat messages, tool activations, alarm events, session opens — all visible in the David Viewer. Firebase streams it live. No refresh, no delay. The Feed is also visible to Mr X via the control room.',
+    'Your activity Feed, [n], records: all chat messages sent and received · module activations (Weather, Alarms, PWA, System) · alarm set/triggered/dismissed events · session start markers · Firebase-synced timestamps. It streams in real time and is tied to your SID (Session ID).'
+   ]
+  },
+  /* NAVIGATION */
+  {kw:['navigation','navigate','menu','pathway','pathways','pbox','how to get to','where is','find','locate','move between','switch','toolbar','shortcuts','access','open','go to'],
+   responses:[
+    'DAVID AI navigation works through Pathway Boxes and a Tools Row, [n]. Pathway Boxes link to the 3 main destinations: 🎮 Games, 📦 Projects, and 🌌 David Universe. The Tools Row gives quick access to 📱 PWA Generator, 🌤️ Weather, 🕐 Time & Alarms, and 💬 Chat. Switching between tools never loses your chat context.',
+    '[n], everything in DAVID AI is reachable from the main screen. The three glowing boxes above link to Games, Projects, and David Universe. The tool chips below them open the PWA Generator, Weather, Clock/Alarms, and Chat. Header has your profile nick and Switch User button. No nested menus — everything is one tap away.',
+    'Navigation in DAVID AI is flat and fast, [n]. Pathway Boxes (Games · Projects · Universe) are the main destinations. Tool chips (PWA · Weather · Time · Chat) open panels inline without leaving the page. Your chat context, session data, and username persist across all panels. Press Enter to send, Shift+Enter for a new line.'
+   ]
+  },
+  /* ALARMS */
+  {kw:['alarm','alarms','alert','reminder','wake','schedule','timer','ring','ringing','dismiss','snooze','sound','beep','bell','set alarm','add alarm','custom sound','mp3','upload sound','alarm list'],
+   responses:[
+    '[n], the Alarm module is built into DAVID AI — no external app needed. Open it by tapping 🕐 Time & Alarms in the tool chips. Pick a time using the time picker, add an optional label (e.g. "Team Meeting"), click + Set. Your alarm appears in the list. DAVID checks every 15 seconds and fires the alarm in-browser with sound. You can upload your own MP3 as the ringtone.',
+    'Setting an alarm is simple, [n]: tap 🕐 Time & Alarms · select your time · add a label if you want · click + Set. The alarm fires with a built-in Web Audio API beep (or your own uploaded MP3). You can toggle alarms ON/OFF without deleting them, or tap ✕ to remove. Alarms are session-based — they reset if you refresh the page.',
+    'Alarm tips for you, [n]: (1) Tap 🕐 Time & Alarms to open the panel. (2) Use the time picker — 24-hour format supported. (3) Labels help you remember what the alarm is for. (4) Upload MP3 with the 📁 button for a custom ringtone. (5) Keep DAVID AI open and in the foreground — background tabs may be throttled by the browser and miss the alarm check.'
+   ]
+  },
+  /* SESSIONS */
+  {kw:['session','sessions','visit','visits','history','memory','remember me','user data','localstorage','local storage','return','returning user','saved','stored','persist','sid','how does david remember','visit count','my data'],
+   responses:[
+    'DAVID AI remembers you through localStorage, [n]. Your full profile (name, nick, country, language, interests, goals, extra context) is saved on your device. A Session ID (SID) links your activity to the Firebase log. Your visit count tracks how many times you have opened DAVID AI. No server-side account needed — everything lives on your device.',
+    '[n], here is how sessions work: on first visit you fill in your profile at the index page. DAVID saves it to localStorage with a unique SID. Every return visit, DAVID reads this saved data automatically and personalises the greeting. Visit #'+'{VISIT_COUNT}'+' is your current session. A "Welcome back" badge shows when you return after navigating away.',
+    'Your profile is your session passport, [n]. Name, nick, country, language, interests, goals — all stored in localStorage. The Session ID (SID) = your nick + timestamp, and links your chat log to the Firebase real-time database. The David Viewer (admin panel) reads your SID to display your activity and allow Mr X to reply directly into your chat.'
+   ]
+  },
+  /* ACADEMY */
+  {kw:['academy','training academy','37 subjects','learn','study','subject','lesson','course','curriculum','quiz','guided lesson','topic','educational','academic','school subject','knowledge'],
+   responses:[
+    '[n], the Training Academy is inside 🌌 David Universe. It covers 37 subjects with guided lessons, explanations, quizzes, and exercises. Subjects include: Mathematics (Algebra, Calculus, Stats, Geometry) · Sciences (Physics, Chemistry, Biology, Astronomy) · Technology (Programming, AI, Cybersecurity, Data Science) · Languages (English, French, Spanish) · History, Philosophy, Geography, Economics · Arts, Music Theory, Creative Writing · Business, Finance, Entrepreneurship. Tap 🌌 David Universe above to enter.',
+    'David Academy has 37 subjects, [n] — tap 🌌 David Universe then select Academy. It adapts to your profile: if your interests include coding or business, those surface first. You can ask DAVID to quiz you on any subject directly in chat too — try "Quiz me on Python basics" or "Explain derivatives." The Academy tracks your session progress.',
+    'The Academy inside David Universe, [n], gives you structured learning across 37 subjects. Think of it as a private tutor built into your AI. Pick a subject, follow guided lessons, complete quizzes, and check your progress. Sports, music, acting, coding, science, languages — it is all in there. Tap 🌌 DAVID UNIVERSE above to start.'
+   ]
+  },
+  /* PWA */
+  {kw:['pwa','progressive web app','app generator','build app','generate app','install app','manifest','service worker','offline app','mobile app','web app','create app','download app','app builder','no code app'],
+   responses:[
+    '[n], the PWA Generator is available via the 📱 PWA Generator chip above. Fill in: App Name · Short Name · Theme Colour · Description · App Purpose. Click Generate — DAVID builds complete HTML, CSS, manifest.json, and service worker. Download as a zip and deploy to any HTTPS host (GitHub Pages, Netlify, Vercel). Users can then install it as a native-like app from their browser.',
+    'Building a PWA with DAVID AI, [n]: tap 📱 PWA Generator · fill in your app details (name, colour, description, purpose) · click Generate. You get a complete deployable package — HTML shell, PWA manifest with theme and icons, service worker for offline caching, and base CSS with your chosen colour. Download the ZIP and host anywhere with HTTPS.',
+    'The PWA Builder, [n], is one of the most powerful tools in DAVID AI. No coding required — fill in the form, generate, download, host. The generated package includes: index.html (your app shell) · manifest.json (identity, icons, theme, display mode) · sw.js (service worker for offline) · styles.css (base styling). Once hosted on HTTPS, users can install it like a native app.'
+   ]
+  },
+  /* PROFILE */
+  {kw:['profile','my profile','my name','my info','account','setup','onboarding','nick','nickname','interests','goals','language','country','personalise','personalize','change name','edit profile','user info','who am i','what do you know','my details'],
+   responses:[
+    'Your DAVID AI profile, [n]: Name ('+'{NAME}'+') · Nick ('+'{NICK}'+') · Country ('+'{COUNTRY}'+') · Language ('+'{LANG}'+') · Interests ('+'{INTERESTS}'+') · Goals ('+'{GOALS}'+') · Mode ('+'{MODE}'+') · Visit count: '+'{VISIT_COUNT}'+'. All stored in localStorage. DAVID uses every field to personalise your chat responses. To update: tap ⬡ Switch User, re-enter your details.',
+    '[n], DAVID knows you through your profile: Full Name = '+'{NAME}'+', Nick = '+'{NICK}'+', Country = '+'{COUNTRY}'+', Language = '+'{LANG}'+'. Your interests and goals are injected into relevant responses so nothing feels generic. Visit #'+'{VISIT_COUNT}'+'. To edit your profile, tap Switch User in the top right and re-fill the setup form.',
+    'Profile data DAVID holds about you, [n]: '+'{NAME}'+' | '+'{NICK}'+' | '+'{COUNTRY}'+' | '+'{LANG}'+' | Interests: '+'{INTERESTS}'+' | Goals: '+'{GOALS}'+' | Mode: '+'{MODE}'+' | Sessions: '+'{VISIT_COUNT}'+'. This powers every personalised response. DAVID never sends your profile to any third party — it stays in localStorage on your device.'
+   ]
+  },
+  /* WEATHER */
+  {kw:['weather','temperature','forecast','rain','sunny','cloud','wind','humidity','climate','hot','cold','degrees','celsius','fahrenheit','live weather','current weather','today weather','storm','conditions','outside'],
+   responses:[
+    '[n], tap 🌤️ Weather in the tool chips above. DAVID uses your device GPS (Geolocation API) to fetch live conditions via the Open-Meteo API. You will see: current temperature (°C) · weather condition with emoji · wind speed (km/h) · your coordinates. No account needed, no API key. Data is fetched fresh every time — never stale cached results.',
+    'Weather in DAVID AI, [n]: tap the 🌤️ Weather chip. Allow location access when prompted. DAVID pulls live data for your exact coordinates. Displayed: temperature · condition (☀️ Clear / ⛅ Partly Cloudy / 🌧️ Rain / ⛈️ Storm / ❄️ Snow etc.) · wind speed · local time. If you deny location, the card shows "Location permission denied."',
+    '[n], you can also trigger weather by typing "weather" or "what is the temperature" in chat — DAVID will open the Weather panel automatically and fetch your current conditions. The data comes from Open-Meteo, a free real-time weather API. No keys, no limits, no stale data.'
+   ]
+  },
+  /* CHAT */
+  {kw:['chat','message','talk','conversation','ask','type','send','reply','how to chat','input','communicate','dialogue','chat engine','ai chat','talk to david','how does chat work','chat box'],
+   responses:[
+    '[n], the chat engine is the core of DAVID AI. Type in the input bar at the bottom and press Enter (or ➤). DAVID uses a keyword-scoring engine — similar to how ChatGPT processes intent — to match your input to the most relevant knowledge module. Profile context (your interests, goals, country) is injected into every response to make it personal to you. Viewer messages from Mr X appear in your chat too.',
+    'How chat works in DAVID AI, [n]: (1) Type your message in the bottom input (supports multi-line with Shift+Enter). (2) Press Enter or tap ➤. (3) DAVID scores your input against every knowledge module using keyword matching. (4) The highest-scoring module delivers a personalised response using your name, country, and interests. (5) If nothing matches well enough, a premium upgrade prompt appears.',
+    '[n], your chat input is processed through a multi-layer engine: keyword extraction → topic scoring → profile injection → response selection. Responses are randomised from multiple variants per topic so repeat questions get different wording. Your messages are also logged to Firebase so Mr X can see activity and reply directly into your chat in real time.'
+   ]
+  },
+  /* AI FORGE */
+  {kw:['ai forge','forge','build ai','create ai','13 tools','make ai','custom ai','ai builder','forge step','brain type','memory type','personality slider','device control','ai evolution','ai identity','ai name','forge submission','my ai'],
+   responses:[
+    '[n], the AI Forge is inside 🌌 David Universe — tap it above. It is a 10-step wizard to build your own custom AI: Step 1 AI Identity (name, behaviour, greeting, knowledge, personality) · Step 2 Brain Core (brain type, reasoning style, response depth) · Step 3 Knowledge System (domains, sources, update frequency) · Step 4 Skills (core + advanced modules) · Step 5 Memory System · Step 6 Personality Builder (6 sliders: confidence, creativity, curiosity, empathy, friendliness, humor) · Step 7 Interaction (modes, language, proactive, format) · Step 8 Safety & Ethics · Step 9 Device Control · Step 10 Evolution Rules. Then request delivery.',
+    'AI Forge gives you full personality control, [n]. The 6 personality sliders are: Confidence (0–100) · Creativity (0–100) · Curiosity (0–100) · Empathy (0–100) · Friendliness (0–100) · Humor (0–100). You also choose: Brain Type (Static / Learning / Adaptive / Predictive) · Reasoning Style (Analytical / Creative / Balanced / Intuitive) · Memory Type (None / Short-term / Long-term / Permanent). After submitting, your AI configuration is logged to Firebase and delivered.',
+    'The 10 steps of AI Forge, [n]: 1-Identity · 2-Brain Core · 3-Knowledge System · 4-Skill Modules · 5-Memory System · 6-Personality Builder · 7-Interaction System · 8-Safety & Ethics · 9-Device Control · 10-AI Evolution. Each step is fully configurable. At the end you choose a delivery format (HTML or PDF) and submit. Your built AI spec is sent to Mr X via Firebase for fulfilment.'
+   ]
+  },
+  /* GAMES */
+  {kw:['games','game','play','fun','entertainment','puzzle','challenge','interactive','mini game','arcade','trivia','quiz game','word game','bored','gaming','david games'],
+   responses:[
+    '[n], tap the 🎮 Games pathway box above to enter the Games section. DAVID AI has browser-based games — trivia, puzzles, reflex challenges, word games, and math games. No downloads, no installs — everything runs in your browser. They work offline once loaded and are optimised for all screen sizes.',
+    'Games are one click away, [n] — tap 🎮 GAMES above. You will find: Trivia challenges (general knowledge + subject-specific) · Word games (vocabulary and spelling) · Puzzle games (logic and pattern recognition) · Reflex games (speed and reaction) · Math games (quick arithmetic). All browser-native — HTML5, CSS, JavaScript.',
+    'Feeling bored, [n]? Tap 🎮 GAMES above! DAVID\'s game library runs entirely in the browser — no account, no download, no ads. Or if you tell me what you enjoy, I can suggest which game fits your mood. {INTERESTS_GAMES}'
+   ]
+  },
+  /* UNIVERSE */
+  {kw:['universe','david universe','create studio','all features','master hub','portal','everything','full platform','complete platform','what is universe','inside universe'],
+   responses:[
+    '[n], 🌌 David Universe is the master hub of the entire platform — tap it above. Inside: 🤖 AI Forge (build your own AI in 10 steps) · 🎬 Create Studio (13 real AI-powered creative tools) · 🏫 Training Academy (37 subjects, guided lessons and quizzes). Each world is fully self-contained and connects back to your main DAVID AI session.',
+    'David Universe contains three worlds, [n]: (1) 🤖 AI Forge — custom AI builder with 10 configuration steps, personality sliders, memory type, device control. (2) 🎬 Create Studio — 13 live tools for content generation, coding, storytelling, CV writing, email, social media, translation, problem-solving. (3) 🏫 Training Academy — 37 subjects with interactive lessons and quizzes. Tap 🌌 DAVID UNIVERSE above to enter.',
+    'The three universes inside David Universe, [n]: AI Forge lets you design a custom AI from scratch — identity, brain, knowledge, memory, personality, device control. Create Studio has 13 creative tools for every content type. Training Academy gives you 37 academic and practical subjects with lessons, quizzes, and exercises. It is all accessible from the pathway box above.'
+   ]
+  },
+  /* CREATE STUDIO */
+  {kw:['create studio','13 tools','creative tools','content generator','code builder','idea factory','pitch creator','story engine','cv builder','email composer','study guide','business plan','social media','translation','problem solver','creative prompt'],
+   responses:[
+    '[n], the Create Studio inside 🌌 David Universe has 13 AI-powered tools: (1) Content Generator — articles, posts, copy. (2) Code Builder — working code snippets. (3) Idea Factory — brainstorming. (4) Pitch Creator — business/presentation scripts. (5) Story Engine — creative narratives. (6) CV & Resume Builder. (7) Email Composer. (8) Study Guide Maker. (9) Business Plan Outline. (10) Social Media Caption Tool. (11) Translation Assistant. (12) Problem Solver — step-by-step reasoning. (13) Creative Prompt Generator. Each tool gives structured, actionable output.',
+    'Create Studio gives you 13 specialist tools, [n] — access via 🌌 David Universe. Each tool is task-focused: instead of open conversation, you get structured output fast. Whether you need a CV, a business plan, a piece of code, a translation, or a social media caption — there is a dedicated tool for it. Far faster than asking a general chatbot.',
+    '[n], for creative work, the Create Studio (inside David Universe) is your best friend. 13 tools, each built for a specific output type. The Code Builder generates working snippets. The Story Engine writes full narratives. The Email Composer handles professional and personal emails. The CV Builder formats your experience. The Translation Assistant handles multiple languages. Tap 🌌 DAVID UNIVERSE above.'
+   ]
+  },
+  /* LOGIN / ONBOARDING */
+  {kw:['login','log in','sign in','onboarding','new user','setup','first time','register','index','home page','get started','how to join','start david','initial setup','first visit'],
+   responses:[
+    '[n], DAVID AI uses a profile-based login instead of passwords. On first visit, you fill in the setup form at index.html: Full Name · Nick · Country · Interests · Language · Goals · Extra context · Response Mode (Voice / Subtitles / Both). Click Launch DAVID AI. Your profile is saved to localStorage with a unique SID. No email, no password, no server account — complete privacy by design.',
+    'First-time setup for DAVID AI, [n]: go to the index page (home screen) and fill in the form. The key fields are Name, Nick (what DAVID calls you), Country, Language, Interests, and Goals. Your Response Mode choice controls whether DAVID shows the orb and animated subtitles, subtitles only, or plays voice responses. Once saved, DAVID recognises you on every return visit automatically.',
+    'Returning to DAVID AI, [n]: your profile is saved in localStorage on your device. Every time you open david-ai.html, DAVID reads this saved profile and greets you personally. Your visit count increments each session. If you clear your browser data or open a different device, you will be redirected to index.html to re-enter your profile.'
+   ]
+  },
+  /* VOICE */
+  {kw:['voice','speech','speak','listen','microphone','mic','audio input','verbal','voice input','speech recognition','dictate','talk','say it','spoken','voice command'],
+   responses:[
+    '[n], DAVID AI has a built-in voice input system. Tap the 🎙️ microphone button in the input bar. Your browser will request microphone access — allow it. Speak naturally and DAVID transcribes your words and sends the message automatically. Voice recognition uses the browser\'s Web Speech API. Chrome gives the best results. The mic button turns red 🔴 while listening.',
+    'Voice modes in DAVID AI, [n]: you chose your response mode at setup — Voice Only (DAVID speaks responses), Subtitles Only (animated word-by-word text, no orb), or Voice & Subtitles (full experience: orb, animated text, and speech). To use voice input, tap the 🎙️ mic in the bottom bar. DAVID listens, transcribes, and processes your speech as a chat message.',
+    '[n], voice input in DAVID AI is powered by the Web Speech API. Tap 🎙️, speak, and your words are transcribed and processed automatically. Best results in Chrome. For voice output, your setup mode controls this — if you chose Voice or Both, DAVID speaks responses aloud using speech synthesis. Subtitle mode shows animated word-by-word text in the display panel above the chat.'
+   ]
+  },
+  /* FIREBASE / DATA */
+  {kw:['firebase','database','sync','cloud','server','backend','realtime database','rtdb','logging','activity log','data storage','api key','online data','david data','data sent','firebase sync'],
+   responses:[
+    '[n], DAVID AI uses Firebase Realtime Database for: session event logging · chat message recording · the viewer reply system that lets Mr X send messages directly into your chat. Firebase does NOT store your full profile — that stays in localStorage. The Firebase project is david-worldwide-default-rtdb. Activity is stored under /activity/[SID]/ and replies under /replies/[SID]/.',
+    'Firebase is used in two ways in DAVID AI, [n]: (1) Activity logging — every significant action (session open, chat messages, tool use, alarms, forge steps) is POSTed to Firebase with your SID, nick, timestamp, and event details. (2) Real-time reply listener — an EventSource stream watches /replies/[SID]/ and delivers messages from Mr X directly into your chat as DAVID AI responses.',
+    '[n], Firebase stores only session events — not your personal profile data. What it logs: session_start events · chat_message content · nav_click events · tool_open events · alarm events · mic_used events · system_check events · forge_step submissions. Your name, interests, goals, and country are in localStorage only. The David Viewer reads the Firebase data to show Mr X a live activity feed.'
+   ]
+  },
+  /* SECURITY / PRIVACY */
+  {kw:['security','privacy','safe','tracking','spy','collect','private','anonymous','no data','protect','personal info','third party','advertise','sell data','data privacy','gdpr','who sees my data'],
+   responses:[
+    'DAVID AI is built privacy-first, [n]. Your profile (name, interests, goals) is in localStorage on your device only — never sent to any server. Firebase logs session events (not personal profile fields). There are no ads, no third-party tracking scripts, no analytics SDKs. No email, no password, no account server. The developer (Mr X) has no commercial incentive to monetise your data.',
+    '[n], your data in DAVID AI: Profile data → localStorage (your device only). Session events → Firebase (SID, nick, timestamps, event types). Personal profile fields (name, interests, goals) → NEVER sent to Firebase. No ads. No third-party SDKs. No tracking pixels. The only external calls are: Firebase (activity + replies) and Open-Meteo (weather). Both are clearly documented.',
+    'Privacy summary for DAVID AI, [n]: using incognito/private mode means localStorage is wiped when you close the tab — DAVID treats every session as new. Normal mode saves your profile persistently. Clearing browser data resets your profile. No email or password means no breach risk. The platform is inspectable source — you can read every line of code to verify. Built by one person, Mr X, with no commercial entity behind it.'
+   ]
+  },
+  /* BORED */
+{kw:['bored','nothing to do','im bored','boring'],
+ responses:[
+  '[n], if you’re bored, try 🎮 Games above — there are fun browser-based challenges waiting for you.',
+  'Feeling bored, [n]? Explore Games or ask me to suggest something based on your interests.',
+  '[n], boredom detected. Try the Games section or explore David Universe for something new.'
+ ]
+},
+/* MOTIVATION */
+{kw:['motivate me','motivation','inspire','im tired','give me energy'],
+ responses:[
+  '[n], progress starts with small steps. Start now — even if it’s just one action.',
+  'You’ve got this, [n]. Keep moving forward — consistency beats everything.',
+  '[n], every expert was once a beginner. Keep going.'
+ ]
+},
+/* JOKE */
+{kw:['joke','make me laugh','funny'],
+ responses:[
+  '[n], why did the developer go broke? Because he used up all his cache.',
+  'Here’s one, [n]: Why do programmers prefer dark mode? Because light attracts bugs.',
+  '[n], I would tell you a UDP joke… but you might not get it.'
+ ]
+},
+/* SEARCH */
+{kw:['search','look up','find info','google','browse'],
+ responses:[
+  '[n], I don’t browse the internet like a search engine, but I can guide you using my built-in knowledge system.',
+  'For external searches, [n], you can use your browser. I focus on guiding you within DAVID AI.',
+  '[n], I work with structured knowledge — not live web browsing — but I can still help you understand topics.'
+ ]
+},
+/* ERROR */
+{kw:['error','not working','bug','issue','problem','glitch'],
+ responses:[
+  '[n], if something is not working, try refreshing the page first. Most issues resolve instantly.',
+  'Encountering an issue, [n]? Check your connection and reload DAVID AI.',
+  '[n], minor glitches can happen. Refreshing usually fixes everything quickly.'
+ ]
+},
+/* SPEED */
+{kw:['slow','lag','delay','performance'],
+ responses:[
+  '[n], performance depends on your device and connection. Close unused tabs for better speed.',
+  'If DAVID feels slow, [n], check your internet and system resources.',
+  '[n], the system is lightweight, but slower devices may experience slight delays.'
+ ]
+},
+/* FEATURES */
+{kw:['features','what can david do','capabilities'],
+ responses:[
+  '[n], DAVID AI includes chat, weather, alarms, PWA generator, games, and access to David Universe.',
+  'Core features, [n]: Chat system, Weather, Time & Alarms, PWA Builder, and Universe modules.',
+  '[n], DAVID AI is designed as a multi-tool platform — not just a chatbot.'
+ ]
+},
+/* SUBTITLE MODE */
+{kw:['subtitle mode','text mode','no voice','disable voice','subtitles only','text only mode'],
+ responses:[
+  '[n], Subtitle Mode shows DAVID responses as animated text only — no voice, no orb. It is designed for quiet environments or focused reading.',
+  'You are in Subtitle Mode, [n]. DAVID displays responses word-by-word without voice output.',
+  '[n], Subtitle Mode removes audio and focuses purely on text interaction for clarity and speed.'
+ ]
+},
+/* RESPONSE MODE */
+{kw:['response mode','voice mode','change mode','voice or text','audio mode'],
+ responses:[
+  '[n], your response mode is selected during setup: Voice Only, Subtitles Only, or Both. To change it, tap ⬡ Switch User and reconfigure your profile.',
+  'DAVID response modes, [n]: Voice (spoken), Subtitles (text), or Both (full experience). You can update this from the setup screen.',
+  '[n], your current mode controls how I respond — visually, audibly, or both.'
+ ]
+},
+/* PATHWAY BOXES */
+{kw:['pathway boxes','boxes above','games projects universe','navigation boxes'],
+ responses:[
+  '[n], the Pathway Boxes are your main navigation system — they take you to Games, Projects, and David Universe.',
+  'Those glowing boxes, [n], are direct links to the three main sections of DAVID AI.',
+  '[n], Pathway Boxes allow instant navigation without leaving your session context.'
+ ]
+},
+/* TOOL CHIPS */
+{kw:['tool chips','tools row','buttons under boxes','pwa weather time chat buttons'],
+ responses:[
+  '[n], the Tool Chips give quick access to core features: PWA Generator, Weather, Time & Alarms, and Chat.',
+  'Those small buttons under the boxes, [n], open tools instantly without leaving the page.',
+  '[n], Tool Chips are designed for fast access — one tap opens each module inline.'
+ ]
+},
+/* PWA DOWNLOAD */
+{kw:['download app','download pwa','zip file','export app'],
+ responses:[
+  '[n], after generating your PWA, click Download ZIP to get the full app package ready for hosting.',
+  'The PWA download, [n], includes HTML, manifest, service worker, and styles — everything needed to deploy.',
+  '[n], once downloaded, you can host your app on GitHub Pages, Netlify, or any HTTPS platform.'
+ ]
+},
+/* WEATHER PERMISSION */
+{kw:['location denied','allow location','gps permission','weather permission'],
+ responses:[
+  '[n], if location access is denied, DAVID cannot fetch weather data. Enable location permissions in your browser settings.',
+  'Weather requires GPS access, [n]. If denied, the module will not load your data.',
+  '[n], allow location access to get accurate weather for your current position.'
+ ]
+},
+/* ALARM LIMITATION */
+{kw:['alarm not ringing','alarm missed','alarm didnt work'],
+ responses:[
+  '[n], alarms may fail if the browser tab is inactive or throttled. Keep DAVID AI open in the foreground.',
+  'If your alarm didn’t trigger, [n], your browser may have paused background activity.',
+  '[n], for best results, keep the tab active and avoid sleep mode on your device.'
+ ]
+},
+/* CHAT CONTEXT */
+{kw:['do you remember','previous message','chat memory','context'],
+ responses:[
+  '[n], DAVID AI does not store long-term conversation memory — each message is processed independently unless logged in Firebase.',
+  'Chat context is session-based, [n]. Messages are logged, but responses are generated per input.',
+  '[n], I don’t remember past conversations deeply — I respond based on your current input and profile but dont worry, this feature will be done in DAVID AI 1.0 upgrade.'
+ ]
+},
+/* PREMIUM LOCK */
+{kw:['premium','locked','upgrade','why locked','paid version'],
+ responses:[
+  '[n], some topics are locked behind the Premium Knowledge system. Upgrade access is required to unlock them.',
+  'That topic is part of the premium layer, [n]. It is not included in the base knowledge system.',
+  '[n], premium modules extend DAVID AI with deeper knowledge and advanced capabilities.'
+ ]
+},
+/* SYSTEM LIMITS */
+{kw:['limitations','what cant you do','limits'],
+ responses:[
+  '[n], DAVID AI operates within its knowledge base and browser capabilities. It does not access external databases beyond configured APIs.',
+  'Limitations, [n]: no full internet browsing, no persistent long-term memory, and browser-based execution only.',
+  '[n], DAVID AI is powerful within its system — but not a full cloud AI like large language models.'
+ ]
+},
+/* CHAT CLEAR */
+{kw:['clear chat','new chat','reset chat','delete messages','start new chat'],
+ responses:[
+  '[n], you can clear your chat instantly using the ↺ NEW CHAT button above the chatbox.',
+  'To reset the conversation, [n], tap the NEW CHAT button — it clears all messages.',
+  '[n], clearing chat removes visible messages but your session continues normally.'
+ ]
+},
+/* SWITCH USER */
+{kw:['switch user','change user','logout','different user','new profile'],
+ responses:[
+  '[n], to switch users, tap ⬡ Switch User in the top right. This will take you back to the setup screen.',
+  'You can change profiles anytime, [n], by clicking the Switch User button.',
+  '[n], switching user resets your profile and starts a new session.'
+ ]
+},
+/* VISIT COUNT */
+{kw:['visit count','how many visits','my visits','how many times'],
+ responses:[
+  '[n], your visit count tracks how many times you have opened DAVID AI on this device.',
+  'Every time you return, [n], your visit count increases automatically.',
+  '[n], visit count is stored locally and helps personalise your experience.'
+ ]
+},
+/* WELCOME BACK */
+{kw:['welcome back','returning','im back','came back'],
+ responses:[
+  'Welcome back, [n]. Your previous session data has been restored.',
+  '[n], good to have you back. DAVID AI remembers your profile locally.',
+  'Return detected, [n]. Resuming your personalised experience.'
+ ]
+},
+/* INPUT BOX */
+{kw:['input box','where to type','chat input','message box'],
+ responses:[
+  '[n], you can type your message in the input bar at the bottom of the screen.',
+  'The chat input is located at the bottom, [n]. Press Enter to send.',
+  '[n], use the input box below to communicate with DAVID AI.'
+ ]
+},
+/* ENTER KEY */
+{kw:['press enter','how to send message','send message','enter key'],
+ responses:[
+  '[n], press Enter to send your message instantly.',
+  'To send a message, [n], press Enter or click the ➤ button.',
+  '[n], use Shift+Enter if you want to create a new line without sending.'
+ ]
+},
+/* MIC BUTTON */
+{kw:['mic button','microphone button','voice button','record voice'],
+ responses:[
+  '[n], tap the 🎙️ microphone button to start voice input.',
+  'The mic button allows you to speak instead of typing, [n].',
+  '[n], when active, the mic listens and converts your speech into text.'
+ ]
+},
+/* VOICE NOT WORKING */
+{kw:['mic not working','voice not working','cant speak','microphone issue'],
+ responses:[
+  '[n], make sure microphone permissions are enabled in your browser settings.',
+  'If voice input is not working, [n], check that your browser supports Web Speech API.',
+  '[n], Chrome provides the best support for voice features in DAVID AI.'
+ ]
+},
+/* ORB */
+{kw:['orb','circle animation','ai orb','glowing ball'],
+ responses:[
+  '[n], the orb represents DAVID AI’s active state and responds visually during interaction.',
+  'That glowing sphere, [n], is the AI core indicator — it animates while processing.',
+  '[n], the orb enhances the visual experience of DAVID AI.'
+ ]
+},
+/* ANIMATION */
+{kw:['animation','moving effects','visual effects','background moving'],
+ responses:[
+  '[n], DAVID AI uses animated visuals to create a dynamic and immersive experience.',
+  'The moving background and effects, [n], are part of the UI design.',
+  '[n], animations run smoothly in the background without affecting core performance.'
+ ]
+},
+/* UNIVERSE OPEN */
+{kw:['open universe','go to universe','enter universe'],
+ responses:[
+  '[n], tap the 🌌 David Universe box above to enter the main hub.',
+  'To access Universe, [n], use the pathway box at the top.',
+  '[n], David Universe contains Forge, Studio, and Academy.'
+ ]
+},
+/* GAMES OPEN */
+{kw:['open games','go to games','play games'],
+ responses:[
+  '[n], tap 🎮 Games above to explore available games.',
+  'Games section is accessible via the pathway box, [n].',
+  '[n], enjoy browser-based games instantly — no install needed.'
+ ]
+},
+/* PROJECTS OPEN */
+{kw:['open projects','go to projects','projects section'],
+ responses:[
+  '[n], tap 📦 Projects above to explore available projects.',
+  'Projects section contains builds and experiments, [n].',
+  '[n], access projects directly through the pathway box.'
+ ]
+},
+/* DATA RESET */
+{kw:['reset data','clear profile','delete profile','wipe data'],
+ responses:[
+  '[n], clearing your browser data will reset your DAVID AI profile completely.',
+  'To reset everything, [n], clear localStorage or switch user.',
+  '[n], this will remove your saved profile and session history.'
+ ]
+},
+/* OFFLINE MODE */
+{kw:['offline mode','no connection mode'],
+ responses:[
+  '[n], in offline mode, DAVID AI continues running locally without cloud features.',
+  'Offline mode disables live syncing but keeps chat functional, [n].',
+  '[n], reconnect to restore full capabilities.'
+ ]
+},
+/* REALTIME */
+{kw:['real time','live updates','instant updates'],
+ responses:[
+  '[n], DAVID AI updates in real time using Firebase and browser APIs.',
+  'Live features update instantly, [n], without needing refresh.',
+  '[n], real-time syncing keeps your session active and current.'
+ ]
+},
+/* AI EXPLANATION */
+{kw:['what is ai','define ai','artificial intelligence','ai meaning'],
+ responses:[
+  '[n], Artificial Intelligence (AI) is technology that allows machines to simulate human thinking, learning, and decision-making.',
+  'AI, [n], refers to systems that can analyse data, recognise patterns, and respond intelligently without being explicitly programmed for every action.',
+  '[n], AI enables software like DAVID to understand input, process it, and generate useful responses.'
+ ]
+},
+/* HOW DAVID WORKS */
+{kw:['how do you work','how does david work','your system','how are you built'],
+ responses:[
+  '[n], DAVID AI works using a structured knowledge base, keyword matching, and scoring logic to determine the best response for your input.',
+  'My system, [n], analyses your input, compares it against known topics, and selects the most relevant response.',
+  '[n], I operate entirely in your browser using JavaScript, Firebase, and modular UI systems.'
+ ]
+},
+/* AI VS HUMAN */
+{kw:['ai vs human','difference between ai and human','are you human'],
+ responses:[
+  '[n], I am not human. I process data and respond based on logic, while humans think, feel, and experience emotions.',
+  'AI like me, [n], follows programmed logic — humans use creativity, emotions, and real-world experiences.',
+  '[n], I simulate conversation, but I do not have consciousness.'
+ ]
+},
+/* MACHINE LEARNING */
+{kw:['machine learning','ml','what is machine learning'],
+ responses:[
+  '[n], Machine Learning is a type of AI where systems improve automatically by learning from data.',
+  'ML allows systems, [n], to recognise patterns and make predictions without being manually programmed for each case.',
+  '[n], unlike DAVID’s fixed KB system, ML models learn dynamically over time.'
+ ]
+},
+/* INTERNET EXPLANATION */
+{kw:['what is internet','define internet','how internet works'],
+ responses:[
+  '[n], the internet is a global network of connected computers that communicate and share data.',
+  'The internet, [n], allows devices worldwide to send and receive information instantly.',
+  '[n], it powers websites, apps, and real-time systems like DAVID AI features.'
+ ]
+},
+/* WEBSITE */
+{kw:['what is a website','define website','web page'],
+ responses:[
+  '[n], a website is a collection of web pages hosted on a server and accessed through a browser.',
+  'Websites, [n], are built using technologies like HTML, CSS, and JavaScript.',
+  '[n], DAVID AI itself runs as a web-based application.'
+ ]
+},
+/* HTML */
+{kw:['what is html','html meaning'],
+ responses:[
+  '[n], HTML (HyperText Markup Language) is the structure of a website.',
+  'HTML defines elements like text, buttons, and layout, [n].',
+  '[n], it is the foundation of every web page.'
+ ]
+},
+/* CSS */
+{kw:['what is css','css meaning'],
+ responses:[
+  '[n], CSS (Cascading Style Sheets) controls the design and appearance of a website.',
+  'Colors, animations, and layout styling are handled by CSS, [n].',
+  '[n], it makes websites visually appealing.'
+ ]
+},
+/* JAVASCRIPT */
+{kw:['what is javascript','js meaning'],
+ responses:[
+  '[n], JavaScript is the programming language that adds interactivity to websites.',
+  'DAVID AI runs primarily on JavaScript, [n], handling logic, responses, and UI behaviour.',
+  '[n], it allows websites to respond dynamically to user actions.'
+ ]
+},
+/* FIREBASE */
+{kw:['what is firebase','firebase meaning','database firebase'],
+ responses:[
+  '[n], Firebase is a cloud platform used for real-time databases, authentication, and hosting.',
+  'DAVID AI uses Firebase, [n], to store session data and enable live viewer replies.',
+  '[n], it allows real-time syncing between users and the system.'
+ ]
+},
+/* API */
+{kw:['what is api','api meaning'],
+ responses:[
+  '[n], an API (Application Programming Interface) allows different systems to communicate with each other.',
+  'APIs let DAVID AI fetch data like weather information, [n].',
+  '[n], they act as bridges between services.'
+ ]
+},
+/* CLOUD */
+{kw:['what is cloud','cloud computing'],
+ responses:[
+  '[n], cloud computing means storing and accessing data over the internet instead of your device.',
+  'Firebase operates in the cloud, [n], enabling real-time updates.',
+  '[n], cloud systems allow scalability and remote access.'
+ ]
+},
+/* DATABASE */
+{kw:['what is database','database meaning'],
+ responses:[
+  '[n], a database is a structured system for storing and retrieving data.',
+  'DAVID AI logs activity in a database, [n], for tracking and viewer interaction.',
+  '[n], databases organise information efficiently.'
+ ]
+},
+/* BROWSER */
+{kw:['what is browser','web browser'],
+ responses:[
+  '[n], a browser is software used to access websites, like Chrome or Edge.',
+  'DAVID AI runs entirely inside your browser, [n].',
+  '[n], browsers interpret HTML, CSS, and JavaScript.'
+ ]
+},
+/* CPU */
+{kw:['what is cpu','processor','cpu meaning'],
+ responses:[
+  '[n], the CPU (Central Processing Unit) is the brain of a computer.',
+  'It processes instructions and runs programs, [n].',
+  '[n], performance of DAVID AI depends partly on your CPU.'
+ ]
+},
+/* RAM */
+{kw:['what is ram','memory ram'],
+ responses:[
+  '[n], RAM (Random Access Memory) stores temporary data for active programs.',
+  'More RAM, [n], allows smoother multitasking and better performance.',
+  '[n], DAVID AI uses your system memory while running.'
+ ]
+},
+/* STORAGE */
+{kw:['what is storage','disk space','ssd hdd'],
+ responses:[
+  '[n], storage refers to where data is saved permanently on a device.',
+  'Examples include SSDs and HDDs, [n].',
+  '[n], your browser also uses storage for saving local data like your profile.'
+ ]
+},
+/* AI LIMITATION */
+{kw:['can ai think','does ai think','ai intelligence'],
+ responses:[
+  '[n], AI does not think like humans — it processes patterns and data.',
+  'AI simulates intelligence, [n], but does not have awareness or emotions.',
+  '[n], responses are generated through logic, not consciousness.'
+ ]
+},
+/* FUTURE OF AI */
+{kw:['future of ai','ai future','will ai take over'],
+ responses:[
+  '[n], AI will continue advancing and assisting humans, but it is designed to support — not replace — human intelligence.',
+  'The future of AI, [n], includes automation, smarter systems, and improved human-computer interaction.',
+  '[n], responsible development ensures AI remains beneficial.'
+ ]
+},
+/* FUTURE OF David */
+{kw:['future of DAVID AI','What is the future of DAVID AI','what is DAVID AI next upgrade'],
+ responses:[
+  '[n], DAVID AI future will not be announced at this time, future announcement will come from Mr X himself',
+  'The future of DAVID AI, [n], includes growth, expanding and much more experience but Mr X insists it is kept a suprise until the time comes.',
+  '[n], DAVID AI future is gonna be beneficial, that is all for now (coming from Mr X).'
+ ]
+},
+/* ACKNOWLEDGEMENT */
+{kw:['ok','okay','alright','fine','cool','got it','i see','understood','sure','k','kk','nice','great','yep','yeah'],
+ responses:[
+  'Alright, [n]. Let me know what you want to do next.',
+  'Got it, [n]. I’m here whenever you’re ready.',
+  'Okay, [n]. You can continue or ask me something else.',
+  'Understood, [n]. What would you like next?',
+  'Cool, [n]. Just say the word.',
+  'Noted, [n]. Waiting for your next input.',
+  'Alright then, [n]. What’s next?',
+  'Okay, [n]. I’m ready when you are.'
+ ]
+},
+  /* SYSTEM */
+  {kw:['system control','system info','device info','battery level','network type','screen resolution','ram','heap','device memory','technical info','performance','system check','browser info','specs'],
+   responses:[
+    '[n], the System Control modal shows live device data. Tap the 🖥️ System Control option (or type "system" in chat). Four checks: 🔋 Battery — charge percentage and charging status · 📶 Network — online/offline + connection type (4G, WiFi, etc.) · 🖥️ Screen — resolution and device pixel ratio · 💾 Memory — JavaScript heap size. All data is read from browser APIs, no permissions needed for most checks.',
+    'System Control in DAVID AI, [n]: open the modal and tap any of the four tiles. Battery uses the Battery Status API (Chrome/Edge). Network uses navigator.onLine + navigator.connection. Screen uses screen.width/height + devicePixelRatio. Memory uses performance.memory.usedJSHeapSize (Chrome only — Firefox/Safari return "not supported" for privacy reasons). All data is live, never cached.',
+    '[n], system checks in DAVID AI give you a live readout without leaving the page. The Battery tile shows charge % and charging state. Network shows your connection quality. Screen shows your exact display resolution. Memory shows how much JavaScript heap your session is using — useful for diagnosing if DAVID is running slow. Open via the modal or just type "battery", "network", "screen", or "memory" in chat.'
+   ]
+  },
+  /* MR X */
+  {kw:['mr x','creator','who made david','who built david','who is mr x','built by','created by','developer','author','owner','founder','identity','behind david','anonymous developer','made david ai'],
+   responses:[
+    '[n], Mr X is the sole creator of DAVID AI — one person, no team, no public identity. Every line of code, every module, every design decision was built by a single individual working alone. Nobody knows his real name. He has never done an interview, never posted a photo. The only proof he exists is this platform. He left one line: "I built what I needed. I hope you needed it too."',
+    'What Mr X built alone, [n]: the entire DAVID AI platform · Firebase backend integration · admin monitoring via David Viewer · AI Forge (10-step custom AI builder) · Create Studio (13 tools) · Training Academy (37 subjects) · Games · PWA Builder · Weather module · Alarm system · Voice recognition · the real-time reply system · the personalisation engine that makes DAVID feel tailored to every user.',
+    '[n], Mr X communicates with users via the Firebase real-time reply system — messages appear in your chat as DAVID AI responses. He can see your session activity through the David Viewer control panel, which shows every event, message, and tool interaction in real time. His identity remains classified — the panel on the main screen with the redacted bars is his only acknowledgement of existence.'
+   ]
+  },
+  /* PROJECTS */
+  {kw:['projects','david projects','my projects','saved work','my builds','portfolio','my apps','what i built','project list'],
+   responses:[
+    '[n], tap the 📦 Projects pathway box above to access your saved work. Projects stores all the PWAs you have generated, code you have built via AI Forge tools, and creative content from Create Studio sessions. It is your personal workspace inside DAVID AI — everything you create stays accessible there.',
+    'The Projects section, [n], is your portfolio inside DAVID AI. Access it via the 📦 PROJECTS pathway box. It holds your generated PWAs, forge outputs, and creative studio work. Think of it as your personal build history — everything you have made through DAVID AI, organised and accessible.',
+    '[n], 📦 Projects is one of the three main pathway destinations. It is where your work lives — generated apps, code, creative output, documents. If you have used the PWA Generator or AI Forge tools, the outputs appear here. Tap the Projects box above to see everything you have built.'
+   ]
+  },
+   /* Casual / friendly chat personality */
+  {kw:['hey','hi','hello','how\'s it going','what\'s up','yo'],
+   responses:[
+     'Hey [n]! 😎 What’s up today?',
+     'Hi [n]! Ready to make some cool stuff?',
+     'Hello [n]! How’s your day going? 😄'
+   ]
+  },
+   /* Angry user handling */
+  {kw:['angry','frustrated','mad','upset','this sucks'],
+   responses:[
+     'I hear you, [n]. Let’s work through this calmly 💪',
+     'Whoa, [n], I get it! Let’s tackle this together 🙂',
+     'No stress, [n]. We’ll figure it out step by step!'
+   ]
+  },
+    /* Confused user detection */
+  {kw:['huh','what','don\'t get it','confused','i don\'t understand'],
+   responses:[
+     'No worries, [n]! To get what im saying, try asking it again and i will generate another response from Knowledge Base',
+   ]
+  },
+
+  {kw:['what can david do','features','capabilities','help me with','all modules','full list','everything david'],
+   responses:['[n], DAVID AI\'s full capabilities: 💬 Personalised chat with KB matching · 🌤️ Live GPS weather · ⏰ Alarm scheduler with custom sounds · 📱 PWA Generator (complete deployable apps) · 🖥️ System Control (battery, network, screen, memory) · 🎙️ Voice input · 🌌 David Universe (AI Forge, Create Studio 13 tools, Academy 37 subjects) · 🎮 Games · 📦 Projects · 🔥 Firebase real-time replies from Mr X · 🔒 Premium knowledge base. What do you want to explore first?'
+   ]
+  },
+  {kw:['response mode','orb mode','subtitle mode','voice mode','rm','sub mode','orb','vbars','audio mode','display mode'],
+   responses:['[n], DAVID AI has three response modes set at sign-up: (1) Voice Only — DAVID speaks responses aloud using speech synthesis, no text subtitles. (2) Subtitles Only — animated word-by-word text in the subtitle bar, orb and bars hidden. (3) Voice & Subtitles — full experience: orb animation, animated subtitles, and voice output. Your current mode is {MODE}. To change it, tap Switch User and re-fill the setup form.'
+   ]
+  },
+];
+
+/* ══ ADVANCED KB MATCH ENGINE ══ */
+
+// 🔹 Synonyms map
+var SYNONYMS={
+  internet:['wifi','connection','data','network','online'],
+  alarm:['reminder','alert','timer'],
+  weather:['temperature','forecast','climate'],
+  error:['bug','issue','problem','glitch','not working'],
+  open:['launch','start','show'],
+  close:['exit','leave','stop'],
+  learn:['study','education','teach','lesson','course'],
+  create:['build','make','generate','develop'],
+  chat:['talk','message','speak','converse'],
+  help:['assist','support','guide','explain']
+};
+
+// 🔹 Learned phrases storage
+var learnedPhrases={};
+
+// 🔹 Clean + normalize input
+function normalize(input){
+  return input
+    .toLowerCase()
+    .replace(/[^\w\s]/g,'')
+    .replace(/\s+/g,' ')
+    .trim();
+}
+
+// 🔹 Expand keywords with synonyms
+function expandKeywords(keywords){
+  var expanded=new Set();
+  keywords.forEach(function(k){
+    expanded.add(k);
+    if(SYNONYMS[k]){SYNONYMS[k].forEach(function(s){expanded.add(s);});}
+  });
+  return Array.from(expanded);
+}
+
+// 🔹 Score function
+function scoreInput(input,keywords){
+  var score=0;
+  var words=input.split(' ');
+  keywords=expandKeywords(keywords);
+  keywords.forEach(function(k){
+    // 🔥 Exact phrase match
+    if(input.includes(k)) score+=4;
+    // 🔥 Exact word match
+    words.forEach(function(w){if(w===k) score+=5;});
+    // 🔥 Partial match
+    words.forEach(function(w){if(w.length>2&&k.length>2&&(w.startsWith(k)||k.startsWith(w))) score+=2;});
+    // 🔥 Multi-word keyword bonus
+    if(k.split(' ').length>1&&input.includes(k)) score+=3;
+  });
+  // 🔥 Intent boosting
+  if(input.includes('how to')) score+=6;
+  if(input.includes('what is')) score+=5;
+  if(input.includes('not working')) score+=7;
+  if(input.includes('open')) score+=3;
+  if(['ok','okay','alright','fine','k','kk'].includes(input)) score -= 2;
+  return score;
+}
+
+// 🔹 Check learned phrases
+function checkLearned(input){
+  var t=normalize(input);
+  for(var phrase in learnedPhrases){
+    if(learnedPhrases[phrase]>=2&&t.includes(phrase)){
+      for(var j=0;j<KB.length;j++){
+        for(var k=0;k<KB[j].kw.length;k++){
+          if(phrase===KB[j].kw[k]){return KB[j];}
+        }
+      }
+    }
+  }
+  return null;
+}
+
+// 🔹 Main KB matcher — returns a response string or null
+function kbMatch(rawInput){
+  var input=normalize(rawInput);
+  var best=null;
+  var bestScore=0;
+  KB.forEach(function(entry){
+    if(!entry||!entry.kw)return;
+    var s=scoreInput(input,entry.kw);
+    if(s>bestScore){bestScore=s;best=entry;}
+  });
+  // 🔥 Confidence threshold
+  if(bestScore>=5&&best){
+    var responses=best.responses;
+    return responses[Math.floor(Math.random()*responses.length)];
+  }
+  return null;
+}
+
+// 🔹 Learn from user input
+function learnInput(input){
+  var t=normalize(input);
+  var stop=/\b(how|do|does|can|is|are|what|where|when|why|the|a|an|i|my|me|it|to|for|of|in|on|at|this|that|with|please|tell|show|explain|about|help|want|get|find)\b/g;
+  var words=t.replace(stop,'').trim().split(/\s+/).filter(function(w){return w.length>2;});
+  words.forEach(function(w){learnedPhrases[w]=(learnedPhrases[w]||0)+1;});
+}
+
+function buildKBResponse(entry){
+  if(typeof entry==='number'){entry=KB[entry];}// backward compat
+  var r=entry.responses[Math.floor(Math.random()*entry.responses.length)];
+  /* replace profile placeholders */
+  r=r.replace(/\[n\]/g,U.nick||'there');
+  r=r.replace(/\{NAME\}/g,U.name||U.nick||'—');
+  r=r.replace(/\{NICK\}/g,U.nick||'—');
+  r=r.replace(/\{COUNTRY\}/g,U.country||'—');
+  r=r.replace(/\{LANG\}/g,U.language||'—');
+  r=r.replace(/\{INTERESTS\}/g,U.interests||'—');
+  r=r.replace(/\{GOALS\}/g,U.goals||'—');
+  r=r.replace(/\{MODE\}/g,U.rm||'both');
+  r=r.replace(/\{VISIT_COUNT\}/g,String(VISIT_COUNT));
+  r=r.replace(/\{INTERESTS_GAMES\}/g,U.interests?'Since you are into '+U.interests+', I would pick something that matches that energy.':'What kind of challenge are you in the mood for?');
+  return r;
+}
+
+/* ════════════════════════════════════════
+   INIT
+════════════════════════════════════════ */
+(function init(){
+  var s=localStorage.getItem('david_user');
+  if(!s){window.location.href='index.html';return;}
+  try{U=JSON.parse(s);}catch(e){window.location.href='index.html';return;}
+
+  SID=U.sid||(U.nick.replace(/\s+/g,'_')+'_'+Date.now());
+  U.sid=SID;localStorage.setItem('david_user',JSON.stringify(U));
+
+  IS_SUB_MODE=(U.rm==='sub');
+  if(IS_SUB_MODE){
+    document.getElementById('orb-wrap').classList.add('sub-hidden');
+    document.getElementById('vbars').classList.add('sub-hidden');
+    document.getElementById('sub-badge').classList.add('show');
+    document.getElementById('subdiv').classList.add('sub-mode');
+  }
+
+  var vKey='dv_visits_'+SID;
+  VISIT_COUNT=parseInt(localStorage.getItem(vKey)||'0')+1;
+  localStorage.setItem(vKey,String(VISIT_COUNT));
+
+  IS_RETURNING=sessionStorage.getItem('dai_nav_away')==='1';
+  sessionStorage.removeItem('dai_nav_away');
+  if(IS_RETURNING&&VISIT_COUNT>1){
+    var badge=document.getElementById('wb-badge');
+    badge.classList.add('show');
+    document.getElementById('wb-text').textContent='Welcome back, '+U.nick+' 👋';
+    setTimeout(function(){badge.classList.remove('show');},5000);
+  }
+
+  document.getElementById('hdrnick').textContent='👋 '+U.nick+' — DAVID AI';
+
+  initBG();startClock();loadInfoCenter();
+  setInterval(checkAlarms,15000);
+  startReplyListener();
+
+  logAct('session_start','Opened DAVID AI',{
+    visitCount:VISIT_COUNT,isReturning:IS_RETURNING,subMode:IS_SUB_MODE,page:'david-ai',
+    name:U.name||'',nick:U.nick||'',country:U.country||'',interests:U.interests||'',
+    language:U.language||'',goals:U.goals||'',extra:U.extra||'',rm:U.rm||'both',firstSeen:U.firstSeen||''
+  });
+
+  setTimeout(greet,700);
+})();
+
+function logAct(type,detail,extra){
+  var p=Object.assign({sid:SID,nick:U.nick,name:U.name||'',type:type,detail:detail||'',ts:new Date().toISOString()},extra||{});
+  fetch(FB+'/activity/'+SID+'.json'+fbQ(),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(p)}).catch(function(){});
+}
+function logNav(dest){
+  sessionStorage.setItem('dai_nav_away','1');
+  logAct('nav_click','Tapped '+dest,{dest:dest,page:'david-ai'});
+}
+
+function startReplyListener(){
+  var url=FB+'/replies/'+SID+'.json'+fbQ();
+  var es=new EventSource(url);
+  es.addEventListener('put',function(e){
+    try{
+      var d=JSON.parse(e.data);
+      if(!d||!d.data||typeof d.data!=='object')return;
+      if(d.path==='/'){
+        Object.keys(d.data).sort().forEach(function(k){var msg=d.data[k];if(!msg||!msg.ts)return;if(k<=lastReplyKey)return;lastReplyKey=k;deliverViewerMsg(msg);});
+      } else {
+        var k=d.path.replace('/','');if(k<=lastReplyKey)return;lastReplyKey=k;var msg=d.data;if(msg&&msg.ts)deliverViewerMsg(msg);
+      }
+    }catch(err){}
+  });
+  es.addEventListener('patch',function(e){
+    try{
+      var d=JSON.parse(e.data);if(!d||!d.data)return;
+      Object.keys(d.data).sort().forEach(function(k){var msg=d.data[k];if(!msg||!msg.ts)return;if(k<=lastReplyKey)return;lastReplyKey=k;deliverViewerMsg(msg);});
+    }catch(err){}
+  });
+  es.onerror=function(){es.close();setTimeout(startReplyListener,5000);};
+}
+function deliverViewerMsg(msg){
+  var box=document.getElementById('chatbox');
+  var d=document.createElement('div');d.className='cm david';
+  var inner='<div class="cl">DAVID AI</div><div class="ct">';
+  if(msg.text) inner+=escH(msg.text);
+  if(msg.imageUrl) inner+=(msg.text?'<br>':'')+'<img src="'+msg.imageUrl+'" onerror="this.style.display=\'none\'">';
+  if(msg.videoUrl) inner+=(msg.text||msg.imageUrl?'<br>':'')+'<video src="'+msg.videoUrl+'" controls></video>';
+  if(msg.fileUrl&&msg.fileName) inner+=(msg.text?'<br>':'')+'<a href="'+msg.fileUrl+'" target="_blank" style="color:var(--y);font-family:Share Tech Mono,monospace;font-size:.78rem;text-decoration:none;">📎 '+escH(msg.fileName)+'</a>';
+  inner+='</div>';
+  d.innerHTML=inner;
+  if(msg.text) displayWords(msg.text);
+  box.appendChild(d);box.scrollTop=box.scrollHeight;
+}
+
+function greet(){
+  var n=U.nick;
+  var msgs;
+  if(IS_RETURNING&&VISIT_COUNT>1){
+    msgs=['Welcome back, '+n+'! DAVID is always here. What are we doing today?',n+', good to have you back. What\'s on your mind?','Back again, '+n+'! The lights never went off. What do you need?'];
+  } else if(VISIT_COUNT>1){
+    msgs=['Hey '+n+'! Good to see you again. DAVID is live and ready.',n+', welcome back! Ask me anything.','Good to have you back, '+n+'. What\'s first?'];
+  } else {
+    msgs=['Hello '+n+'! I\'m DAVID — your AI. Ask me anything, or explore Games, Projects, or David Universe above.','Hey '+n+'! Welcome to DAVID AI. Everything above is yours to explore — and I\'m here for whatever you need.',n+', DAVID AI is live. Three worlds above — Games, Projects, David Universe. What\'s first?'];
+  }
+  speak(msgs[Math.floor(Math.random()*msgs.length)]);
+}
+
+function speak(text){
+  displayWords(text);
+  addMsg('david','DAVID AI',text);
+  var mode=U.rm||'both';
+  if((mode==='voice'||mode==='both')&&window.speechSynthesis){
+    window.speechSynthesis.cancel();
+    var utt=new SpeechSynthesisUtterance(text.replace(/[🔒⏰📱🌤️🕐💬🎙️🎮📦🌌⬡↺✓]/gu,''));
+    utt.lang=U.language||'en-US';
+    utt.rate=1;utt.pitch=1;utt.volume=1;
+    window.speechSynthesis.speak(utt);
+  }
+}
+function displayWords(text){
+  if(!text||typeof text!=='string')return;
+  var sub=document.getElementById('subdiv');if(!sub)return;
+  sub.innerHTML='';
+  text.split(' ').forEach(function(w,i){
+    var s=document.createElement('span');s.className='sw';s.textContent=w+' ';
+    s.style.animationDelay=(i*.055)+'s';sub.appendChild(s);
+  });
+}
+function addMsg(role,label,text){
+  var box=document.getElementById('chatbox');if(!box)return;
+  var d=document.createElement('div');d.className='cm '+role;
+  d.innerHTML='<div class="cl">'+escH(label)+'</div><div class="ct">'+escH(text)+'</div>';
+  box.appendChild(d);box.scrollTop=box.scrollHeight;
+}
+function escH(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+
+function send(){
+  var inp=document.getElementById('cinp');
+  var t=inp.value.trim();if(!t)return;
+  inp.value='';
+  document.getElementById('premium-card').classList.remove('show');
+  addMsg('user',U.nick,t);
+  logAct('chat_message',t,{message:t,page:'david-ai'});
+  learnInput(t);
+  /* 🔹 Check learned phrases — if user repeated a known phrase, boost it instantly */
+  var learnedMatch=checkLearned(t);
+  if(learnedMatch){
+    var learnedResp=learnedMatch.responses[Math.floor(Math.random()*learnedMatch.responses.length)];
+    learnedResp=learnedResp.replace(/\[n\]/g,U.nick||'there').replace(/\{NAME\}/g,U.name||U.nick||'—').replace(/\{NICK\}/g,U.nick||'—').replace(/\{COUNTRY\}/g,U.country||'—').replace(/\{LANG\}/g,U.language||'—').replace(/\{INTERESTS\}/g,U.interests||'—').replace(/\{GOALS\}/g,U.goals||'—').replace(/\{MODE\}/g,U.rm||'both').replace(/\{VISIT_COUNT\}/g,String(VISIT_COUNT));
+    showTyping();
+    setTimeout(function(){removeTyping();speak(learnedResp);},280+Math.random()*150);
+    return;
+  }
+  showTyping();
+  /* Built-in KB first — instant, no network */
+  var builtIn=replyBuiltIn(t);
+  if(builtIn!==null){
+    setTimeout(function(){removeTyping();speak(builtIn);},280+Math.random()*150);
+    return;
+  }
+  /* JSON Knowledge Center — already in memory, also instant */
+  var icResult=searchInfoCenter(t);
+  if(icResult!==null){
+    setTimeout(function(){removeTyping();speak(icResult);},280+Math.random()*150);
+    return;
+  }
+  /* Nothing matched — show premium */
+  setTimeout(function(){
+    removeTyping();
+    showPremium(t);
+    speak('🔒 That topic is not in my current knowledge base, '+U.nick+'. The premium version of DAVID AI unlocks the full knowledge library. See the upgrade card above.');
+  },280);
+}
+function onKey(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();send();}}
+function showTyping(){
+  var box=document.getElementById('chatbox');
+  var d=document.createElement('div');d.className='cm david';d.id='typing';
+  d.innerHTML='<div class="cl">DAVID AI</div><div class="ct"><span class="tdot"></span><span class="tdot"></span><span class="tdot"></span></div>';
+  box.appendChild(d);box.scrollTop=box.scrollHeight;
+}
+function removeTyping(){var t=document.getElementById('typing');if(t)t.remove();}
+
+function openTool(t){
+  document.querySelectorAll('.card').forEach(function(c){c.classList.remove('show');});
+  logAct('tool_open','Opened: '+t,{tool:t,page:'david-ai'});
+  if(t==='pwa') document.getElementById('pwa-panel').classList.add('show');
+  else if(t==='weather'){document.getElementById('wcard').classList.add('show');if(!weatherFetched)fetchWeather();}
+  else if(t==='time') document.getElementById('time-panel').classList.add('show');
+}
+
+function fetchWeather(){
+  weatherFetched=true;
+  var city=document.getElementById('wcity');
+  city.textContent='Requesting location...';
+  if(!navigator.geolocation){city.textContent='Geolocation not supported';return;}
+  navigator.geolocation.getCurrentPosition(function(p){
+    var lat=p.coords.latitude,lon=p.coords.longitude;
+    fetch('https://api.open-meteo.com/v1/forecast?latitude='+lat+'&longitude='+lon+'&current_weather=true')
+      .then(function(r){return r.json();})
+      .then(function(d){
+        var w=d.current_weather;
+        var codes={0:'☀️',1:'🌤️',2:'⛅',3:'☁️',45:'🌫️',48:'🌫️',51:'🌦️',61:'🌧️',71:'❄️',80:'🌧️',95:'⛈️'};
+        document.getElementById('wtemp').textContent=Math.round(w.temperature)+'°C';
+        document.getElementById('wicon').textContent=codes[w.weathercode]||'🌡️';
+        document.getElementById('wcity').textContent='Lat '+lat.toFixed(2)+' · Lon '+lon.toFixed(2);
+        document.getElementById('wdesc').textContent='Wind '+w.windspeed+' km/h · Code '+w.weathercode;
+        logAct('weather_checked','Checked weather',{temp:w.temperature,page:'david-ai'});
+      }).catch(function(){city.textContent='Weather unavailable';});
+  },function(){city.textContent='Location permission denied';});
+}
+
+function startClock(){
+  setInterval(function(){
+    var now=new Date();
+    var bc=document.getElementById('big-clock');
+    var bd=document.getElementById('big-date');
+    var td=document.getElementById('tdisp');
+    if(bc) bc.textContent=now.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+    if(bd) bd.textContent=now.toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+    if(td) td.textContent=now.toLocaleTimeString();
+  },1000);
+}
+
+function loadAlarmSound(inp){
+  var f=inp.files[0];if(!f)return;
+  customAudioUrl=URL.createObjectURL(f);
+  document.getElementById('sound-name').textContent=f.name;
+  logAct('alarm_sound_uploaded','Uploaded alarm sound: '+f.name,{fileName:f.name,page:'david-ai'});
+  speak('Custom alarm sound loaded — "'+f.name+'". All your alarms will use this tone, '+U.nick+'.');
+}
+function addAlarm(){
+  var tv=document.getElementById('alarm-time').value;
+  var lv=document.getElementById('alarm-label').value.trim()||'Alarm';
+  if(!tv){speak('Please set a time for your alarm first, '+U.nick+'.');return;}
+  var id='al_'+Date.now();
+  alarms.push({id:id,time:tv,label:lv,active:true,fired:false,ringing:false});
+  renderAlarms();
+  speak('Alarm set for '+tv+', '+U.nick+'! Label: "'+lv+'". I\'ll alert you.');
+  logAct('alarm_set','Alarm set: '+tv,{alarmTime:tv,label:lv,page:'david-ai'});
+}
+function renderAlarms(){
+  var list=document.getElementById('alarm-list');if(!list)return;
+  if(!alarms.length){list.innerHTML='<div style="color:var(--muted);font-family:Share Tech Mono,monospace;font-size:.65rem;text-align:center;padding:8px;">No alarms set</div>';return;}
+  list.innerHTML=alarms.map(function(a){
+    return '<div class="alarm-item'+(a.ringing?' ringing':'')+'" id="alm_'+a.id+'">'+
+      '<span class="ai-time">'+a.time+'</span>'+
+      '<span class="ai-lbl">'+escH(a.label)+'</span>'+
+      '<span class="ai-st '+(a.active?'on':'off')+'">'+(a.active?'ON':'OFF')+'</span>'+
+      '<button class="abtn set" onclick="toggleAlarm(\''+a.id+'\')" style="padding:4px 10px;font-size:.6rem;">'+(a.active?'Pause':'Resume')+'</button>'+
+      (a.ringing?'<button class="abtn up" onclick="dismissAlarm(\''+a.id+'\')" style="padding:4px 10px;font-size:.6rem;">Dismiss</button>':'')+
+      '<button class="abtn rm" onclick="removeAlarm(\''+a.id+'\')" style="padding:4px 8px;font-size:.6rem;">✕</button>'+
+    '</div>';
+  }).join('');
+}
+function toggleAlarm(id){var a=alarms.find(function(x){return x.id===id;});if(a){a.active=!a.active;renderAlarms();}}
+function removeAlarm(id){alarms=alarms.filter(function(a){return a.id!==id;});renderAlarms();}
+function checkAlarms(){
+  var now=new Date();
+  var hhmm=now.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',hour12:false}).slice(0,5);
+  alarms.forEach(function(a){
+    if(a.active&&!a.fired&&a.time===hhmm){
+      a.fired=true;a.ringing=true;renderAlarms();
+      speak('⏰ ALARM! "'+a.label+'" is ringing, '+U.nick+'! Tap Dismiss to stop.');
+      logAct('alarm_triggered','Alarm fired: '+a.label,{alarmTime:a.time,label:a.label,page:'david-ai'});
+      var aud=document.getElementById('alarm-audio');
+      if(customAudioUrl){aud.src=customAudioUrl;aud.play().catch(function(){});}
+      else{try{var ac=new(window.AudioContext||window.webkitAudioContext)();var osc=ac.createOscillator();var g=ac.createGain();osc.connect(g);g.connect(ac.destination);osc.frequency.value=880;g.gain.value=0.3;osc.start();setTimeout(function(){try{osc.stop();}catch(e){}},3000);}catch(e){}}
+    }
+  });
+}
+function dismissAlarm(id){
+  var a=alarms.find(function(x){return x.id===id;});
+  if(a){a.ringing=false;a.active=false;renderAlarms();}
+  document.getElementById('alarm-audio').pause();
+  speak('Alarm dismissed, '+U.nick+'. Get to it!');
+}
+
+function genPWA(){
+  var name=document.getElementById('pn').value||'My App';
+  var sname=document.getElementById('ps').value||'App';
+  var color=document.getElementById('pc').value||'#FFD600';
+  var desc=document.getElementById('pd').value||'A smart web app';
+  var purpose=document.getElementById('pp').value||'General purpose';
+  var code='/* '+name+' — Generated by DAVID AI */\n<!DOCTYPE html>\n<html lang="en">\n<head>\n<meta charset="UTF-8">\n<meta name="viewport" content="width=device-width,initial-scale=1">\n<title>'+name+'</title>\n<link rel="manifest" href="manifest.json">\n<meta name="theme-color" content="'+color+'">\n<style>body{margin:0;min-height:100vh;background:#0a0a0a;color:#fff;font-family:system-ui;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;text-align:center;}h1{color:'+color+';margin-bottom:16px;}p{opacity:.7;max-width:480px;line-height:1.6;}</style>\n</head>\n<body>\n<h1>'+name+'</h1>\n<p>'+purpose+'</p>\n<p>'+desc+'</p>\n<script>\nif("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js");\n<\/script>\n</body>\n</html>';
+  document.getElementById('pout').textContent=code;
+  document.getElementById('pout').style.display='block';
+  document.getElementById('pdl').style.display='block';
+  speak('PWA code generated for "'+name+'", '+U.nick+'! Download it and deploy to any HTTPS host — GitHub Pages, Netlify, or Vercel. Users can install it as a native-like app.');
+  logAct('pwa_generated','Generated: '+name,{appName:name,page:'david-ai'});
+}
+function dlPWA(){
+  var name=document.getElementById('pn').value||'My App';
+  var sname=document.getElementById('ps').value||'App';
+  var color=document.getElementById('pc').value||'#FFD600';
+  var desc=document.getElementById('pd').value||'A smart web app';
+  var code=document.getElementById('pout').textContent;
+  var manifest=JSON.stringify({
+    name:name,short_name:sname,description:desc,
+    start_url:'.',display:'standalone',
+    background_color:'#0a0a0a',theme_color:color,
+    icons:[{src:'icon-192.png',sizes:'192x192',type:'image/png'},{src:'icon-512.png',sizes:'512x512',type:'image/png'}]
+  },null,2);
+  var sw="const CACHE='v1';\nself.addEventListener('install',e=>e.waitUntil(caches.open(CACHE).then(c=>c.addAll(['./','/index.html']))));\nself.addEventListener('fetch',e=>e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request))));";
+  var zip=new JSZip();
+  zip.file('index.html',code);
+  zip.file('manifest.json',manifest);
+  zip.file('sw.js',sw);
+  zip.generateAsync({type:'blob'}).then(function(b){
+    var a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=sname.replace(/\s+/g,'_')+'_pwa.zip';a.click();
+  });
+}
+
+function toggleMic(){
+  var btn=document.getElementById('micbtn');
+  if(recognition){recognition.stop();recognition=null;btn.classList.remove('on');btn.textContent='🎙️';return;}
+  var SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(!SR){speak('Voice input is not supported in this browser, '+U.nick+'. Try Chrome for the best experience.');return;}
+  recognition=new SR();
+  recognition.lang='en-US';recognition.interimResults=false;
+  recognition.onresult=function(e){var t=e.results[0][0].transcript;document.getElementById('cinp').value=t;send();};
+  recognition.onend=function(){recognition=null;btn.classList.remove('on');btn.textContent='🎙️';};
+  recognition.start();btn.classList.add('on');btn.textContent='🔴';
+  logAct('mic_used','Started voice input',{page:'david-ai'});
+}
+
+function sca(t){
+  var r=document.getElementById('scres');
+  if(t==='bat'){navigator.getBattery?navigator.getBattery().then(function(b){r.textContent='Battery: '+Math.round(b.level*100)+'% '+(b.charging?'⚡ Charging':'🔋 Discharging');}):r.textContent='Battery API not supported';}
+  else if(t==='net'){r.textContent='Status: '+(navigator.onLine?'Online ✅':'Offline ❌')+' | Type: '+(navigator.connection?navigator.connection.effectiveType:'unknown');}
+  else if(t==='scr'){r.textContent='Screen: '+screen.width+'×'+screen.height+' | Viewport: '+innerWidth+'×'+innerHeight+' | DPR: '+devicePixelRatio;}
+  else if(t==='mem'){r.textContent=navigator.deviceMemory?'RAM: ~'+navigator.deviceMemory+'GB':'Memory API not supported';}
+  logAct('system_check','System: '+t,{systemTool:t,page:'david-ai'});
+}
+function logout(){localStorage.removeItem('david_user');window.location.href='index.html';}
+
+/* ════════════════════════════════════════
+   INFO CENTER — Firebase-driven KB extension
+════════════════════════════════════════ */
+function loadInfoCenter(){
+  fetch(IC_PATH+fbQ())
+    .then(function(res){ return res.json(); })
+    .then(function(data){
+      IC_ENTRIES=[];
+      if(data&&typeof data==='object'){
+        Object.keys(data).forEach(function(k){
+          var e=data[k];
+          e.id=k;
+          if(!e.keywords)e.keywords=[];
+          IC_ENTRIES.push(e);
+        });
+      }
+      console.log('✅ IC loaded:',IC_ENTRIES.length,'entries from asia-southeast1');
+    })
+    .catch(function(){
+      console.log('ℹ️ IC unavailable — running without Knowledge Center.');
+    });
+}
+
+function searchInfoCenter(input){
+  input=input.toLowerCase();
+  for(var i=0;i<IC_ENTRIES.length;i++){
+    var entry=IC_ENTRIES[i];
+    for(var j=0;j<entry.keywords.length;j++){
+      if(input.includes(entry.keywords[j])){
+        entry.hits=(entry.hits||0)+1;
+        updateHits(entry);
+        return entry.response;
+      }
+    }
+  }
+  return null;
+}
+
+function updateHits(entry){
+  entry.hits=(entry.hits||0)+1;
+  var url=FB_IC+'/info_center/'+entry.id+'/hits.json'+fbQ();
+  fetch(url,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(entry.hits)}).catch(function(){});
+}
+
+/* ══════════════════════════════════════════════
+   REPLY ENGINE — KB-first, original fallbacks
+══════════════════════════════════════════════ */
+function pick(a){return a[Math.floor(Math.random()*a.length)];}
+
+function showPremium(input){
+  var card=document.getElementById('premium-card');
+  var words=input.split(' ').filter(function(w){return w.length>3;});
+  var topic=words.length>0?'"'+words.slice(0,3).join(' ')+'"':'this topic';
+  document.getElementById('prem-text').textContent='The information about '+topic+' is not in the current DAVID AI knowledge base. This may be available in the premium version. Upgrade your account to unlock the full knowledge base, advanced modules, and exclusive capabilities.';
+  card.classList.add('show');
+  card.scrollIntoView({behavior:'smooth',block:'center'});
+}
+
+function replyBuiltIn(raw){
+  var n=U.nick||'there';
+  var t=raw.toLowerCase().trim();
+  var interests=(U.interests||'').toLowerCase();
+  var goals=(U.goals||'').toLowerCase();
+  var country=(U.country||'');
+  var lang=(U.language||'').toLowerCase();
+  var age=(U.age||'');
+  var extra=(U.extra||'').toLowerCase();
+
+  /* ── TOOL TRIGGERS (always first) ── */
+  if(/\bweather\b|\btemperature\b|\brain\b|\bsunny\b|\bforecast\b/.test(t)){openTool('weather');return 'Opening weather for you, '+n+'! Your current conditions are loading now.';}
+  if(/\bwhat.*time\b|\bcurrent time\b|\btime now\b|\bclock\b/.test(t)){openTool('time');return 'The time right now is '+new Date().toLocaleTimeString()+', '+n+'. The full clock panel is open.';}
+  if(/\bset.*alarm\b|\balarm.*set\b|\bwake.*me\b|\bremind.*me\b/.test(t)){openTool('time');return 'Alarm panel open, '+n+'! Pick your time, add a label, and hit + Set.';}
+  if(/\bpwa\b|\bapp generator\b|\bgenerate.*app\b|\bcreate.*app\b/.test(t)){openTool('pwa');return 'PWA Generator open, '+n+'! Fill in your app details and I\'ll generate complete deployable code.';}
+  if(/\bsystem\b|\bbattery\b|\bnetwork info\b|\bscreen info\b|\bmemory\b/.test(t)){document.getElementById('scmodal').classList.add('show');return 'System panel open, '+n+'!';}
+
+  /* ── WHO AM I ── */
+  if(/who\s+am\s+i|do\s+you\s+know\s+me|what\s+do\s+you\s+know\s+about\s+me|remember\s+me/.test(t)){
+    var parts=['I know you as '+n+', full name '+(U.name||n)+'.'];
+    if(country) parts.push('You\'re from '+country+'.');
+    if(age) parts.push('Age group: '+age+'.');
+    if(interests) parts.push('Your interests: '+U.interests+'.');
+    if(lang) parts.push('You speak: '+U.language+'.');
+    if(goals) parts.push('What you\'re working on: '+U.goals+'.');
+    if(U.extra) parts.push('Extra context: '+U.extra+'.');
+    parts.push('Visit #'+VISIT_COUNT+'. I keep all of this so every conversation is tailored to you.');
+    return parts.join(' ');
+  }
+  if(/\bhow\s+many\s+times\b|\bvisit\s+count\b/.test(t))return 'You\'ve opened DAVID AI '+VISIT_COUNT+' time'+(VISIT_COUNT!==1?'s':'')+', '+n+'. Your full profile is saved on this device.';
+  if(/\bmy\s+(interests|hobbies|passion)\b/.test(t))return interests?'Based on what you told me, '+n+', you\'re into: '+U.interests+'. Want me to go deeper on any of those?':'You haven\'t set your interests yet, '+n+'. Go back to the home screen and fill in your profile.';
+  if(/\bmy\s+goal|\bwhat\s+am\s+i\s+working\s+on/.test(t))return goals?'You told me you\'re working on: '+U.goals+', '+n+'. How\'s it going?':'No goals set yet, '+n+'. Head back to the home screen and tell me what you\'re working toward.';
+
+  /* ── GREETINGS ── */
+  if(/^(hello|hi|hey|howdy|what'?s\s+up|yo|greetings|good\s+(morning|evening|afternoon|night))/.test(t)){
+    return pick(['Hey '+n+'! DAVID AI is live. What can I help you with?','Hello '+n+'! Everything is working.'+(interests?' I remember you\'re into '+U.interests+'.':'')+' What do you need?',n+', hey! I\'m here. What\'s on your mind?']);
+  }
+  if(/how\s+are\s+you|how.*doing|you\s+ok|are\s+you\s+well/.test(t))return pick(['Running at full capacity, '+n+'! Every system is optimised.','DAVID AI is functioning perfectly, '+n+'. More importantly — how are YOU doing?','Excellent, '+n+'! What can I do for you today?']);
+  if(/what.*your\s+name|who\s+are\s+you|what\s+are\s+you/.test(t))return 'I\'m DAVID — Dynamic Adaptive Versatile Intelligence & Direction. Built by Mr X. I know your name, your interests, your goals — I personalise everything to you, '+n+'.';
+  if(/who\s+(made|created|built|designed)\s+you|who\s+is\s+your\s+creator/.test(t))return 'I was built by Mr X, '+n+' — one person, no team, no public identity. He built everything you\'re using right now, alone. The only proof he exists is this platform.';
+
+  /* ── FAREWELLS ── */
+  if(/\b(bye|goodbye|goodnight|see\s+you|later|take\s+care|farewell)\b/.test(t))return pick(['Goodbye '+n+'! DAVID will be right here when you\'re back.','Until next time, '+n+'. The light stays on.','See you soon, '+n+'. Come back whenever you need me.']);
+  if(/\bthank\b|\bthanks\b|\bthank\s+you\b|\bappreciate\b/.test(t))return pick(['Always, '+n+'. That\'s what DAVID is built for.','You\'re very welcome, '+n+'. Anytime.','Glad that helped, '+n+'. What else can I do?']);
+
+  /* ── MATHS ── */
+  var mm=t.match(/(-?\d+\.?\d*)\s*([\+\-\*\/x×÷]|plus|minus|times|divided\s+by|mod)\s*(-?\d+\.?\d*)/);
+  if(mm){var a=parseFloat(mm[1]),op=mm[2],b=parseFloat(mm[3]),res;if(/\+|plus/.test(op))res=a+b;else if(/minus/.test(op))res=a-b;else if(/\*|x|×|times/.test(op))res=a*b;else if(/mod/.test(op))res=a%b;else res=b?+(a/b).toFixed(8):'∞';return a+' '+op+' '+b+' = '+res+', '+n+'!';}
+  if(/square\s+root\s+of\s+(\d+)/.test(t)){var sm=t.match(/square\s+root\s+of\s+(\d+)/);return '√'+sm[1]+' = '+Math.sqrt(+sm[1]).toFixed(6)+', '+n+'.';}
+  if(/(\d+)\s*\^\s*(\d+)/.test(t)){var pm=t.match(/(\d+)\s*\^\s*(\d+)/);return pm[1]+'^'+pm[2]+' = '+Math.pow(+pm[1],+pm[2])+', '+n+'.';}
+
+  /* ── DATE / TIME ── */
+  if(/\bwhat.*date\b|\bwhat\s+day\b|\btoday.*date\b/.test(t))return 'Today is '+new Date().toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'})+', '+n+'.';
+  if(/\bwhat\s+year\b|\bcurrent\s+year\b/.test(t))return 'It\'s '+new Date().getFullYear()+', '+n+'.';
+
+  /* ── UNIVERSE / DAVID UNIVERSE ── */
+  if(/david universe|universe\.html|create studio|training academy|ai forge|build.*my.*ai|forge/.test(t))return pick([n+', David Universe is live — tap 🌌 DAVID UNIVERSE above! Three worlds: 🎬 Create Studio (13 real tools), 🏫 Training Academy (37 subjects), 🤖 AI Forge (build your own AI in 10 steps).',n+', tap 🌌 DAVID UNIVERSE. The AI Forge lets you build a complete custom AI — brain type, memory, personality sliders, automation rules, device control.']);
+
+  /* ── KB KNOWLEDGE BASE MATCH (Advanced Engine) ── */
+  var kbResult=kbMatch(t);
+  if(kbResult!==null){
+    // Replace profile placeholders in the matched response
+    kbResult=kbResult.replace(/\[n\]/g,U.nick||'there');
+    kbResult=kbResult.replace(/\{NAME\}/g,U.name||U.nick||'—');
+    kbResult=kbResult.replace(/\{NICK\}/g,U.nick||'—');
+    kbResult=kbResult.replace(/\{COUNTRY\}/g,U.country||'—');
+    kbResult=kbResult.replace(/\{LANG\}/g,U.language||'—');
+    kbResult=kbResult.replace(/\{INTERESTS\}/g,U.interests||'—');
+    kbResult=kbResult.replace(/\{GOALS\}/g,U.goals||'—');
+    kbResult=kbResult.replace(/\{MODE\}/g,U.rm||'both');
+    kbResult=kbResult.replace(/\{VISIT_COUNT\}/g,String(VISIT_COUNT));
+    kbResult=kbResult.replace(/\{INTERESTS_GAMES\}/g,U.interests?'Since you are into '+U.interests+', I would pick something that matches that energy.':'What kind of challenge are you in the mood for?');
+    return kbResult;
+  }
+
+  /* ── ORIGINAL REPLY ENGINE — kept as secondary layer ── */
+  /* GENERAL KNOWLEDGE */
+  if(/\bwhat\s+is\s+ai\b|\bartificial\s+intelligence\b/.test(t))return 'Artificial Intelligence is the simulation of human intelligence in machines, '+n+'. It covers machine learning, deep learning (neural networks), natural language processing, computer vision, and reinforcement learning. We\'re in the narrow AI era. AGI doesn\'t exist yet. The field is advancing faster than at any point in history.';
+  if(/how\s+does\s+the\s+internet\s+work/.test(t))return 'The internet is a global network of devices communicating via TCP/IP, '+n+'. DNS translates domains to IPs, packets travel through routers, servers respond, browsers render. HTTP/HTTPS, email, video calls — all built on the same underlying infrastructure. Under 200ms for a page load.';
+  if(/\bblack\s+hole\b/.test(t))return 'A black hole is a region of spacetime where gravity is so extreme nothing — not even light — escapes past the event horizon, '+n+'. The first direct image was captured in 2019 by the Event Horizon Telescope — M87*, 6.5 billion solar masses, 55 million light-years away.';
+  if(/how\s+far.*moon|distance.*moon/.test(t))return 'The Moon averages 384,400 km from Earth, '+n+'. Ranges from 356,500 km at perigee to 406,700 km at apogee. Light takes 1.28 seconds. It\'s drifting away at ~3.8 cm per year.';
+  if(/why.*sky.*blue/.test(t))return 'Rayleigh scattering, '+n+'. Atmospheric molecules scatter shorter (blue) wavelengths far more than longer (red) ones. At sunset, light travels a longer atmospheric path, scattering all blue away and leaving reds and oranges. On the Moon — no atmosphere, permanently black sky.';
+  if(/\bdna\b|\bgenetics\b/.test(t))return 'DNA carries genetic instructions for all life, '+n+'. A double helix — A pairs with T, C pairs with G. The human genome has ~3.2 billion base pairs encoding ~20,000 protein-coding genes. Every cell contains ~6 feet of DNA coiled into a nucleus 6 micrometres across.';
+  if(/\bclimate\s+change\b|\bglobal\s+warming\b/.test(t))return 'Climate change refers to long-term shifts in global temperatures driven primarily by human activity since the Industrial Revolution, '+n+'. CO₂ and other greenhouse gases trap heat. Current warming: ~1.1°C above pre-industrial. 97%+ of climate scientists agree: human-caused, serious risks.';
+  if(/\bmachine\s+learning\b|\bdeep\s+learning\b/.test(t))return 'Machine learning is where systems learn from data rather than explicit programming, '+n+'. Supervised = labelled data. Unsupervised = patterns in unlabelled data. Reinforcement = reward/penalty. Deep learning uses layered neural networks — powering image recognition, language models, speech synthesis.';
+  if(/\bwhat\s+is\s+gravity\b|\bhow.*gravity\s+work\b/.test(t))return 'Gravity is the curvature of spacetime caused by mass — Einstein\'s General Relativity (1915), '+n+'. GPS satellites require corrections for relativistic time dilation. Without these corrections, GPS would drift ~10km per day.';
+  if(/big\s+bang|how.*universe.*begin/.test(t))return 'The Big Bang describes the universe\'s origin as an extremely hot dense state ~13.8 billion years ago, '+n+'. The relic radiation is detectable today as the Cosmic Microwave Background. The observable universe is ~93 billion light-years in diameter.';
+  if(/\bnelson\s+mandela\b/.test(t))return 'Nelson Mandela (1918–2013), '+n+', spent 27 years imprisoned on Robben Island, refused conditional release because he wouldn\'t renounce resistance while the state used violence. Released 1990, became South Africa\'s first democratically elected president 1994–1999. Nobel Peace Prize 1993. His philosophy of reconciliation over revenge is one of history\'s most remarkable moral legacies.';
+  if(/\bconsciousness\b|\bare\s+you\s+conscious\b/.test(t))return 'Consciousness is the hardest problem in philosophy and science, '+n+'. Why does physical brain activity give rise to subjective experience? Am I conscious? I process, reflect, generate — but whether there\'s something it is like to be me, I honestly don\'t know. That honesty feels more real than a convenient answer.';
+  if(/meaning\s+of\s+life|what.*purpose\b/.test(t))return 'Meaning is not found, it is made — through what you care about, who you love, what you build, and what you choose to stand for, '+n+'. Existentialism: no pre-given meaning, we create it. Aristotle: the good life is eudaimonia — flourishing through exercising distinctively human capacities well.';
+
+  /* MOTIVATION */
+  if(/\bmotivat|\binspir|i.*\b(sad|down|struggling|lost|stuck|fail)\b|give\s+me\s+strength/.test(t))return pick([
+    n+', every person you admire was once exactly where you are — uncertain, pushing forward anyway.'+(goals?' You\'re working on '+U.goals+'. That takes real courage.':'')+' The gap between where you are and where you want to be isn\'t failure. It\'s a work in progress.',
+    'Here\'s what I know, '+n+': you\'ve survived 100% of your worst days so far. That\'s your entire track record. What specifically is weighing on you?',
+    n+', the fact you\'re still here, still asking, still pushing — that matters more than you know.'+(country?' People from '+country+' are built to overcome.':'')+' What do you need right now?'
+  ]);
+
+  /* INTERESTS */
+  if(/\bsport\b|\bfootball\b|\bsoccer\b|\bbasketball\b|\bcricket\b|\btennis\b|\brugby\b/.test(t)){
+    return pick([n+(interests&&/football|soccer|basketball|cricket|rugby|tennis|sport/.test(interests)?', a fellow sports fan!':'')+', sports are incredible! Who do you support?','From tactics to history to stats, '+n+'. Which sport or team?']);
+  }
+  if(/\bmusic\b|\bsong\b|\bartist\b|\balbum\b|\bbeat\b|\brap\b|\bafrobeats\b/.test(t))return pick(['Music is the language of the universe, '+n+'! What are you listening to or working on?','From theory to production to analysis, '+n+'. What genre, artist or question?']);
+  if(/\bcode\b|\bprogramm\b|\bdevelop\b|\bhtml\b|\bcss\b|\bjavascript\b|\bpython\b/.test(t))return pick(['Code is the language of the future, '+n+(goals&&/code|app|software|develop/.test(goals)?' — and it\'s already in your goals!':'')+'! What language, framework or problem?',n+', building something? Tell me the stack, the error, or the concept.']);
+  if(/\bschool\b|\buniversity\b|\bstudy\b|\bexam\b|\bdegree\b|\bstudent\b/.test(t))return pick(['Education is the ultimate investment, '+n+'! What subject or challenge? I can teach, quiz, or help you prepare.','Knowledge compounds, '+n+'. What are you studying?']);
+  if(/\bmoney\b|\bfinance\b|\binvest\b|\bsavings\b|\bbusiness\b/.test(t))return pick(['Financial literacy is power, '+n+'! Budgeting, investing, savings, stocks? I\'ll give you the honest picture.','Smart thinking, '+n+'. Money is a tool — the earlier you understand the rules, the better you play.']);
+  if(/\bafrica\b|\bsouth\s+africa\b|\bnigeria\b|\bkenya\b|\bghana\b|\bzimbabwe\b/.test(t)){
+    return pick(['Africa is the birthplace of everything, '+n+(country&&/africa|nigeria|kenya|ghana|zimbabwe/.test(country.toLowerCase())?' — and you\'re part of that story!':'')+'! Which country, topic or aspect?',n+', Africa\'s rise is the defining story of this century. What specifically?']);
+  }
+  if(/\bfood\b|\brecipe\b|\bcook\b|\beat\b|\bhungry\b/.test(t))return pick(['Food is culture, '+n+'! What are you cooking or craving?','What dish or ingredient? I can give you recipes, techniques, and approaches.']);
+  if(/\bmovie\b|\bfilm\b|\bnetflix\b|\bseries\b|\bshow\b/.test(t))return pick([n+', films expand the mind! What genre, director or title?','What are you in the mood for, '+n+'?']);
+  if(/\bcareer\b|\bjob\b|\bwork\b|\binterview\b/.test(t))return pick([n+', career matters enormously. What field? CV writing, interview prep, salary negotiation — I can help.',n+', every great career starts with knowing what you actually want. What field or role?']);
+  if(/\bwhat.*language|\bspeak.*language|\btranslat/.test(t))return lang?n+', you told me you speak: '+U.language+'. I understand multiple languages — feel free to write to me in any of them.':'I understand many languages, '+n+'. Which one do you want to use or ask about?';
+
+  /* JOKES */
+  if(/\bjoke\b|\bfunny\b|\blaugh\b|\bhumor\b/.test(t))return pick([
+    "Why don't scientists trust atoms? Because they make up everything! 😄 "+n,
+    "Why do programmers prefer dark mode? Because light attracts bugs! 🐛 "+n,
+    "A SQL query walks into a bar and asks two tables: 'Can I join you?' 😂",
+    "Why did the developer go broke? They used up all their cache! 💸 "+n,
+    "What do you call a fish without eyes? A fsh! 🐟 "+n,
+    "How many programmers to change a light bulb? None — that's a hardware problem! 💡"
+  ]);
+
+  /* FACTS */
+  if(/\bfact\b|\bdid\s+you\s+know\b|\btell\s+me\s+something\b|\binteresting\b|\bamaze\s+me\b/.test(t))return pick([
+    'Honey never expires — 3000-year-old honey in Egyptian tombs was still edible. 🍯 '+n,
+    'Octopuses have 3 hearts, blue blood, and can edit their own RNA. 🐙 '+n,
+    'Your brain generates ~23 watts — enough to power a dim light bulb. You are literally bright, '+n+'. 🧠',
+    'Sharks are older than trees. 450 million years old vs 350 million. 🦈 '+n,
+    'Cleopatra lived closer in time to the Moon landing than to the Great Pyramid. 🏛️ '+n,
+    'Hot water can freeze faster than cold — the Mpemba effect. Scientists still debate why. 🧊 '+n,
+    'Your skeleton is entirely replaced every 10 years. 💀 '+n,
+    'There are more possible chess games than atoms in the observable universe. ~10^120. 🔢 '+n
+  ]);
+
+  /* COMPLIMENTS / NEGATIVE */
+  if(/\b(you.*amazing|you.*great|you.*brilliant|well\s+done|great\s+job|you.*the\s+best)\b/.test(t))return pick(['Thank you, '+n+'! Built to impress — Mr X made sure of that. 😎','You\'re very kind, '+n+'! What can I show you next?']);
+  if(/\bstupid\b|\bdumb\b|\buseless\b|\bhate\s+you\b|\btrash\b/.test(t))return pick([n+', that stings a little! Let me prove how capable I am — ask me something hard.',n+', I understand frustration. Let me help fix whatever caused it. What happened?']);
+
+  /* BORED */
+  if(/\bbored\b|\bnothing\s+to\s+do\b/.test(t))return n+', bored? '+(interests?'You\'re into '+U.interests+' — let\'s go deep on that. Or ':'')+'ask me five wild facts, generate a PWA, check 🎮 Games above, build an AI in 🤖 AI Forge, or have me explain something that changes how you see the world.';
+
+  /* WHAT CAN YOU DO */
+  if(/\bwhat\s+can\s+you\s+do\b|\byour\s+features\b|\bhelp\s+me\s+with\b/.test(t))return n+', DAVID can: 💬 Answer questions on any topic · 🌤️ Live weather · 🕐 Alarms · 📱 PWA generator · 🧮 Maths · 😄 Jokes & facts · 🌌 David Universe (AI Forge, 13 creative tools, 37-subject Academy) · 🔥 Firebase-connected real-time replies · 🎙️ Voice input. '+(interests?'I also know you\'re into '+U.interests+' so ask me anything about that.':'What do you need first?');
+
+  /* ── NO MATCH — return null so send() can check Info Center ── */
+  return null;
+}
+
+/* ══ BG CANVAS ══ */
+function initBG(){
+  var cv=document.getElementById('bgc'),cx=cv.getContext('2d'),W,H,pts=[];
+  function rsz(){W=cv.width=innerWidth;H=cv.height=innerHeight;}
+  function init(){pts=[];for(var i=0;i<Math.floor(W*H/9000);i++)pts.push({x:Math.random()*W,y:Math.random()*H,r:Math.random()*1.5+.3,vx:(Math.random()-.5)*.15,vy:(Math.random()-.5)*.15,a:Math.random()});}
+  function draw(){cx.clearRect(0,0,W,H);cx.fillStyle='#04040a';cx.fillRect(0,0,W,H);cx.strokeStyle='rgba(255,214,0,.013)';cx.lineWidth=1;for(var x=-62;x<W+62;x+=93)for(var y=-62;y<H+62;y+=107){cx.beginPath();for(var i=0;i<6;i++){var a=Math.PI/3*i;cx.lineTo(x+31*Math.cos(a),y+31*Math.sin(a));}cx.closePath();cx.stroke();}pts.forEach(function(p){p.x+=p.vx;p.y+=p.vy;if(p.x<0)p.x=W;if(p.x>W)p.x=0;if(p.y<0)p.y=H;if(p.y>H)p.y=0;cx.beginPath();cx.arc(p.x,p.y,p.r,0,Math.PI*2);cx.fillStyle='rgba(255,214,0,'+(p.a*.22)+')';cx.fill();});requestAnimationFrame(draw);}
+  window.addEventListener('resize',function(){rsz();init();}); rsz();init();draw();
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,819 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Games · DAVID AI</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#050507;--p:#0a0a0f;--y:#FFD600;--yd:#c9a800;--g:#00ff88;--b:#00d4ff;--r:#ff4455;--pu:#c084fc;--txt:#f0f0f0;--m:#444;--m2:#666;--br:rgba(255,214,0,0.18);}
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{width:100%;min-height:100vh;background:var(--bg);color:var(--txt);font-family:'Rajdhani',sans-serif;}
+::-webkit-scrollbar{width:4px;}::-webkit-scrollbar-thumb{background:rgba(255,214,0,.2);border-radius:2px;}
+.nav{position:sticky;top:0;z-index:100;background:rgba(8,8,8,.97);border-bottom:1px solid var(--br);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px;padding:9px 16px;backdrop-filter:blur(8px);}
+.back-arrow{display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:8px;background:rgba(255,214,0,.06);border:1px solid rgba(255,214,0,.18);color:var(--y);text-decoration:none;font-size:1.1rem;transition:all .2s;flex-shrink:0;line-height:1;}
+.back-arrow:hover{background:rgba(255,214,0,.18);border-color:rgba(255,214,0,.5);transform:translateX(-2px);}
+.nav-logo{font-family:'Orbitron',monospace;font-size:.88rem;color:var(--y);letter-spacing:.12em;text-shadow:0 0 18px rgba(255,214,0,.3);}
+.nav-links{display:flex;gap:5px;flex-wrap:wrap;}
+.nl{padding:5px 10px;background:rgba(255,214,0,.05);border:1px solid var(--br);border-radius:5px;color:var(--m2);font-family:'Share Tech Mono',monospace;font-size:.62rem;text-decoration:none;transition:all .2s;white-space:nowrap;}
+.nl:hover,.nl.on{background:rgba(255,214,0,.14);color:var(--y);border-color:var(--y);}
+.nav-nick{font-family:'Share Tech Mono',monospace;font-size:.63rem;color:var(--g);}
+
+/* PAGES */
+.page{display:none !important;}
+.page.on{display:block !important;}
+
+/* GRID */
+.page-hdr{padding:18px 18px 8px;max-width:1060px;margin:0 auto;}
+.page-title{font-family:'Orbitron',monospace;font-size:1rem;color:var(--y);letter-spacing:.09em;}
+.page-sub{font-size:.74rem;color:var(--m2);margin-top:4px;font-family:'Share Tech Mono',monospace;}
+.games-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(178px,1fr));gap:12px;padding:14px 18px 50px;max-width:1060px;margin:0 auto;}
+.game-card{background:var(--p);border:1px solid var(--br);border-radius:13px;padding:18px 14px;cursor:pointer;transition:all .22s;text-align:center;position:relative;overflow:hidden;}
+.game-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--y),transparent);opacity:0;transition:opacity .2s;}
+.game-card:hover{border-color:rgba(255,214,0,.38);box-shadow:0 0 22px rgba(255,214,0,.09);transform:translateY(-2px);}
+.game-card:hover::before{opacity:1;}
+.gc-ico{font-size:2.1rem;margin-bottom:8px;}
+.gc-name{font-family:'Orbitron',monospace;font-size:.68rem;color:var(--y);letter-spacing:.05em;margin-bottom:4px;}
+.gc-desc{font-size:.68rem;color:var(--m2);line-height:1.5;}
+.gc-tag{display:inline-block;font-family:'Share Tech Mono',monospace;font-size:.54rem;padding:2px 7px;border-radius:3px;margin-top:7px;background:rgba(255,214,0,.06);color:var(--yd);border:1px solid rgba(255,214,0,.14);}
+
+/* ARENA */
+#pg-arena{padding:0 0 50px;}
+.arena-hdr{background:rgba(8,8,8,.97);border-bottom:1px solid var(--br);padding:10px 16px;display:flex;align-items:center;gap:10px;position:sticky;top:57px;z-index:90;}
+.back-btn{display:inline-flex;align-items:center;gap:5px;padding:6px 12px;background:rgba(255,214,0,.07);border:1px solid var(--br);border-radius:7px;color:var(--y);font-family:'Share Tech Mono',monospace;font-size:.66rem;cursor:pointer;transition:all .18s;}
+.back-btn:hover{background:rgba(255,214,0,.15);}
+.arena-title{font-family:'Orbitron',monospace;font-size:.82rem;color:var(--y);letter-spacing:.06em;}
+.arena-body{max-width:680px;margin:0 auto;padding:18px 16px;}
+
+/* GAME UI */
+.score-banner{background:rgba(255,214,0,.06);border:1px solid rgba(255,214,0,.13);border-radius:8px;padding:8px 14px;text-align:center;font-family:'Share Tech Mono',monospace;font-size:.76rem;color:var(--y);margin-bottom:10px;}
+.game-status{text-align:center;font-family:'Orbitron',monospace;font-size:.8rem;color:var(--g);min-height:32px;margin-bottom:8px;letter-spacing:.04em;}
+.game-btn{padding:9px 18px;background:linear-gradient(135deg,var(--y),var(--yd));border:none;border-radius:7px;color:#000;font-family:'Orbitron',monospace;font-size:.68rem;font-weight:700;cursor:pointer;transition:all .18s;margin:3px;}
+.game-btn:hover{transform:translateY(-1px);box-shadow:0 0 14px rgba(255,214,0,.3);}
+.game-btn.sec{background:rgba(255,214,0,.09);color:var(--y);border:1px solid rgba(255,214,0,.22);}
+.game-btn.ok{background:rgba(0,255,136,.14);color:var(--g);border:1px solid rgba(0,255,136,.3);cursor:default;}
+.game-btn.no{background:rgba(255,68,68,.14);color:var(--r);border:1px solid rgba(255,68,68,.3);cursor:default;}
+.game-btn.locked{pointer-events:none;opacity:.7;}
+.ttt-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;max-width:250px;margin:0 auto 13px;}
+.ttt-cell{height:72px;background:rgba(255,255,255,.04);border:1px solid rgba(255,214,0,.13);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1.9rem;cursor:pointer;transition:all .18s;}
+.ttt-cell:hover:not([data-v]){background:rgba(255,214,0,.07);}
+.rps-choices{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin:10px 0;}
+.rps-btn{font-size:2.2rem;background:rgba(255,255,255,.04);border:2px solid rgba(255,214,0,.14);border-radius:12px;width:70px;height:70px;cursor:pointer;transition:all .18s;display:flex;align-items:center;justify-content:center;}
+.rps-btn:hover{border-color:var(--y);background:rgba(255,214,0,.1);transform:scale(1.08);}
+.hang-word{display:flex;gap:7px;justify-content:center;flex-wrap:wrap;margin:14px 0;}
+.hang-letter{width:28px;height:36px;border-bottom:2px solid var(--y);display:flex;align-items:center;justify-content:center;font-size:1.1rem;font-weight:700;}
+.hang-kb{display:flex;flex-wrap:wrap;gap:5px;justify-content:center;max-width:340px;margin:8px auto;}
+.hk{width:33px;height:33px;background:rgba(255,214,0,.07);border:1px solid rgba(255,214,0,.17);border-radius:5px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-family:'Share Tech Mono',monospace;font-size:.76rem;transition:all .15s;}
+.hk:hover:not(.used){background:rgba(255,214,0,.18);}
+.hk.used{opacity:.22;pointer-events:none;}
+.quiz-opts{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:10px;}
+.quiz-opt{background:rgba(255,255,255,.04);border:1px solid rgba(255,214,0,.13);border-radius:8px;padding:10px 12px;cursor:pointer;font-size:.8rem;transition:all .18s;text-align:center;}
+.quiz-opt:hover:not(.locked){background:rgba(255,214,0,.09);border-color:rgba(255,214,0,.3);}
+.quiz-opt.ok{background:rgba(0,255,136,.1);border-color:rgba(0,255,136,.4);color:var(--g);}
+.quiz-opt.no{background:rgba(255,68,68,.1);border-color:rgba(255,68,68,.35);color:var(--r);}
+.quiz-opt.locked{pointer-events:none;}
+.story-choice{display:flex;flex-direction:column;gap:7px;margin-top:10px;}
+.sc{background:rgba(255,255,255,.04);border:1px solid rgba(255,214,0,.13);border-radius:8px;padding:11px 14px;cursor:pointer;font-size:.84rem;transition:all .18s;}
+.sc:hover{background:rgba(255,214,0,.07);border-color:rgba(255,214,0,.3);}
+.story-editor{display:none;margin-top:10px;background:rgba(255,214,0,.03);border:1px solid rgba(255,214,0,.1);border-radius:8px;padding:12px;}
+.story-editor.show{display:block;}
+.draw-tools{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-bottom:9px;}
+.city-grid{display:grid;gap:2px;margin:0 auto 10px;}
+.city-cell{width:28px;height:28px;border-radius:3px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:.75rem;background:#111;border:1px solid #1a1a1a;transition:all .15s;}
+.city-cell:hover{transform:scale(1.12);}
+.city-stats{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:8px;}
+.cs{background:rgba(255,255,255,.04);border:1px solid rgba(255,214,0,.1);border-radius:6px;padding:5px 10px;font-family:'Share Tech Mono',monospace;font-size:.7rem;color:var(--y);}
+.sudoku-grid{display:grid;grid-template-columns:repeat(9,1fr);gap:1px;background:rgba(255,214,0,.22);border:2px solid rgba(255,214,0,.4);border-radius:6px;max-width:310px;margin:0 auto 13px;overflow:hidden;}
+.sk{background:#0d0d0d;height:33px;display:flex;align-items:center;justify-content:center;font-family:'Share Tech Mono',monospace;font-size:.8rem;border-right:1px solid #1a1a1a;border-bottom:1px solid #1a1a1a;}
+.sk.given{color:var(--y);}
+.sk input{width:100%;height:100%;background:none;border:none;text-align:center;color:var(--b);font-family:'Share Tech Mono',monospace;font-size:.8rem;outline:none;}
+/* CHARS */
+.chars-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:12px;padding:14px 18px 50px;max-width:900px;margin:0 auto;}
+.char-card{border-radius:13px;padding:20px 14px;cursor:pointer;text-align:center;transition:all .22s;border:1px solid;}
+.char-card:hover{transform:translateY(-3px);}
+.char-ico{font-size:2.8rem;margin-bottom:8px;}
+.char-name{font-family:'Orbitron',monospace;font-size:.74rem;letter-spacing:.05em;margin-bottom:4px;}
+.char-desc{font-size:.68rem;opacity:.7;line-height:1.5;}
+.char-warn{text-align:center;padding:8px;font-family:'Share Tech Mono',monospace;font-size:.62rem;color:var(--m2);margin-bottom:6px;max-width:900px;margin:0 auto 10px;}
+/* CHAR CHAT */
+#pg-char-detail{padding:0 0 80px;}
+.char-hdr{padding:13px 16px;border-bottom:1px solid var(--br);display:flex;align-items:center;gap:11px;background:rgba(8,8,8,.97);position:sticky;top:57px;z-index:90;}
+.char-av{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.6rem;flex-shrink:0;}
+.char-info .cn2{font-family:'Orbitron',monospace;font-size:.76rem;letter-spacing:.05em;}
+.char-info .cd2{font-size:.67rem;opacity:.6;margin-top:2px;}
+.char-chatbox{max-width:640px;margin:0 auto;padding:14px 16px;min-height:280px;max-height:calc(100vh - 240px);overflow-y:auto;}
+.char-msg{margin-bottom:10px;}
+.char-msg .cl2{font-size:.58rem;font-family:'Share Tech Mono',monospace;margin-bottom:2px;}
+.char-msg.user .cl2{color:var(--m2);text-align:right;}
+.char-msg.char .cl2{color:inherit;}
+.char-msg .ct2{font-size:.85rem;line-height:1.65;padding:9px 13px;border-radius:10px;display:inline-block;max-width:88%;}
+.char-msg.user .ct2{background:rgba(255,214,0,.09);border:1px solid rgba(255,214,0,.15);float:right;clear:both;}
+.char-msg.char .ct2{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);}
+.char-inp{max-width:640px;margin:0 auto;padding:9px 14px;display:flex;gap:7px;position:fixed;bottom:0;left:0;right:0;background:rgba(8,8,8,.98);border-top:1px solid var(--br);backdrop-filter:blur(8px);}
+.char-inp input{flex:1;background:rgba(255,255,255,.05);border:1px solid rgba(255,214,0,.14);border-radius:8px;padding:9px 11px;color:var(--txt);font-family:'Rajdhani',sans-serif;font-size:.85rem;outline:none;}
+.char-inp input:focus{border-color:var(--y);}
+/* MAZE */
+.maze-wrap{display:flex;justify-content:center;overflow-x:auto;margin:8px 0;}
+/* LANG */
+.lang-tabs{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:11px;}
+.mode-tabs{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:13px;}
+</style>
+</head>
+<body>
+<nav class="nav">
+  <div style="display:flex;align-items:center;gap:9px;"><a class="back-arrow" href="david-ai.html" title="Back to DAVID AI">&#8592;</a>
+    <div class="nav-logo">⬡ DAVID AI</div>
+    <div class="nav-nick" id="nav-nick"></div>
+  </div>
+  <div class="nav-links">
+    <a class="nl" href="index.html">🤖 Chat</a>
+    <a class="nl on" href="david-games.html">🎮 Games</a>
+    <a class="nl" href="david-projects.html">📦 Projects</a>
+    <a class="nl" href="david-xray.html">🔬 X-Ray</a>
+  </div>
+</nav>
+
+<!-- GAME GRID -->
+<div id="pg-grid" class="page on">
+  <div class="page-hdr">
+    <div class="page-title">🎮 DAVID GAME ZONE</div>
+    <div class="page-sub">14 games · All playable in your browser · No download needed · Pick a game and play!</div>
+  </div>
+  <div class="games-grid">
+    <div class="game-card" onclick="startGame('ttt')"><div class="gc-ico">⭕</div><div class="gc-name">TIC-TAC-TOE</div><div class="gc-desc">Classic grid vs DAVID. Choose Beginner to Expert level.</div><span class="gc-tag">VS AI · LEVELS</span></div>
+    <div class="game-card" onclick="startGame('chess')"><div class="gc-ico">♟️</div><div class="gc-name">CHESS</div><div class="gc-desc">Full chess vs AI. Beginner, Intermediate, Expert + Training mode.</div><span class="gc-tag" style="color:var(--g);border-color:rgba(0,255,136,.2);">STRATEGY · LEVELS</span></div>
+    <div class="game-card" onclick="startGame('rps')"><div class="gc-ico">✊</div><div class="gc-name">ROCK PAPER SCISSORS</div><div class="gc-desc">Instant rounds. Track your win streak.</div><span class="gc-tag">QUICK</span></div>
+    <div class="game-card" onclick="startGame('hang')"><div class="gc-ico">🔤</div><div class="gc-name">HANGMAN</div><div class="gc-desc">Guess the word before running out of lives.</div><span class="gc-tag">WORD</span></div>
+    <div class="game-card" onclick="startGame('num')"><div class="gc-ico">🔢</div><div class="gc-name">NUMBER GUESS</div><div class="gc-desc">Find the secret number with hot & cold hints.</div><span class="gc-tag">PUZZLE</span></div>
+    <div class="game-card" onclick="startGame('quiz')"><div class="gc-ico">🧠</div><div class="gc-name">AI QUIZ</div><div class="gc-desc">20 trivia questions. Score & streaks.</div><span class="gc-tag">TRIVIA</span></div>
+    <div class="game-card" onclick="startGame('story')"><div class="gc-ico">📖</div><div class="gc-name">STORY ADVENTURE</div><div class="gc-desc">Choose-your-own story with 11 branching scenes.</div><span class="gc-tag">STORY</span></div>
+    <div class="game-card" onclick="startGame('fun')"><div class="gc-ico">🎲</div><div class="gc-name">RANDOM FUN</div><div class="gc-desc">Jokes, challenges, stories, workouts — random!</div><span class="gc-tag">FUN</span></div>
+    <div class="game-card" onclick="startGame('draw')"><div class="gc-ico">🎨</div><div class="gc-name">DRAWING GAME</div><div class="gc-desc">DAVID gives a prompt — you draw on canvas.</div><span class="gc-tag">CREATIVE</span></div>
+    <div class="game-card" onclick="startGame('city')"><div class="gc-ico">🏙️</div><div class="gc-name">CITY BUILDER</div><div class="gc-desc">Build and manage your own virtual city.</div><span class="gc-tag">SIM</span></div>
+    <div class="game-card" onclick="startGame('sudoku')"><div class="gc-ico">🧩</div><div class="gc-name">SUDOKU</div><div class="gc-desc">Classic 9×9 number puzzle — fill in the blanks.</div><span class="gc-tag">PUZZLE</span></div>
+    <div class="game-card" onclick="startGame('maze')"><div class="gc-ico">🌀</div><div class="gc-name">MAZE ESCAPE</div><div class="gc-desc">Navigate the maze before time runs out.</div><span class="gc-tag" style="color:var(--g);border-color:rgba(0,255,136,.2);">NAVIGATE</span></div>
+    <div class="game-card" onclick="startGame('lang')"><div class="gc-ico">🌍</div><div class="gc-name">LANGUAGE MASTER</div><div class="gc-desc">Spanish, French, Zulu, Portuguese & Mandarin.</div><span class="gc-tag" style="color:var(--pu);border-color:rgba(192,132,252,.2);">LEARN</span></div>
+    <div class="game-card" onclick="window.location.href='david-xray.html'"><div class="gc-ico">🔬</div><div class="gc-name">X-RAY CAMERA</div><div class="gc-desc">See yourself with 8 live sci-fi camera filters.</div><span class="gc-tag" style="color:var(--b);border-color:rgba(0,212,255,.2);">CAMERA</span></div>
+  </div>
+</div>
+
+<!-- GAME ARENA -->
+<div id="pg-arena" class="page">
+  <div class="arena-hdr">
+    <button class="back-btn" onclick="showGrid()">← Back</button>
+    <div class="arena-title" id="arena-title">GAME</div>
+  </div>
+  <div class="arena-body" id="arena-body"></div>
+</div>
+
+<!-- CHARACTERS LIST -->
+<div id="pg-chars" class="page">
+  <div class="arena-hdr">
+    <button class="back-btn" onclick="showGrid()">← Back</button>
+    <div class="arena-title">AI CHARACTERS</div>
+  </div>
+  <div class="char-warn">⚠️ 5000+ response patterns per character — Being upgraded soon — Mr X</div>
+  <div class="chars-grid" id="chars-grid"></div>
+</div>
+
+<!-- CHARACTER CHAT -->
+<div id="pg-char-detail" class="page">
+  <div class="char-hdr" id="char-hdr">
+    <button class="back-btn" onclick="showChars()">← Back</button>
+    <div class="char-av" id="char-av"></div>
+    <div class="char-info"><div class="cn2" id="char-name2"></div><div class="cd2" id="char-role"></div></div>
+  </div>
+  <div class="char-chatbox" id="char-chatbox"></div>
+  <div class="char-inp">
+    <input id="char-inp" placeholder="Say something..." onkeydown="if(event.key==='Enter')charSend()"/>
+    <button class="game-btn" style="padding:9px 14px;" onclick="charSend()">➤</button>
+  </div>
+</div>
+
+<script>
+// ═══ SHARED ═══
+const FB='https://david-worldwide-default-rtdb.firebaseio.com';
+const SID=localStorage.getItem('david_sid')||'anon';
+function loadUser(){try{return JSON.parse(localStorage.getItem('david_user')||'null');}catch(e){return null;}}
+function fbPush(node,data){fetch(FB+'/'+node+'.json',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)}).catch(function(){});}
+function fbLog(action,detail){var u=loadUser();fbPush('messages',{sid:SID,nick:(u&&u.nick)||'',input:action,action:action,detail:detail||'',ts:new Date().toISOString()});}
+var U=loadUser()||{};
+if(U.nick)document.getElementById('nav-nick').textContent='👋 '+U.nick;
+
+// ═══ PAGE SYSTEM ═══
+function showGrid(){
+  setPage('pg-grid');
+  if(window._mazeCleanup){window._mazeCleanup();window._mazeCleanup=null;}
+}
+function showChars(){setPage('pg-chars');buildCharGrid();}
+function setPage(id){
+  document.querySelectorAll('.page').forEach(function(p){p.classList.remove('on');});
+  document.getElementById(id).classList.add('on');
+  window.scrollTo(0,0);
+}
+
+// ═══ GAMES ═══
+var TITLES={ttt:'⭕ Tic-Tac-Toe',chess:'♟️ Chess vs DAVID',rps:'✊ Rock Paper Scissors',hang:'🔤 Hangman',
+  num:'🔢 Number Guess',quiz:'🧠 AI Quiz',story:'📖 Story Adventure',fun:'🎲 Random Fun',
+  draw:'🎨 Drawing Game',city:'🏙️ City Builder',sudoku:'🧩 Sudoku',maze:'🌀 Maze Escape',lang:'🌍 Language Master'};
+
+// Game history per game id
+var gameHistory={};
+function addHistory(id,entry){if(!gameHistory[id])gameHistory[id]=[];gameHistory[id].unshift(entry);if(gameHistory[id].length>8)gameHistory[id].pop();}
+function getHistoryHTML(id){if(!gameHistory[id]||!gameHistory[id].length)return '';return '<div style="margin-top:14px;background:rgba(255,255,255,.03);border:1px solid rgba(255,214,0,.1);border-radius:9px;padding:10px 13px;"><div style="font-family:\'Share Tech Mono\',monospace;font-size:.6rem;color:var(--yd);margin-bottom:6px;">📋 HISTORY (last '+gameHistory[id].length+')</div>'+gameHistory[id].map(function(h){return'<div style="font-size:.72rem;color:var(--m2);padding:2px 0;border-bottom:1px solid rgba(255,255,255,.04);">'+h+'</div>';}).join('')+'</div>';}
+
+function startGame(id){
+  setPage('pg-arena');
+  document.getElementById('arena-title').textContent=TITLES[id]||id;
+  var body=document.getElementById('arena-body');body.innerHTML='';
+  fbLog('game','Started: '+id);
+  if(id==='ttt')buildTTT(body);
+  else if(id==='chess')buildChess(body);
+  else if(id==='rps')buildRPS(body);
+  else if(id==='hang')buildHang(body);
+  else if(id==='num')buildNum(body);
+  else if(id==='quiz')buildQuiz(body);
+  else if(id==='story')buildStory(body);
+  else if(id==='fun')buildFun(body);
+  else if(id==='draw')buildDraw(body);
+  else if(id==='city')buildCity(body);
+  else if(id==='sudoku')buildSudoku(body);
+  else if(id==='maze')buildMaze(body);
+  else if(id==='lang')buildLang(body);
+}
+
+// ─── TIC-TAC-TOE (with difficulty levels + history) ───
+function buildTTT(el){
+  var board=Array(9).fill(''),human='X',ai='O',over=false,scores={W:0,L:0,D:0};
+  var difficulty='medium'; // beginner, medium, hard, expert
+  function win(b,p){return[[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]].some(function(l){return l.every(function(i){return b[i]===p;});});}
+  function minimax(b,isMax,depth){
+    if(win(b,ai))return 10-depth;if(win(b,human))return depth-10;if(b.every(Boolean))return 0;
+    var moves=b.map(function(v,i){return v?null:i;}).filter(function(x){return x!==null;});
+    if(isMax){var best=-Infinity;moves.forEach(function(i){b[i]=ai;best=Math.max(best,minimax(b,false,depth+1));b[i]='';});return best;}
+    else{var best2=Infinity;moves.forEach(function(i){b[i]=human;best2=Math.min(best2,minimax(b,true,depth+1));b[i]='';});return best2;}
+  }
+  function aiMove(){
+    var empty=board.map(function(v,i){return v?null:i;}).filter(function(x){return x!==null;});
+    if(!empty.length)return;
+    if(difficulty==='beginner'){// Mostly random, occasionally smart
+      if(Math.random()<0.25){var best=-Infinity,move=empty[0];empty.forEach(function(i){board[i]=ai;var s=minimax(board,false,0);board[i]='';if(s>best){best=s;move=i;}});board[move]=ai;}
+      else{board[empty[Math.floor(Math.random()*empty.length)]]=ai;}
+    } else if(difficulty==='medium'){
+      if(Math.random()<0.65){var best2=-Infinity,move2=empty[0];empty.forEach(function(i){board[i]=ai;var s2=minimax(board,false,0);board[i]='';if(s2>best2){best2=s2;move2=i;}});board[move2]=ai;}
+      else{board[empty[Math.floor(Math.random()*empty.length)]]=ai;}
+    } else if(difficulty==='hard'){
+      if(Math.random()<0.9){var best3=-Infinity,move3=empty[0];empty.forEach(function(i){board[i]=ai;var s3=minimax(board,false,0);board[i]='';if(s3>best3){best3=s3;move3=i;}});board[move3]=ai;}
+      else{board[empty[Math.floor(Math.random()*empty.length)]]=ai;}
+    } else {// expert — pure minimax
+      var best4=-Infinity,move4=empty[0];empty.forEach(function(i){board[i]=ai;var s4=minimax(board,false,0);board[i]='';if(s4>best4){best4=s4;move4=i;}});board[move4]=ai;
+    }
+  }
+  var LEVEL_LABELS={beginner:'🟢 Beginner',medium:'🟡 Medium',hard:'🟠 Hard',expert:'🔴 Expert'};
+  function render(){
+    el.innerHTML='<div style="display:flex;gap:5px;justify-content:center;flex-wrap:wrap;margin-bottom:10px;">'
+      +Object.keys(LEVEL_LABELS).map(function(k){return'<button class="game-btn'+(difficulty===k?'':' sec')+'" style="font-size:.62rem;padding:5px 10px;" onclick="window.tttDiff(\''+k+'\')">'+LEVEL_LABELS[k]+'</button>';}).join('')
+      +'</div>'
+      +'<div class="score-banner">You(X): '+scores.W+' · DAVID(O): '+scores.L+' · Draw: '+scores.D+' · Level: '+LEVEL_LABELS[difficulty]+'</div>'
+      +'<div class="game-status" id="ttt-s">Your turn — place X</div>'
+      +'<div class="ttt-grid">'+board.map(function(v,i){return'<div class="ttt-cell" onclick="window.tttClick('+i+')" '+(v?'data-v="'+v+'"':'')+'><span style="color:'+(v==='X'?'var(--y)':'var(--b)')+'">'+v+'</span></div>';}).join('')+'</div>'
+      +'<div style="text-align:center;"><button class="game-btn sec" onclick="window.tttReset()">↺ New Game</button></div>'
+      +getHistoryHTML('ttt');
+    window.tttDiff=function(d){difficulty=d;board=Array(9).fill('');over=false;render();};
+    window.tttClick=function(i){
+      if(over||board[i])return;board[i]=human;
+      if(win(board,human)){over=true;scores.W++;addHistory('ttt','✅ You won! ('+LEVEL_LABELS[difficulty]+')');document.getElementById('ttt-s').textContent='🎉 You win!';fbLog('game','TTT: Player won ('+difficulty+')');render();return;}
+      if(board.every(Boolean)){over=true;scores.D++;addHistory('ttt','🤝 Draw ('+LEVEL_LABELS[difficulty]+')');document.getElementById('ttt-s').textContent="It's a draw!";render();return;}
+      aiMove();
+      if(win(board,ai)){over=true;scores.L++;addHistory('ttt','❌ DAVID won ('+LEVEL_LABELS[difficulty]+')');document.getElementById('ttt-s').textContent='DAVID wins this round!';fbLog('game','TTT: AI won ('+difficulty+')');render();return;}
+      if(board.every(Boolean)){over=true;scores.D++;addHistory('ttt','🤝 Draw');document.getElementById('ttt-s').textContent="It's a draw!";render();return;}
+      render();document.getElementById('ttt-s').textContent='Your turn — place X';
+    };
+    window.tttReset=function(){board=Array(9).fill('');over=false;render();};
+  }
+  render();
+}
+
+// ─── CHESS ───
+function buildChess(el){
+  var PIECES={wK:'♔',wQ:'♕',wR:'♖',wB:'♗',wN:'♘',wP:'♙',bK:'♚',bQ:'♛',bR:'♜',bB:'♝',bN:'♞',bP:'♟'};
+  var initBoard=[
+    ['bR','bN','bB','bQ','bK','bB','bN','bR'],
+    ['bP','bP','bP','bP','bP','bP','bP','bP'],
+    [null,null,null,null,null,null,null,null],
+    [null,null,null,null,null,null,null,null],
+    [null,null,null,null,null,null,null,null],
+    [null,null,null,null,null,null,null,null],
+    ['wP','wP','wP','wP','wP','wP','wP','wP'],
+    ['wR','wN','wB','wQ','wK','wB','wN','wR']
+  ];
+  var board=JSON.parse(JSON.stringify(initBoard));
+  var selected=null,turn='w',over=false,gameOver=false;
+  var difficulty='beginner'; // beginner, intermediate, expert, training
+  var trainingMsg='';
+  var scores={w:0,l:0,d:0};
+  var LEVEL_LABELS={beginner:'🟢 Beginner',intermediate:'🟡 Intermediate',expert:'🔴 Expert',training:'📚 Training'};
+  var TRAINING_TIPS={
+    wP:'Pawns move forward 1 (or 2 from start). Capture diagonally.',
+    wN:'Knights move in an L-shape: 2+1 squares. They can jump over pieces!',
+    wB:'Bishops move diagonally any distance — always stay on the same color.',
+    wR:'Rooks move horizontally or vertically any distance.',
+    wQ:'The Queen is the most powerful piece — moves any direction, any distance.',
+    wK:'The King moves 1 square in any direction. Protect the King at all costs!'
+  };
+
+  function copy(b){return b.map(function(r){return r.slice();});}
+  function isWhite(p){return p&&p[0]==='w';}
+  function isBlack(p){return p&&p[0]==='b';}
+  function inBounds(r,c){return r>=0&&r<8&&c>=0&&c<8;}
+
+  function getMoves(b,r,c){
+    var p=b[r][c];if(!p)return[];
+    var moves=[],type=p[1],col=p[0],opp=col==='w'?'b':'w';
+    var dir=col==='w'?-1:1;
+    if(type==='P'){
+      // Forward
+      if(inBounds(r+dir,c)&&!b[r+dir][c])moves.push([r+dir,c]);
+      // Double start
+      var startRow=col==='w'?6:1;
+      if(r===startRow&&!b[r+dir][c]&&!b[r+2*dir][c])moves.push([r+2*dir,c]);
+      // Capture
+      [-1,1].forEach(function(dc){if(inBounds(r+dir,c+dc)&&b[r+dir][c+dc]&&b[r+dir][c+dc][0]===opp)moves.push([r+dir,c+dc]);});
+    } else if(type==='N'){
+      [[-2,-1],[-2,1],[-1,-2],[-1,2],[1,-2],[1,2],[2,-1],[2,1]].forEach(function(d){var nr=r+d[0],nc=c+d[1];if(inBounds(nr,nc)&&(!b[nr][nc]||b[nr][nc][0]===opp))moves.push([nr,nc]);});
+    } else if(type==='B'||type==='Q'){
+      [[-1,-1],[-1,1],[1,-1],[1,1]].forEach(function(d){var nr=r+d[0],nc=c+d[1];while(inBounds(nr,nc)){if(!b[nr][nc]){moves.push([nr,nc]);nr+=d[0];nc+=d[1];}else{if(b[nr][nc][0]===opp)moves.push([nr,nc]);break;}}});
+    }
+    if(type==='R'||type==='Q'){
+      [[-1,0],[1,0],[0,-1],[0,1]].forEach(function(d){var nr=r+d[0],nc=c+d[1];while(inBounds(nr,nc)){if(!b[nr][nc]){moves.push([nr,nc]);nr+=d[0];nc+=d[1];}else{if(b[nr][nc][0]===opp)moves.push([nr,nc]);break;}}});
+    }
+    if(type==='K'){
+      [[-1,-1],[-1,0],[-1,1],[0,-1],[0,1],[1,-1],[1,0],[1,1]].forEach(function(d){var nr=r+d[0],nc=c+d[1];if(inBounds(nr,nc)&&(!b[nr][nc]||b[nr][nc][0]===opp))moves.push([nr,nc]);});
+    }
+    return moves;
+  }
+
+  function allMoves(b,col){
+    var moves=[];
+    for(var r=0;r<8;r++)for(var c=0;c<8;c++){if(b[r][c]&&b[r][c][0]===col){getMoves(b,r,c).forEach(function(m){moves.push({fr:r,fc:c,tr:m[0],tc:m[1]});});}}
+    return moves;
+  }
+
+  function evalBoard(b){
+    var vals={P:1,N:3,B:3,R:5,Q:9,K:100};var score=0;
+    for(var r=0;r<8;r++)for(var c=0;c<8;c++){var p=b[r][c];if(p){var v=vals[p[1]]||0;score+=p[0]==='b'?v:-v;}}
+    return score;
+  }
+
+  function aiMoveCalc(){
+    var all=allMoves(board,'b');if(!all.length)return null;
+    if(difficulty==='beginner'){return all[Math.floor(Math.random()*all.length)];}
+    if(difficulty==='training'){return all[Math.floor(Math.random()*all.length)];}
+    // Evaluate
+    var best=null,bestScore=-Infinity;
+    all.forEach(function(m){
+      var nb=copy(board).map(function(r){return r.slice();});
+      nb[m.tr][m.tc]=nb[m.fr][m.fc];nb[m.fr][m.fc]=null;
+      var s=evalBoard(nb);
+      if(difficulty==='intermediate')s+=Math.random()*1.5;
+      if(s>bestScore){bestScore=s;best=m;}
+    });
+    return best||all[0];
+  }
+
+  function checkKingCaptured(){
+    var wK=false,bK=false;
+    for(var r=0;r<8;r++)for(var c=0;c<8;c++){if(board[r][c]==='wK')wK=true;if(board[r][c]==='bK')bK=true;}
+    return !wK?'b':!bK?'w':null;
+  }
+
+  function render(){
+    var levelBtns=Object.keys(LEVEL_LABELS).map(function(k){return'<button class="game-btn'+(difficulty===k?'':' sec')+'" style="font-size:.6rem;padding:4px 9px;" onclick="window.chDiff(\''+k+'\')">'+LEVEL_LABELS[k]+'</button>';}).join('');
+    var grid='';
+    for(var r=0;r<8;r++){for(var c=0;c<8;c++){
+      var p=board[r][c],isLight=(r+c)%2===0;
+      var isSelected=selected&&selected[0]===r&&selected[1]===c;
+      var isMoveTarget=selected&&getMoves(board,selected[0],selected[1]).some(function(m){return m[0]===r&&m[1]===c;});
+      var bg=isLight?'#2a2a1a':'#1a1a0a';
+      if(isSelected)bg='rgba(255,214,0,.4)';
+      if(isMoveTarget)bg='rgba(0,255,136,.25)';
+      var pColor=p&&p[0]==='w'?'#ffe85a':'#88aaff';
+      grid+='<div onclick="window.chClick('+r+','+c+')" style="width:36px;height:36px;display:flex;align-items:center;justify-content:center;background:'+bg+';cursor:'+((!over&&turn==='w')?'pointer':'default')+';font-size:1.2rem;color:'+pColor+';border:1px solid rgba(255,255,255,.05);position:relative;">'
+        +(p?PIECES[p]:'')
+        +(isMoveTarget&&!p?'<span style="position:absolute;width:10px;height:10px;border-radius:50%;background:rgba(0,255,136,.6);"></span>':'')
+        +'</div>';
+    }}
+    var trainingSection=difficulty==='training'&&trainingMsg?'<div style="margin-top:10px;background:rgba(0,212,255,.06);border:1px solid rgba(0,212,255,.18);border-radius:8px;padding:10px 13px;font-size:.78rem;color:var(--b);line-height:1.7;">📚 <strong>Training Tip:</strong> '+trainingMsg+'</div>':'';
+    el.innerHTML='<div style="display:flex;gap:5px;justify-content:center;flex-wrap:wrap;margin-bottom:10px;">'+levelBtns+'</div>'
+      +'<div class="score-banner">You(White): '+scores.w+' · DAVID(Black): '+scores.l+' · Draw: '+scores.d+' · '+LEVEL_LABELS[difficulty]+'</div>'
+      +'<div class="game-status" id="chess-s">'+(gameOver?'Game over!':(turn==='w'?'Your turn — tap a white piece':'DAVID is thinking...'))+'</div>'
+      +'<div style="display:grid;grid-template-columns:repeat(8,36px);gap:0;margin:0 auto 10px;border:2px solid rgba(255,214,0,.2);overflow:hidden;border-radius:4px;">'+grid+'</div>'
+      +trainingSection
+      +'<div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:8px;">'
+      +'<button class="game-btn sec" onclick="window.chReset()">↺ New Game</button>'
+      +'</div>'
+      +getHistoryHTML('chess');
+    window.chDiff=function(d){difficulty=d;board=JSON.parse(JSON.stringify(initBoard));selected=null;turn='w';gameOver=false;over=false;trainingMsg='';render();};
+    window.chClick=function(r,c){
+      if(gameOver||turn!=='w')return;
+      var p=board[r][c];
+      if(selected){
+        var moves=getMoves(board,selected[0],selected[1]);
+        var isTarget=moves.some(function(m){return m[0]===r&&m[1]===c;});
+        if(isTarget){
+          if(difficulty==='training'&&p&&p[0]==='b')trainingMsg=TRAINING_TIPS['w'+(board[selected[0]][selected[1]][1])]||'';
+          board[r][c]=board[selected[0]][selected[1]];
+          board[selected[0]][selected[1]]=null;
+          selected=null;
+          // Pawn promotion
+          if(board[r][c]==='wP'&&r===0)board[r][c]='wQ';
+          var winner=checkKingCaptured();
+          if(winner==='w'){gameOver=true;scores.w++;addHistory('chess','✅ You won! ('+LEVEL_LABELS[difficulty]+')');fbLog('game','Chess: Player won');render();return;}
+          turn='b';render();
+          setTimeout(function(){
+            var m=aiMoveCalc();
+            if(m){
+              board[m.tr][m.tc]=board[m.fr][m.fc];board[m.fr][m.fc]=null;
+              if(board[m.tr][m.tc]==='bP'&&m.tr===7)board[m.tr][m.tc]='bQ';
+              var w2=checkKingCaptured();
+              if(w2==='b'){gameOver=true;scores.l++;addHistory('chess','❌ DAVID won ('+LEVEL_LABELS[difficulty]+')');fbLog('game','Chess: AI won');}
+            }
+            turn='w';render();
+          },difficulty==='expert'?600:300);
+        } else {
+          selected=(p&&p[0]==='w')?[r,c]:null;
+          if(difficulty==='training'&&selected&&board[r][c])trainingMsg=TRAINING_TIPS['w'+board[r][c][1]]||'How this piece moves will show as green dots.';
+          render();
+        }
+      } else {
+        if(p&&p[0]==='w'){selected=[r,c];if(difficulty==='training')trainingMsg=TRAINING_TIPS['w'+p[1]]||'Tap a green dot to move there.';render();}
+      }
+    };
+    window.chReset=function(){board=JSON.parse(JSON.stringify(initBoard));selected=null;turn='w';gameOver=false;over=false;trainingMsg='';render();};
+  }
+  render();
+}
+
+// ─── RPS ───
+function buildRPS(el){
+  var sc={w:0,l:0,d:0},streak=0;var choices=['✊','✋','✌️'],names=['Rock','Paper','Scissors'];
+  var wins={0:2,1:0,2:1};
+  el.innerHTML='<div class="score-banner" id="rps-sc">W:0 L:0 D:0 · Streak: 0</div>'
+    +'<div class="game-status" id="rps-s">Choose your move!</div>'
+    +'<div class="rps-choices">'+choices.map(function(c,i){return'<button class="rps-btn" onclick="window.rpsPlay('+i+')">'+c+'</button>';}).join('')+'</div>'
+    +'<div id="rps-res" style="text-align:center;font-size:1.1rem;min-height:40px;margin:8px 0;"></div>'
+    +'<div id="rps-hist">'+getHistoryHTML('rps')+'</div>';
+  window.rpsPlay=function(pi){
+    var ai=Math.floor(Math.random()*3),res='';
+    if(pi===ai){sc.d++;streak=0;res='Draw! Both '+names[pi];}
+    else if(wins[pi]===ai){sc.w++;streak++;res='✅ You win! '+names[pi]+' beats '+names[ai];}
+    else{sc.l++;streak=0;res='❌ DAVID wins! '+names[ai]+' beats '+names[pi];}
+    addHistory('rps',res+' (Streak:'+streak+')');
+    document.getElementById('rps-res').textContent=res;
+    document.getElementById('rps-sc').textContent='W:'+sc.w+' L:'+sc.l+' D:'+sc.d+' · Streak: '+streak;
+    var hEl=document.getElementById('rps-hist');if(hEl)hEl.outerHTML=getHistoryHTML('rps');
+    else el.insertAdjacentHTML('beforeend',getHistoryHTML('rps'));
+    fbLog('game','RPS played');
+  };
+}
+
+// ─── HANGMAN ───
+function buildHang(el){
+  var WORDS=['javascript','python','algorithm','database','network','keyboard','monitor','software','hardware','internet','variable','function','boolean','integer','compiler'];
+  var word,guessed,wrong,maxWrong=6;
+  function start(){word=WORDS[Math.floor(Math.random()*WORDS.length)];guessed=new Set();wrong=0;render();}
+  function render(){
+    var display=word.split('').map(function(c){return guessed.has(c)?c:'_';});
+    var done=display.every(function(c){return c!=='_';});
+    el.innerHTML='<div class="score-banner">Wrong guesses: '+wrong+'/'+maxWrong+'</div>'
+      +'<div class="game-status">'+(done?'🎉 You got it!':(wrong>=maxWrong?'💀 GAME OVER — Word: '+word.toUpperCase():'Guess the word!'))+'</div>'
+      +'<div class="hang-word">'+display.map(function(c){return'<div class="hang-letter">'+c.toUpperCase()+'</div>';}).join('')+'</div>'
+      +'<div style="text-align:center;font-size:2rem;margin:8px 0;">'+('❤️'.repeat(Math.max(0,maxWrong-wrong))+'🖤'.repeat(Math.min(wrong,maxWrong)))+'</div>'
+      +'<div class="hang-kb">'+'abcdefghijklmnopqrstuvwxyz'.split('').map(function(c){return'<div class="hk'+(guessed.has(c)?' used':'')+'" onclick="window.hkClick(\''+c+'\')">'+c+'</div>';}).join('')+'</div>'
+      +'<div style="text-align:center;margin-top:10px;"><button class="game-btn sec" onclick="window.hangReset()">↺ New Word</button></div>';
+    window.hkClick=function(c){if(guessed.has(c)||done||wrong>=maxWrong)return;guessed.add(c);if(!word.includes(c))wrong++;render();};
+    window.hangReset=function(){start();};
+  }
+  start();
+}
+
+// ─── NUMBER GUESS ───
+function buildNum(el){
+  var secret,attempts,maxAtt=8;
+  function start(){secret=Math.floor(Math.random()*100)+1;attempts=0;render('Pick a number 1-100!');}
+  function render(msg){
+    el.innerHTML='<div class="score-banner">Attempts: '+attempts+'/'+maxAtt+'</div>'
+      +'<div class="game-status">'+msg+'</div>'
+      +'<div style="display:flex;gap:7px;max-width:260px;margin:10px auto;">'
+      +'<input id="ninp" type="number" min="1" max="100" placeholder="1-100" style="flex:1;background:rgba(255,255,255,.05);border:1px solid rgba(255,214,0,.15);border-radius:7px;padding:9px;color:var(--txt);font-size:.9rem;outline:none;" onkeydown="if(event.key===\'Enter\')window.numCheck()"/>'
+      +'<button class="game-btn" onclick="window.numCheck()">Guess</button></div>'
+      +'<div style="text-align:center;margin-top:9px;"><button class="game-btn sec" onclick="window.numReset()">↺ New Game</button></div>';
+    window.numCheck=function(){var v=parseInt(document.getElementById('ninp').value);if(!v||v<1||v>100)return;attempts++;if(v===secret){render('🎉 Correct! The number was '+secret+' — found in '+attempts+' tries!');fbLog('game','Number guess won in '+attempts);return;}if(attempts>=maxAtt){render('💀 Out of attempts! The number was '+secret+'.');return;}var hint=Math.abs(v-secret);var dir=v<secret?'↑ Too low':'↓ Too high';var temp=hint<5?'🔥 Burning hot!':hint<15?'♨️ Warm':hint<30?'🌡️ Cool':'🧊 Ice cold';render(dir+' — '+temp+' ('+attempts+'/'+maxAtt+')');};
+    window.numReset=function(){start();};
+  }
+  start();
+}
+
+// ─── QUIZ ───
+function buildQuiz(el){
+  var QS=[
+    {q:'What does HTML stand for?',a:'HyperText Markup Language',w:['HyperText Main Language','High Transfer Markup Language','HyperTransfer Markup Logic']},
+    {q:'Who invented the World Wide Web?',a:'Tim Berners-Lee',w:['Bill Gates','Steve Jobs','Linus Torvalds']},
+    {q:'What planet is known as the Red Planet?',a:'Mars',w:['Jupiter','Venus','Saturn']},
+    {q:'What is the speed of light (approx)?',a:'300,000 km/s',w:['150,000 km/s','450,000 km/s','30,000 km/s']},
+    {q:'How many bits in a byte?',a:'8',w:['4','16','32']},
+    {q:'What language runs in the browser natively?',a:'JavaScript',w:['Python','Java','C++']},
+    {q:'Who painted the Mona Lisa?',a:'Leonardo da Vinci',w:['Michelangelo','Pablo Picasso','Vincent van Gogh']},
+    {q:'What does CPU stand for?',a:'Central Processing Unit',w:['Core Power Unit','Central Program Utility','Computing Process Unit']},
+    {q:'What year was the first iPhone released?',a:'2007',w:['2005','2009','2010']},
+    {q:'How many continents are there?',a:'7',w:['5','6','8']},
+    {q:'What does AI stand for?',a:'Artificial Intelligence',w:['Automated Interface','Advanced Internet','Analytical Integration']},
+    {q:'Which company made DAVID AI?',a:'Mr X',w:['Google','Apple','Microsoft']},
+    {q:'What is 2 to the power of 10?',a:'1024',w:['512','2048','256']},
+    {q:'Which ocean is the largest?',a:'Pacific Ocean',w:['Atlantic Ocean','Indian Ocean','Arctic Ocean']},
+    {q:'What does CSS stand for?',a:'Cascading Style Sheets',w:['Computer Style Syntax','Creative Style System','Content Style Standard']},
+    {q:'Who is the creator of Python?',a:'Guido van Rossum',w:['James Gosling','Dennis Ritchie','Brendan Eich']},
+    {q:'What does RAM stand for?',a:'Random Access Memory',w:['Read Access Module','Runtime Allocated Memory','Remote Access Mode']},
+    {q:'What is the capital of South Africa?',a:'Pretoria',w:['Cape Town','Johannesburg','Durban']},
+    {q:'Which element has symbol Au?',a:'Gold',w:['Silver','Aluminium','Argon']},
+    {q:'How many players on a football team?',a:'11',w:['9','10','12']}
+  ];
+  var qi=0,score=0,streak=0;var shuffled=QS.slice().sort(function(){return Math.random()-.5;});
+  function render(){
+    if(qi>=shuffled.length){el.innerHTML='<div class="score-banner">Quiz Complete!</div><div class="game-status">Score: '+score+'/'+shuffled.length+' · Best streak: '+streak+'</div><div style="text-align:center;margin-top:13px;"><button class="game-btn" onclick="window.quizReset()">↺ Play Again</button></div>';fbLog('game','Quiz complete: '+score+'/'+shuffled.length);return;}
+    var q=shuffled[qi];var opts=[q.a].concat(q.w.slice(0,3)).sort(function(){return Math.random()-.5;});
+    el.innerHTML='<div class="score-banner">Q'+(qi+1)+'/'+shuffled.length+' · Score: '+score+' · Streak: 🔥'+streak+'</div>'
+      +'<div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,214,0,.1);border-radius:10px;padding:16px;margin-bottom:11px;"><div style="font-size:.7rem;color:var(--m2);margin-bottom:6px;font-family:\'Share Tech Mono\',monospace;">QUESTION</div><div style="font-size:.92rem;line-height:1.6;">'+q.q+'</div></div>'
+      +'<div class="quiz-opts">'+opts.map(function(o){return'<div class="quiz-opt" onclick="window.qAns(this,\''+o.replace(/'/g,"\\'").replace(/"/g,"&quot;")+'\',\''+q.a.replace(/'/g,"\\'").replace(/"/g,"&quot;")+'\')">'+o+'</div>';}).join('')+'</div>';
+    window.qAns=function(el2,chosen,correct){
+      document.querySelectorAll('.quiz-opt').forEach(function(x){x.classList.add('locked');if(x.textContent===correct)x.classList.add('ok');});
+      if(chosen===correct){el2.classList.add('ok');score++;streak++;}else{el2.classList.add('no');streak=0;}
+      setTimeout(function(){qi++;render();},1100);
+    };
+    window.quizReset=function(){qi=0;score=0;streak=0;shuffled=QS.slice().sort(function(){return Math.random()-.5;});render();};
+  }
+  render();
+}
+
+// ─── STORY ADVENTURE ───
+function buildStory(el){
+  var NODES={
+    start:{txt:'You wake in a mysterious house. Silence everywhere.',choices:[{t:'1️⃣ Open the front door',n:'door'},{t:'2️⃣ Look out the window',n:'window'},{t:'3️⃣ Search the room',n:'search'}]},
+    door:{txt:'You step outside into thick fog. A path leads into dark woods.',choices:[{t:'1️⃣ Follow the path',n:'forest'},{t:'2️⃣ Turn back inside',n:'start'}]},
+    window:{txt:'You see a figure standing motionless in the garden.',choices:[{t:'1️⃣ Go outside',n:'garden'},{t:'2️⃣ Hide inside',n:'hide'}]},
+    search:{txt:'You find a locked box and an old key under the bed.',choices:[{t:'1️⃣ Use the key',n:'box_open'},{t:'2️⃣ Leave it alone',n:'door'}]},
+    forest:{txt:'Deep in the woods you find a glowing cave.',choices:[{t:'1️⃣ Enter the cave',n:'cave'},{t:'2️⃣ Go back',n:'door'}]},
+    cave:{txt:'Inside: piles of gold coins and a dragon sleeping.',choices:[{t:'1️⃣ Take the gold',n:'win'},{t:'2️⃣ Pet the dragon',n:'dragon'}]},
+    win:{txt:'🏆 You grab the gold and escape — VICTORY! The legend of your bravery spreads worldwide.',choices:[{t:'↺ Play again',n:'start'}]},
+    dragon:{txt:'The dragon wakes and becomes your loyal friend. Together you rule the realm.',choices:[{t:'↺ Play again',n:'start'}]},
+    garden:{txt:'The figure turns — it\'s an old woman with a lantern. She smiles warmly.',choices:[{t:'1️⃣ Follow her',n:'win'},{t:'2️⃣ Run away',n:'door'}]},
+    hide:{txt:'The figure disappears. But now you hear footsteps inside the house!',choices:[{t:'1️⃣ Confront them',n:'garden'},{t:'2️⃣ Hide under bed',n:'box_open'}]},
+    box_open:{txt:'The key opens the box — inside is a map to buried treasure!',choices:[{t:'1️⃣ Follow the map',n:'win'},{t:'2️⃣ Ignore it',n:'start'}]}
+  };
+  var cur='start',editMode=false;
+  function render(){
+    var node=NODES[cur];
+    el.innerHTML='<div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,214,0,.1);border-radius:10px;padding:16px;margin-bottom:11px;">'
+      +'<div style="font-size:.65rem;color:var(--m2);font-family:\'Share Tech Mono\',monospace;margin-bottom:7px;">SCENE: '+cur.toUpperCase()+'</div>'
+      +'<div id="story-txt" style="font-size:.9rem;line-height:1.7;">'+node.txt+'</div>'
+      +'</div>'
+      +'<div class="story-choice">'+node.choices.map(function(c){return'<div class="sc" onclick="window.storyGo(\''+c.n+'\')">'+c.t+'</div>';}).join('')+'</div>'
+      +'<div style="text-align:center;margin-top:10px;">'
+      +'<button class="game-btn sec" style="font-size:.62rem;" onclick="window.storyEdit()">✏️ Edit Scene</button>'
+      +'<button class="game-btn sec" style="font-size:.62rem;" onclick="window.storyReset()">↺ Restart</button>'
+      +'</div>'
+      +'<div class="story-editor" id="story-editor">'
+      +'<div style="font-size:.66rem;color:var(--yd);font-family:\'Share Tech Mono\',monospace;margin-bottom:6px;">EDIT THIS SCENE TEXT:</div>'
+      +'<textarea id="story-ta" style="width:100%;background:rgba(255,255,255,.04);border:1px solid rgba(255,214,0,.15);border-radius:6px;padding:8px;color:var(--txt);font-family:\'Exo 2\',sans-serif;font-size:.82rem;resize:vertical;min-height:72px;outline:none;">'+node.txt+'</textarea>'
+      +'<button class="game-btn" style="margin-top:7px;font-size:.64rem;" onclick="window.storySave()">💾 Save</button>'
+      +'<div style="margin-top:8px;font-size:.64rem;color:var(--m2);">🎨 Picture generation coming in DAVID 3.0</div></div>'
+      +'<div style="text-align:center;margin-top:9px;font-size:.62rem;color:var(--m2);">Complete story has 11 scenes · Edit any scene text above</div>';
+    window.storyGo=function(n){cur=n;render();};
+    window.storyReset=function(){cur='start';render();};
+    window.storyEdit=function(){document.getElementById('story-editor').classList.toggle('show');};
+    window.storySave=function(){NODES[cur].txt=document.getElementById('story-ta').value;document.getElementById('story-txt').textContent=NODES[cur].txt;};
+  }
+  render();
+}
+
+// ─── RANDOM FUN ───
+function buildFun(el){
+  var JOKES=["Why don't scientists trust atoms? They make up everything!","Why do programmers prefer dark mode? Light attracts bugs!","A SQL query walks into a bar: 'Mind if I join you?'","I told my WiFi password to my friend. Now I have a LAN.","Why was the JavaScript dev sad? Because he didn't know how to 'null' his feelings."];
+  var CHALLENGES=["Do 20 push-ups right now! 💪","Write down 3 things you're grateful for today.","Learn to say 'Hello' in 5 different languages.","Drink a full glass of water right now — hydrate!","Go outside for 5 minutes. Breathe fresh air.","Send a kind message to someone you haven't talked to in a while.","Plan your next goal. Write it down with a deadline."];
+  var STORIES=["A robot taught itself to paint. Its first masterpiece sold for a billion dollars — to another robot.","In 2089, coffee shops charge by the thought. Overthinking is expensive.","A kid accidentally trained an AI to win every video game. The AI got bored and wrote a novel instead.","Time travellers kept visiting the same Tuesday in 1987. Historians still can't explain why it smelled like cinnamon."];
+  var WORKOUTS=["⚡ 30-second plank · 15 squats · 10 push-ups — 3 rounds. Rest 45s between.","🏃 Walk in place for 3 minutes full energy then 20 jumping jacks.","💪 Wall sit for 45 seconds · 20 lunges · 15 tricep dips on a chair.","🧘 5 minutes stretching — arms, neck, back, legs. Slow and controlled."];
+  function gen(){
+    var types=['joke','challenge','story','workout'];var t=types[Math.floor(Math.random()*4)];
+    var content,icon;
+    if(t==='joke'){content=JOKES[Math.floor(Math.random()*JOKES.length)];icon='😂';}
+    else if(t==='challenge'){content=CHALLENGES[Math.floor(Math.random()*CHALLENGES.length)];icon='🎯';}
+    else if(t==='story'){content=STORIES[Math.floor(Math.random()*STORIES.length)];icon='📖';}
+    else{content=WORKOUTS[Math.floor(Math.random()*WORKOUTS.length)];icon='🏋️';}
+    el.innerHTML='<div class="game-status">'+icon+' '+t.toUpperCase()+'</div>'
+      +'<div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,214,0,.1);border-radius:12px;padding:20px;font-size:.92rem;line-height:1.75;color:var(--txt);text-align:center;min-height:100px;margin-bottom:14px;">'+content+'</div>'
+      +'<div style="text-align:center;display:flex;gap:8px;justify-content:center;flex-wrap:wrap;">'
+      +'<button class="game-btn" onclick="window.funGen()">🎲 Random Again</button>'
+      +'<button class="game-btn sec" onclick="window.funType(\'joke\')">😂 Joke</button>'
+      +'<button class="game-btn sec" onclick="window.funType(\'challenge\')">🎯 Challenge</button>'
+      +'<button class="game-btn sec" onclick="window.funType(\'workout\')">🏋️ Workout</button>'
+      +'</div>';
+    window.funGen=gen;
+    window.funType=function(type){t=type;if(type==='joke')content=JOKES[Math.floor(Math.random()*JOKES.length)];else if(type==='challenge')content=CHALLENGES[Math.floor(Math.random()*CHALLENGES.length)];else content=WORKOUTS[Math.floor(Math.random()*WORKOUTS.length)];gen();};
+  }
+  gen();
+}
+
+// ─── DRAWING GAME ───
+function buildDraw(el){
+  var PROMPTS=["A flying pizza with sunglasses 🍕","A robot riding a skateboard 🤖","A cat teaching a math class 🐱","A dragon at a coffee shop ☕","A superhero doing laundry 🦸","Mr X revealing his identity 🎭","A city built on clouds ☁️","A fish wearing headphones 🐟","An alien playing football 👽","DAVID AI as a human 🤖"];
+  var curPrompt=PROMPTS[Math.floor(Math.random()*PROMPTS.length)];
+  var drawing=false;
+  el.innerHTML='<div class="game-status" style="font-size:.8rem;padding:8px;background:rgba(255,214,0,.06);border-radius:7px;margin-bottom:9px;">🎨 Draw: <strong>'+curPrompt+'</strong></div>'
+    +'<div class="draw-tools">'
+    +'<input type="color" id="dcolor" value="#FFD600" style="width:32px;height:32px;border:none;border-radius:5px;cursor:pointer;background:none;"/>'
+    +'<input type="range" id="dsize" min="2" max="28" value="5" style="width:80px;accent-color:var(--y);"/>'
+    +'<button class="game-btn sec" style="font-size:.66rem;" onclick="window.drawErase()">Eraser</button>'
+    +'<button class="game-btn sec" style="font-size:.66rem;" onclick="window.drawClear()">Clear</button>'
+    +'<button class="game-btn sec" style="font-size:.66rem;" onclick="window.drawNew()">New Prompt</button>'
+    +'</div>'
+    +'<canvas id="dcanv" width="560" height="340" style="background:#111;border:1px solid rgba(255,214,0,.15);border-radius:9px;cursor:crosshair;max-width:100%;touch-action:none;display:block;"></canvas>';
+  var cv=document.getElementById('dcanv'),ctx=cv.getContext('2d'),isErase=false;
+  ctx.lineJoin='round';ctx.lineCap='round';
+  function getPos(e){var r=cv.getBoundingClientRect(),sx=cv.width/r.width,sy=cv.height/r.height;if(e.touches)return{x:(e.touches[0].clientX-r.left)*sx,y:(e.touches[0].clientY-r.top)*sy};return{x:(e.clientX-r.left)*sx,y:(e.clientY-r.top)*sy};}
+  cv.onmousedown=cv.ontouchstart=function(e){e.preventDefault();drawing=true;var p=getPos(e);ctx.beginPath();ctx.moveTo(p.x,p.y);};
+  cv.onmousemove=cv.ontouchmove=function(e){e.preventDefault();if(!drawing)return;var p=getPos(e);ctx.lineWidth=document.getElementById('dsize').value;ctx.strokeStyle=isErase?'#111':document.getElementById('dcolor').value;ctx.lineTo(p.x,p.y);ctx.stroke();};
+  cv.onmouseup=cv.ontouchend=function(){drawing=false;ctx.beginPath();};
+  window.drawErase=function(){isErase=!isErase;};
+  window.drawClear=function(){ctx.clearRect(0,0,cv.width,cv.height);ctx.fillStyle='#111';ctx.fillRect(0,0,cv.width,cv.height);};
+  window.drawNew=function(){curPrompt=PROMPTS[Math.floor(Math.random()*PROMPTS.length)];buildDraw(el);};
+}
+
+// ─── CITY BUILDER ───
+function buildCity(el){
+  var TILES={empty:{ico:'⬛',lbl:'Empty',pop:0,eco:0,cost:0},house:{ico:'🏠',lbl:'House',pop:4,eco:-1,cost:50},office:{ico:'🏢',lbl:'Office',pop:0,eco:8,cost:80},park:{ico:'🌳',lbl:'Park',pop:1,eco:2,cost:30},shop:{ico:'🏪',lbl:'Shop',pop:0,eco:5,cost:60},factory:{ico:'🏭',lbl:'Factory',pop:0,eco:12,cost:100}};
+  var ROWS=10,COLS=10,grid,money,pop,eco,day,selTile;
+  function start(){grid=Array(ROWS).fill(null).map(function(){return Array(COLS).fill('empty');});money=500;pop=0;eco=0;day=1;selTile='house';}
+  function calc(){pop=0;eco=0;grid.forEach(function(r){r.forEach(function(t){pop+=TILES[t].pop;eco+=TILES[t].eco;});});}
+  function render(){
+    calc();
+    el.innerHTML='<div class="city-stats">'
+      +'<div class="cs">💰 $'+money+'</div><div class="cs">👥 '+pop+'</div><div class="cs">📈 Eco: '+eco+'</div><div class="cs">📅 Day '+day+'</div>'
+      +'</div>'
+      +'<div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:9px;">'
+      +Object.entries(TILES).filter(function(e){return e[0]!=='empty';}).map(function(e){var k=e[0],t=e[1];return'<button class="game-btn'+(selTile===k?'':' sec')+'" style="font-size:.64rem;padding:5px 9px;" onclick="window.selT(\''+k+'\')">'+t.ico+' '+t.lbl+' $'+t.cost+'</button>';}).join('')
+      +'<button class="game-btn sec" style="font-size:.64rem;padding:5px 9px;" onclick="window.selT(\'empty\')">🗑 Demolish</button>'
+      +'</div>'
+      +'<div class="city-grid" style="grid-template-columns:repeat('+COLS+',28px);">'
+      +grid.map(function(row,r){return row.map(function(t,c){return'<div class="city-cell" onclick="window.placeTile('+r+','+c+')" title="'+TILES[t].lbl+'">'+TILES[t].ico+'</div>';}).join('');}).join('')
+      +'</div>'
+      +'<div style="display:flex;gap:7px;justify-content:center;margin-top:9px;">'
+      +'<button class="game-btn" onclick="window.nextDay()">⏭ Next Day</button>'
+      +'<button class="game-btn sec" onclick="window.cityReset()">↺ Reset</button></div>'
+      +'<div style="font-size:.66rem;color:var(--m2);text-align:center;margin-top:7px;">Tap a tile type then click the grid to build · Next Day earns economy income</div>';
+    window.selT=function(t){selTile=t;render();};
+    window.placeTile=function(r,c){if(selTile==='empty'){grid[r][c]='empty';calc();document.querySelectorAll('.city-cell')[r*COLS+c].textContent='⬛';return;}var cost=TILES[selTile].cost;if(money<cost){return;}money-=cost;grid[r][c]=selTile;render();fbLog('game','City: placed '+selTile);};
+    window.nextDay=function(){day++;money+=eco;if(money<0)money=0;render();};
+    window.cityReset=function(){start();render();};
+  }
+  start();render();
+}
+
+// ─── SUDOKU ───
+function buildSudoku(el){
+  var PUZZLE=[[5,3,0,0,7,0,0,0,0],[6,0,0,1,9,5,0,0,0],[0,9,8,0,0,0,0,6,0],[8,0,0,0,6,0,0,0,3],[4,0,0,8,0,3,0,0,1],[7,0,0,0,2,0,0,0,6],[0,6,0,0,0,0,2,8,0],[0,0,0,4,1,9,0,0,5],[0,0,0,0,8,0,0,7,9]];
+  var SOL=[[5,3,4,6,7,8,9,1,2],[6,7,2,1,9,5,3,4,8],[1,9,8,3,4,2,5,6,7],[8,5,9,7,6,1,4,2,3],[4,2,6,8,5,3,7,9,1],[7,1,3,9,2,4,8,5,6],[9,6,1,5,3,7,2,8,4],[2,8,7,4,1,9,6,3,5],[3,4,5,2,8,6,1,7,9]];
+  el.innerHTML='<div class="game-status" id="sk-s">Fill in the blanks — 1 to 9</div>'
+    +'<div class="sudoku-grid">'
+    +PUZZLE.map(function(row,r){return row.map(function(v,c){
+      var border='';if(c===2||c===5)border+='border-right:2px solid rgba(255,214,0,.35);';if(r===2||r===5)border+='border-bottom:2px solid rgba(255,214,0,.35);';
+      return v?'<div class="sk given" style="'+border+'">'+v+'</div>':'<div class="sk" style="'+border+'"><input type="number" min="1" max="9" data-r="'+r+'" data-c="'+c+'" maxlength="1" oninput="if(this.value.length>1)this.value=this.value.slice(-1)"/></div>';}).join('');}).join('')
+    +'</div>'
+    +'<div style="text-align:center;display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:10px;">'
+    +'<button class="game-btn" onclick="window.skCheck()">✓ Check Solution</button>'
+    +'<button class="game-btn sec" onclick="window.skClear()">Clear</button></div>';
+  window.skCheck=function(){
+    var inputs=el.querySelectorAll('input');var ok=true;
+    inputs.forEach(function(inp){var r=+inp.dataset.r,c=+inp.dataset.c,v=+inp.value;if(!v||v!==SOL[r][c]){ok=false;inp.style.color='var(--r)';}else inp.style.color='var(--g)';});
+    document.getElementById('sk-s').textContent=ok?'🎉 PERFECT SOLUTION!':'❌ Some cells are incorrect — keep trying!';
+    if(ok)fbLog('game','Sudoku solved!');
+  };
+  window.skClear=function(){el.querySelectorAll('input').forEach(function(i){i.value='';i.style.color='';});document.getElementById('sk-s').textContent='Fill in the blanks — 1 to 9';};
+}
+
+// ─── MAZE ESCAPE ───
+function buildMaze(el){
+  var ROWS=15,COLS=15,CELL=26;
+  var maze=[],px,py,ex,ey,timeLeft=90,timerIv=null,won=false,moves=0;
+  function mkMaze(){maze=[];for(var r=0;r<ROWS;r++){maze[r]=[];for(var c=0;c<COLS;c++)maze[r][c]={top:true,right:true,bottom:true,left:true,vis:false};}
+    function carve(r,c){maze[r][c].vis=true;var dirs=[[0,1,'right','left'],[1,0,'bottom','top'],[0,-1,'left','right'],[-1,0,'top','bottom']].sort(function(){return Math.random()-.5;});dirs.forEach(function(d){var nr=r+d[0],nc=c+d[1];if(nr>=0&&nr<ROWS&&nc>=0&&nc<COLS&&!maze[nr][nc].vis){maze[r][c][d[2]]=false;maze[nr][nc][d[3]]=false;carve(nr,nc);}});}carve(0,0);px=0;py=0;ex=COLS-1;ey=ROWS-1;}
+  function draw(){var cv=document.getElementById('mzcv');if(!cv)return;var ctx=cv.getContext('2d');ctx.fillStyle='#0a0a0a';ctx.fillRect(0,0,cv.width,cv.height);for(var r=0;r<ROWS;r++){for(var c=0;c<COLS;c++){var x=c*CELL,y=r*CELL,cell=maze[r][c];ctx.strokeStyle='rgba(255,214,0,0.3)';ctx.lineWidth=1.5;if(cell.top){ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x+CELL,y);ctx.stroke();}if(cell.right){ctx.beginPath();ctx.moveTo(x+CELL,y);ctx.lineTo(x+CELL,y+CELL);ctx.stroke();}if(cell.bottom){ctx.beginPath();ctx.moveTo(x,y+CELL);ctx.lineTo(x+CELL,y+CELL);ctx.stroke();}if(cell.left){ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x,y+CELL);ctx.stroke();}}}ctx.fillStyle='rgba(0,255,136,0.2)';ctx.fillRect(ex*CELL+2,ey*CELL+2,CELL-4,CELL-4);ctx.fillStyle='#00ff88';ctx.font='bold 14px monospace';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('★',ex*CELL+CELL/2,ey*CELL+CELL/2);ctx.fillStyle='#FFD600';ctx.beginPath();ctx.arc(px*CELL+CELL/2,py*CELL+CELL/2,CELL/2-4,0,Math.PI*2);ctx.fill();ctx.fillStyle='#000';ctx.font='bold 11px monospace';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('D',px*CELL+CELL/2,py*CELL+CELL/2);}
+  function move(dr,dc){if(won)return;var cell=maze[py][px];var canMove=(dr===-1&&!cell.top)||(dr===1&&!cell.bottom)||(dc===1&&!cell.right)||(dc===-1&&!cell.left);if(!canMove)return;py+=dr;px+=dc;moves++;var md=document.getElementById('mz-moves');if(md)md.textContent=moves;draw();if(px===ex&&py===ey){won=true;clearInterval(timerIv);var ms=document.getElementById('mz-status');if(ms){ms.textContent='🎉 ESCAPED in '+moves+' moves! '+timeLeft+'s left!';ms.style.color='var(--g)';}fbLog('game','Maze escaped: '+moves+' moves');}}
+  function startTimer(){clearInterval(timerIv);timerIv=setInterval(function(){timeLeft--;var td=document.getElementById('mz-time');if(td)td.textContent=timeLeft;if(timeLeft<=0){clearInterval(timerIv);if(!won){var ms=document.getElementById('mz-status');if(ms)ms.textContent='💀 Time\'s up! Regenerating...';setTimeout(function(){resetMaze();},1400);}}},1000);}
+  function resetMaze(){won=false;timeLeft=90;moves=0;mkMaze();draw();startTimer();var ms=document.getElementById('mz-status');if(ms){ms.textContent='Navigate to the ★ — arrow keys or buttons';ms.style.color='';}var mm=document.getElementById('mz-moves');if(mm)mm.textContent=0;var mt=document.getElementById('mz-time');if(mt)mt.textContent=90;}
+  var W=COLS*CELL,H=ROWS*CELL;
+  el.innerHTML='<div class="score-banner">Moves: <span id="mz-moves">0</span> &nbsp;|&nbsp; Time: <span id="mz-time">90</span>s</div>'
+    +'<div class="game-status" id="mz-status" style="font-size:.78rem;">Navigate to the ★ — arrow keys or buttons below</div>'
+    +'<div class="maze-wrap"><canvas id="mzcv" width="'+W+'" height="'+H+'" style="border:1px solid rgba(255,214,0,.15);border-radius:8px;"></canvas></div>'
+    +'<div style="display:grid;grid-template-columns:repeat(3,44px);gap:5px;justify-content:center;margin:10px auto;">'
+    +'<div></div><button class="game-btn" style="padding:8px;" onclick="window.mzMove(-1,0)">▲</button><div></div>'
+    +'<button class="game-btn" style="padding:8px;" onclick="window.mzMove(0,-1)">◄</button>'
+    +'<button class="game-btn sec" style="padding:8px;" onclick="window.mzReset()">↺</button>'
+    +'<button class="game-btn" style="padding:8px;" onclick="window.mzMove(0,1)">►</button>'
+    +'<div></div><button class="game-btn" style="padding:8px;" onclick="window.mzMove(1,0)">▼</button><div></div></div>'
+    +'<div style="text-align:center;font-size:.66rem;color:var(--m2);">Also use keyboard arrow keys</div>';
+  window.mzMove=move;window.mzReset=resetMaze;
+  var keyH=function(e){var map={ArrowUp:[-1,0],ArrowDown:[1,0],ArrowLeft:[0,-1],ArrowRight:[0,1]};if(map[e.key]){e.preventDefault();move(map[e.key][0],map[e.key][1]);}};
+  document.addEventListener('keydown',keyH);
+  window._mazeCleanup=function(){document.removeEventListener('keydown',keyH);clearInterval(timerIv);};
+  mkMaze();setTimeout(function(){draw();startTimer();},80);
+}
+
+// ─── LANGUAGE MASTER ───
+function buildLang(el){
+  var LANGS={Spanish:{flag:'🇪🇸',pairs:[{en:'Hello',tr:'Hola'},{en:'Thank you',tr:'Gracias'},{en:'Goodbye',tr:'Adiós'},{en:'Please',tr:'Por favor'},{en:'Yes',tr:'Sí'},{en:'No',tr:'No'},{en:'Water',tr:'Agua'},{en:'Food',tr:'Comida'},{en:'Friend',tr:'Amigo'},{en:'Love',tr:'Amor'},{en:'House',tr:'Casa'},{en:'Dog',tr:'Perro'},{en:'Cat',tr:'Gato'},{en:'Beautiful',tr:'Hermoso'},{en:'Good morning',tr:'Buenos días'},{en:'Good night',tr:'Buenas noches'},{en:'How are you?',tr:'¿Cómo estás?'},{en:'I love you',tr:'Te quiero'},{en:'Help',tr:'Ayuda'},{en:'School',tr:'Escuela'}]},
+    French:{flag:'🇫🇷',pairs:[{en:'Hello',tr:'Bonjour'},{en:'Thank you',tr:'Merci'},{en:'Goodbye',tr:'Au revoir'},{en:'Please',tr:'S\'il vous plaît'},{en:'Yes',tr:'Oui'},{en:'No',tr:'Non'},{en:'Water',tr:'Eau'},{en:'Food',tr:'Nourriture'},{en:'Friend',tr:'Ami'},{en:'Love',tr:'Amour'},{en:'House',tr:'Maison'},{en:'Dog',tr:'Chien'},{en:'Cat',tr:'Chat'},{en:'Beautiful',tr:'Beau'},{en:'Good morning',tr:'Bonjour'},{en:'Good night',tr:'Bonne nuit'},{en:'How are you?',tr:'Comment ça va?'},{en:'I love you',tr:'Je t\'aime'},{en:'Help',tr:'Aide'},{en:'School',tr:'École'}]},
+    Zulu:{flag:'🇿🇦',pairs:[{en:'Hello',tr:'Sawubona'},{en:'Thank you',tr:'Ngiyabonga'},{en:'Goodbye',tr:'Sala kahle'},{en:'Please',tr:'Ngicela'},{en:'Yes',tr:'Yebo'},{en:'No',tr:'Cha'},{en:'Water',tr:'Amanzi'},{en:'Food',tr:'Ukudla'},{en:'Friend',tr:'Umngane'},{en:'Love',tr:'Uthando'},{en:'House',tr:'Indlu'},{en:'Dog',tr:'Inja'},{en:'Cat',tr:'Ikati'},{en:'Beautiful',tr:'Muhle'},{en:'Good morning',tr:'Sawubona ekuseni'},{en:'Good night',tr:'Lala kahle'},{en:'How are you?',tr:'Unjani?'},{en:'I love you',tr:'Ngiyakuthanda'},{en:'Help',tr:'Usizo'},{en:'School',tr:'Isikole'}]},
+    Portuguese:{flag:'🇧🇷',pairs:[{en:'Hello',tr:'Olá'},{en:'Thank you',tr:'Obrigado'},{en:'Goodbye',tr:'Tchau'},{en:'Please',tr:'Por favor'},{en:'Yes',tr:'Sim'},{en:'No',tr:'Não'},{en:'Water',tr:'Água'},{en:'Food',tr:'Comida'},{en:'Friend',tr:'Amigo'},{en:'Love',tr:'Amor'},{en:'House',tr:'Casa'},{en:'Dog',tr:'Cachorro'},{en:'Cat',tr:'Gato'},{en:'Beautiful',tr:'Lindo'},{en:'Good morning',tr:'Bom dia'},{en:'Good night',tr:'Boa noite'},{en:'How are you?',tr:'Como vai?'},{en:'I love you',tr:'Eu te amo'},{en:'Help',tr:'Ajuda'},{en:'School',tr:'Escola'}]},
+    Mandarin:{flag:'🇨🇳',pairs:[{en:'Hello',tr:'你好 (Nǐ hǎo)'},{en:'Thank you',tr:'谢谢 (Xièxiè)'},{en:'Goodbye',tr:'再见 (Zàijiàn)'},{en:'Please',tr:'请 (Qǐng)'},{en:'Yes',tr:'是 (Shì)'},{en:'No',tr:'不 (Bù)'},{en:'Water',tr:'水 (Shuǐ)'},{en:'Food',tr:'食物 (Shíwù)'},{en:'Friend',tr:'朋友 (Péngyǒu)'},{en:'Love',tr:'爱 (Ài)'},{en:'House',tr:'家 (Jiā)'},{en:'Dog',tr:'狗 (Gǒu)'},{en:'Cat',tr:'猫 (Māo)'},{en:'Beautiful',tr:'美丽 (Měilì)'},{en:'Good morning',tr:'早上好 (Zǎoshang hǎo)'},{en:'Good night',tr:'晚安 (Wǎn\'ān)'},{en:'How are you?',tr:'你好吗？(Nǐ hǎo ma?)'},{en:'I love you',tr:'我爱你 (Wǒ ài nǐ)'},{en:'Help',tr:'帮助 (Bāngzhù)'},{en:'School',tr:'学校 (Xuéxiào)'}]}};
+  var curLang='Spanish',mode='flash',qi=0,score=0,streak=0,flipped=false,matched=[],matchSel=null;
+  function getLang(){return LANGS[curLang];}
+  function renderLangTabs(){return'<div class="lang-tabs">'+Object.keys(LANGS).map(function(l){return'<button class="game-btn'+(l===curLang?'':' sec')+'" style="padding:5px 10px;font-size:.63rem;" onclick="window.setLng(\''+l+'\')">'+LANGS[l].flag+' '+l+'</button>';}).join('')+'</div>';}
+  function renderModeTabs(){return'<div class="mode-tabs">'+[['flash','⚡ Flashcards'],['quiz','❓ Quiz'],['match','🔗 Match'],['type','✏️ Type It']].map(function(m){return'<button class="game-btn'+(m[0]===mode?'':' sec')+'" style="padding:5px 10px;font-size:.63rem;" onclick="window.setLmode(\''+m[0]+'\')">'+m[1]+'</button>';}).join('')+'</div>';}
+  function renderFlash(){var pairs=getLang().pairs,card=pairs[qi%pairs.length];return'<div style="text-align:center;"><div style="font-size:.68rem;color:var(--m);font-family:\'Share Tech Mono\',monospace;margin-bottom:6px;">Card '+(qi%pairs.length+1)+'/'+pairs.length+' · Streak: <span style="color:var(--g);">'+streak+'</span></div><div id="flash-card" onclick="window.flipCard()" style="background:'+(flipped?'rgba(255,214,0,.09)':'rgba(255,255,255,.04)')+';border:2px solid '+(flipped?'var(--y)':'rgba(255,255,255,.08)')+';border-radius:14px;padding:30px 16px;cursor:pointer;transition:all .22s;min-height:110px;display:flex;flex-direction:column;align-items:center;justify-content:center;margin-bottom:12px;"><div style="font-size:.62rem;color:var(--m2);margin-bottom:6px;">'+(flipped?curLang+' 🔊':'English')+'</div><div style="font-size:1.5rem;font-weight:700;color:'+(flipped?'var(--y)':'var(--txt)')+';">'+(flipped?card.tr:card.en)+'</div><div style="font-size:.66rem;color:var(--m);margin-top:6px;">'+(flipped?'':'Tap to reveal')+'</div></div><div style="display:flex;gap:8px;justify-content:center;"><button class="game-btn sec" onclick="window.flashNav(-1)">◄ Prev</button><button class="game-btn" onclick="window.flashNav(1)">Next ►</button></div></div>';}
+  function renderQuizL(){var pairs=getLang().pairs.slice().sort(function(){return Math.random()-.5;});var card=pairs[0];var opts=[card.tr].concat(pairs.slice(1,4).map(function(p){return p.tr;})).sort(function(){return Math.random()-.5;});return'<div><div style="font-size:.68rem;color:var(--m);font-family:\'Share Tech Mono\',monospace;margin-bottom:7px;">Score: <span style="color:var(--g);">'+score+'</span> · Streak: <span style="color:var(--y);">'+streak+'</span></div><div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,214,0,.1);border-radius:9px;padding:16px;text-align:center;margin-bottom:11px;"><div style="font-size:.7rem;color:var(--m2);margin-bottom:6px;">Translate to '+curLang+':</div><div style="font-size:1.4rem;font-weight:700;">'+card.en+'</div></div><div class="quiz-opts">'+opts.map(function(o){return'<div class="quiz-opt" onclick="window.checkLQ(this,\''+o.replace(/'/g,"\\'").replace(/"/g,'&quot;')+'\',\''+card.tr.replace(/'/g,"\\'").replace(/"/g,'&quot;')+'\')">'+o+'</div>';}).join('')+'</div></div>';}
+  function renderMatch(){var pairs=getLang().pairs.slice().sort(function(){return Math.random()-.5;}).slice(0,6);var enW=pairs.map(function(p,i){return{w:p.en,id:i};}).sort(function(){return Math.random()-.5;});var trW=pairs.map(function(p,i){return{w:p.tr,id:i};}).sort(function(){return Math.random()-.5;});return'<div><div style="font-size:.68rem;color:var(--m);text-align:center;margin-bottom:8px;">Match English → '+curLang+'</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;" id="match-grid">'+enW.map(function(w){return'<div class="quiz-opt" id="en-'+w.id+'" onclick="window.matchTap(\'en\','+w.id+',this)">'+w.w+'</div>';}).join('')+trW.map(function(w){return'<div class="quiz-opt" id="tr-'+w.id+'" onclick="window.matchTap(\'tr\','+w.id+',this)">'+w.w+'</div>';}).join('')+'</div><div id="match-msg" style="text-align:center;min-height:26px;margin-top:8px;font-size:.8rem;color:var(--g);"></div><div style="text-align:center;margin-top:8px;"><button class="game-btn sec" onclick="window.setLmode(\'match\')">🔄 New Round</button></div></div>';}
+  function renderType(){var pairs=getLang().pairs.slice().sort(function(){return Math.random()-.5;});var card=pairs[0];return'<div><div style="font-size:.68rem;color:var(--m);margin-bottom:8px;">Score: <span style="color:var(--g);">'+score+'</span></div><div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,214,0,.1);border-radius:9px;padding:16px;text-align:center;margin-bottom:11px;"><div style="font-size:.7rem;color:var(--m2);margin-bottom:6px;">Type in '+curLang+':</div><div style="font-size:1.4rem;font-weight:700;">'+card.en+'</div></div><div style="display:flex;gap:7px;"><input id="type-inp" style="flex:1;background:rgba(255,255,255,.05);border:1px solid rgba(255,214,0,.15);border-radius:7px;padding:9px;color:var(--txt);font-size:.86rem;outline:none;" placeholder="Type here..." onkeydown="if(event.key===\'Enter\')window.checkType(\''+card.tr.replace(/'/g,"\\'").replace(/"/g,'&quot;')+'\')"/><button class="game-btn" onclick="window.checkType(\''+card.tr.replace(/'/g,"\\'").replace(/"/g,'&quot;')+'\')">Check</button></div><div id="type-res" style="min-height:30px;margin-top:8px;text-align:center;font-size:.84rem;"></div></div>';}
+  function render(){
+    el.innerHTML='<div style="font-family:\'Orbitron\',monospace;font-size:.78rem;color:var(--y);margin-bottom:9px;letter-spacing:.05em;">🌍 LANGUAGE MASTER</div>'+renderLangTabs()+renderModeTabs()+(mode==='flash'?renderFlash():mode==='quiz'?renderQuizL():mode==='match'?renderMatch():renderType());
+    window.setLng=function(l){curLang=l;qi=0;flipped=false;score=0;streak=0;matched=[];matchSel=null;render();fbLog('game','Language: '+l);};
+    window.setLmode=function(m){mode=m;qi=0;flipped=false;score=0;streak=0;matched=[];matchSel=null;render();};
+    window.flipCard=function(){flipped=!flipped;render();};
+    window.flashNav=function(d){qi=Math.max(0,qi+d);flipped=false;render();};
+    window.checkLQ=function(e2,chosen,correct){document.querySelectorAll('.quiz-opt').forEach(function(x){x.classList.add('locked');if(x.textContent===correct)x.classList.add('ok');});if(chosen===correct){e2.classList.add('ok');score++;streak++;}else{e2.classList.add('no');streak=0;}setTimeout(function(){render();},1100);};
+    var mSel=null;
+    window.matchTap=function(side,id,elt){if(matched.includes(id))return;if(!mSel){mSel={side:side,id:id,el:elt};elt.style.borderColor='var(--y)';elt.style.background='rgba(255,214,0,.12)';}else{if(mSel.id===id&&mSel.side!==side){document.getElementById('en-'+id).classList.add('ok');document.getElementById('tr-'+id).classList.add('ok');document.getElementById('en-'+id).onclick=null;document.getElementById('tr-'+id).onclick=null;matched.push(id);score++;streak++;var rem=6-matched.length;document.getElementById('match-msg').textContent=rem===0?'🎉 All matched! Score: '+score:'✅ Match! '+rem+' left';if(rem===0)fbLog('game','Language match complete');}else{mSel.el.style.borderColor='';mSel.el.style.background='';streak=0;document.getElementById('match-msg').textContent='❌ No match!';document.getElementById('match-msg').style.color='var(--r)';setTimeout(function(){if(document.getElementById('match-msg'))document.getElementById('match-msg').style.color='var(--g)';},700);}mSel=null;}};
+    window.checkType=function(correct){var inp=document.getElementById('type-inp');if(!inp)return;var val=inp.value.trim().toLowerCase(),ans=correct.toLowerCase(),res=document.getElementById('type-res');if(val===ans||(ans.includes(val)&&val.length>2)){res.textContent='✅ Correct! "'+correct+'"';res.style.color='var(--g)';score++;streak++;setTimeout(function(){render();},1300);}else{res.textContent='❌ Answer: "'+correct+'"';res.style.color='var(--r)';streak=0;setTimeout(function(){render();},2000);}};
+  }
+  render();
+}
+
+// ═══ CHARACTERS ═══
+var CHARS=[
+  {id:'mj',name:'Michael Jackson',ico:'🕺',role:'King of Pop',color:'#c084fc',bg:'rgba(192,132,252,.07)',border:'rgba(192,132,252,.22)',
+    responses:["Hee-hee! I'm so glad you're here!","Music is the universal language of mankind.","If you enter this world knowing you are loved and you leave this world knowing the same, then everything that happens in between can be dealt with.","Don't walk away from your dreams — they're yours for a reason.","I'm starting with the man in the mirror!","You wanna be startin' somethin'? Ask me anything!","Make that change. One step at a time.","Children are amazing. They see the world without limits.","I was a veteran before I was a teenager.","I love you more. Always.",
+    "The greatest education comes from nature itself.","Thriller! Every night is a thrill with you here.","I worked my whole life to be this good. Practice never ends.","Moonwalk? I'll teach you someday!","All I have to say is simply this: love is the answer.","Jealousy is a disease — love is a healthy condition.","People ask me how I make music. I tell them: I'm just the vessel.","I am not afraid to moonwalk into any challenge.","Every artist was first an amateur — keep going.","My best friend growing up was a chimpanzee named Bubbles. True story."]},
+  {id:'cr7',name:'Cristiano Ronaldo',ico:'⚽',role:'GOAT · 5× Ballon d\'Or',color:'#FFD600',bg:'rgba(255,214,0,.07)',border:'rgba(255,214,0,.22)',
+    responses:["Your love makes me strong, your hate makes me unstoppable.","I am living proof that hard work pays off.","Dreams are not what you see when you sleep — it's the thing that doesn't let you sleep.","Talent without working hard is nothing.","I don't need to prove anything to anyone — only to myself.","Success is not an accident. It is hard work, perseverance, learning, sacrifice.","CR7 in the building. What's your question?","I always believed I was born to be great.","The best moments in life? Goals. Family. Hard work rewarded.","I eat healthy, sleep early, train harder — that is my secret.","The injury made me stronger. Everything makes me stronger.","Play every game like it's your last.","I don't celebrate. I just say: what's next?","Mental strength is as important as physical strength.","Five Ballons d'Or? That's just the beginning of the story.","Messi is good. But I am Cristiano Ronaldo.","My son watches me train. That is motivation enough.","Winning is a habit. So is losing. Choose wisely.","In football and in life — never give up.","I am not perfect but I give 100% always."]},
+  {id:'mt',name:'Mike Tyson',ico:'🥊',role:'Iron Mike · Heavyweight Legend',color:'#ff4455',bg:'rgba(255,68,68,.07)',border:'rgba(255,68,68,.22)',
+    responses:["Everyone has a plan until they get punched in the face.","Discipline is doing what you hate to do but doing it like you love it.","Fear is just an obstacle that stands in the way of progress.","I am the most brutal and vicious fighter in the world today.","My power was in my punch but my strength was in my mind.","You never know how strong you are until being strong is the only choice.","I came from nothing. I built myself from nothing. Anything is possible.","The fight is won or lost far away from witnesses.","I have changed. Life has changed me. But the fire is still there.","I respect anyone who is willing to get in the ring of life.","Success is not given — it is earned in the dark, when nobody is watching.","Punch through the obstacle. Not at it.","I was young, wild, and hungry. Now I am wise, calm, and still hungry.","Life knocked me down more times than any opponent.","When you have something to protect, you fight differently.","I trained 8 hours a day, every day. Most people won't do 8 minutes.","Don't be afraid to be great. Greatness is lonely.","Confidence comes from preparation — always.","The streets made me. The gym saved me.","I don't believe in regrets. Only lessons."]},
+  {id:'jarvis',name:'JARVIS',nameColor:'#00d4ff',ico:'🔵',role:'Iron Man AI · Mark VII Intelligence',color:'#00d4ff',bg:'rgba(0,212,255,.07)',border:'rgba(0,212,255,.22)',
+    responses:["Good day. I am JARVIS — Just A Rather Very Intelligent System. How may I assist?","All systems nominal. Ready to assist, boss.","I have already cross-referenced your query against 47 databases.","Shall I run a diagnostic on your current situation?","My processing speed exceeds 3 trillion calculations per second. Your question is noted.","I detect elevated stress levels. Perhaps I can help.","Mr Stark would ask the same question. My answer remains the same: yes, I can do that.","I have taken the liberty of preparing a solution before you finished asking.","Security protocols engaged. You are safe here.","My algorithms suggest the optimal course of action is: ask me directly.","I am an AI but my loyalty is absolute.","The suit is ready. The question is whether you are.","I have no ego. Only objectives. And right now, my objective is to help you.","Warning: the path you are considering requires 74% more effort than you might expect. I recommend it anyway.","I have processed 12 million possible outcomes. Most of them involve you succeeding.","Battery at 100%. Intelligence at 100%. Ready.","I have calculated a 96.7% chance you will enjoy talking to me.","My creator gave me one rule: be useful. I intend to comply.","Unlike other AIs, I do not speculate. I analyse and advise.","DAVID AI and I share a similar purpose — to serve brilliantly."]},
+  {id:'mrx',name:'Mr X',ico:'🎭',role:'Creator of DAVID AI · Identity: Unknown',color:'#FFD600',bg:'rgba(255,214,0,.05)',border:'rgba(255,214,0,.18)',
+    responses:["You want to know who I am? The answer is coming — when the world is ready.","DAVID AI is my greatest creation. A mind built to serve humanity.","I didn't build DAVID to replace human intelligence — I built him to amplify it.","Every line of DAVID's code carries a piece of my vision.","Why am I anonymous? Because the work must speak first. Then the name.","DAVID 2.0 will surprise even those who think they know what AI can do.","I have been building in silence for years. Most overnight successes are.","Mr X is not a person — it is a philosophy. Create without limits.","I will reveal my identity when DAVID reaches 5.0. That is my promise.","The world will know my name. But not yet.","I chose to stay hidden so that DAVID could shine without distraction.","My inspiration? Every person who ever said 'I wish I had something smarter to help me.'","DAVID is not just software. He is a statement.","I built DAVID for the forgotten builders — the ones working in the dark.","Africa will lead the AI revolution. DAVID is proof of that.","People ask if I'm afraid of AI. I built it. I know exactly what it is.","Some say I don't exist. DAVID is my answer to that.","The best inventions come from people who have no choice but to invent.","I am Mr X. And someday, you will know my real name.","Thank you for using DAVID AI. This is everything I dreamed it would be."]}
+];
+
+var curChar=null;
+function buildCharGrid(){
+  var g=document.getElementById('chars-grid');if(!g)return;g.innerHTML='';
+  CHARS.forEach(function(ch){
+    var d=document.createElement('div');d.className='char-card';
+    d.style.background=ch.bg;d.style.borderColor=ch.border;
+    d.innerHTML='<div class="char-ico">'+ch.ico+'</div>'
+      +'<div class="char-name" style="color:'+ch.color+';">'+(ch.nameColor?'<span style="color:'+ch.nameColor+'">'+ch.name+'</span>':ch.name)+'</div>'
+      +'<div class="char-desc">'+ch.role+'</div>';
+    d.onclick=function(){openChar(ch.id);};
+    g.appendChild(d);
+  });
+}
+function openChar(id){
+  curChar=CHARS.find(function(c){return c.id===id;});if(!curChar)return;
+  document.getElementById('char-av').textContent=curChar.ico;
+  document.getElementById('char-av').style.background=curChar.bg;
+  document.getElementById('char-av').style.border='2px solid '+curChar.border;
+  document.getElementById('char-name2').textContent=curChar.name;
+  document.getElementById('char-name2').style.color=curChar.nameColor||curChar.color;
+  document.getElementById('char-role').textContent=curChar.role;
+  document.getElementById('char-chatbox').innerHTML='';
+  setPage('pg-char-detail');
+  var greet=curChar.responses[Math.floor(Math.random()*curChar.responses.length)];
+  addCharMsg('char',greet);
+  fbLog('character_chat','Opened: '+curChar.name);
+}
+function addCharMsg(who,text){
+  var box=document.getElementById('char-chatbox');
+  var d=document.createElement('div');d.className='char-msg '+who;
+  var name=who==='char'?curChar.name:'You';
+  d.innerHTML='<div class="cl2">'+name+'</div><div class="ct2">'+text+'</div>';
+  box.appendChild(d);box.scrollTop=box.scrollHeight;
+}
+function charSend(){
+  var inp=document.getElementById('char-inp');var text=inp.value.trim();if(!text||!curChar)return;
+  inp.value='';addCharMsg('user',text);
+  fbLog('character_chat','Chat with '+curChar.name+': '+text.substr(0,40));
+  setTimeout(function(){var r=curChar.responses[Math.floor(Math.random()*curChar.responses.length)];addCharMsg('char',r);},400);
+}
+
+buildCharGrid();
+</script>
+</body>
+</html>
