@@ -1,0 +1,30 @@
+{
+  "rules": {
+    "users": {
+      "$code": {
+        ".read": true,
+        ".write": "!data.exists() || data.child('code').val() === $code"
+      }
+    },
+    "users_by_email": {
+      "$email": {
+        ".read": true,
+        ".write": "!data.exists()"
+      }
+    },
+    "referrals": {
+      "$referrerCode": {
+        ".read": true,
+        "$confirmerCode": {
+          ".write": "!data.exists()"
+        }
+      }
+    },
+    "rewardHistory": {
+      "$code": {
+        ".read": true,
+        ".write": true
+      }
+    }
+  }
+}
