@@ -1,0 +1,1618 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PUZZLR — Share & Earn</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Rajdhani:wght@300;400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+:root {
+  --g: #FFB800; --gold: #ffb800; --pink: #FF8C00; --blue: #FFB800;
+  --bg: #07060A; --card: #0F0D14; --card2: #18151F;
+  --border: rgba(255,184,0,0.1); --muted: rgba(255,255,255,0.38);
+  --font: 'Rajdhani',sans-serif; --display: 'Orbitron',sans-serif; --mono: 'Share Tech Mono',monospace;
+  --tier1:#c97b3a; --tier2:#a8a8a8; --tier3:#ffd700; --tier4:#7ef4ff; --tier5:#ff79c6;
+  --glow: 0 0 20px rgba(255,184,0,0.15);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:#fff;font-family:var(--font);min-height:100vh;overflow-x:hidden;font-size:16px}
+
+/* ═══════════════════════════════════════
+   ANIMATED BACKGROUND
+═══════════════════════════════════════ */
+#bg-canvas{position:fixed;inset:0;z-index:0;pointer-events:none}
+.noise{position:fixed;inset:0;z-index:0;opacity:.025;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");pointer-events:none}
+
+/* ═══════════════════════════════════════
+   LAYOUT
+═══════════════════════════════════════ */
+.wrap{position:relative;z-index:1;max-width:480px;margin:0 auto;padding:0 16px 100px}
+
+/* ═══════════════════════════════════════
+   HEADER
+═══════════════════════════════════════ */
+header{text-align:center;padding:40px 0 30px;position:relative}
+.logo-wrap{display:inline-block;position:relative}
+.logo-glow{position:absolute;inset:-20px;background:radial-gradient(circle,rgba(255,184,0,0.12) 0%,transparent 70%);animation:breathe 3s ease-in-out infinite;pointer-events:none}
+.logo{display:inline-flex;align-items:center;gap:12px;position:relative}
+.logo-icon{width:44px;height:44px;display:grid;grid-template-columns:1fr 1fr;gap:4px;padding:8px;background:linear-gradient(135deg,rgba(255,184,0,0.15),rgba(255,184,0,0.1));border:1px solid rgba(255,184,0,0.3);border-radius:12px;position:relative;overflow:hidden}
+.logo-icon::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,transparent 40%,rgba(255,184,0,0.08));animation:shimmer-logo 2s ease-in-out infinite}
+.logo-icon span{background:var(--g);border-radius:3px;display:block;animation:pulse-block 2s ease-in-out infinite}
+.logo-icon span:nth-child(2){animation-delay:.3s}
+.logo-icon span:nth-child(3){animation-delay:.6s}
+.logo-icon span:nth-child(4){animation-delay:.9s}
+.logo-text{font-family:var(--display);font-size:2rem;font-weight:900;letter-spacing:6px;background:linear-gradient(135deg,#fff 0%,var(--g) 60%,var(--blue) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.logo-sub{font-family:var(--mono);font-size:0.6rem;color:var(--g);letter-spacing:4px;margin-top:6px;opacity:.7;animation:blink-cursor 1.5s step-end infinite}
+
+
+/* ═══════════════════════════════════════
+   CARDS
+═══════════════════════════════════════ */
+.card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:20px 18px;margin-bottom:14px;position:relative;overflow:hidden;backdrop-filter:blur(10px)}
+.card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(255,184,0,0.5),transparent);animation:shimmer 3s ease-in-out infinite}
+.card::after{content:'';position:absolute;top:0;left:0;bottom:0;width:1px;background:linear-gradient(180deg,var(--g),transparent);opacity:.3}
+.card-title{font-family:var(--display);font-size:0.52rem;font-weight:600;color:var(--g);text-transform:uppercase;letter-spacing:3px;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.card-title::before{content:'//';opacity:.5;font-family:var(--mono)}
+
+/* ═══════════════════════════════════════
+   FORM ELEMENTS
+═══════════════════════════════════════ */
+.field{margin-bottom:12px}
+.field label{display:block;font-family:var(--mono);font-size:0.62rem;color:var(--g);text-transform:uppercase;letter-spacing:2px;margin-bottom:5px;opacity:.8}
+.field input,.field select{width:100%;background:rgba(255,184,0,0.03);border:1px solid rgba(255,184,0,0.15);border-radius:10px;padding:11px 14px;color:#fff;font-family:var(--mono);font-size:0.85rem;outline:none;transition:all .2s;-webkit-appearance:none}
+.field input:focus,.field select:focus{border-color:rgba(255,184,0,0.5);background:rgba(255,184,0,0.05);box-shadow:0 0 0 3px rgba(255,184,0,0.07)}
+.field input::placeholder{color:rgba(255,255,255,0.18)}
+.field select option{background:#18151F;color:#fff}
+
+/* ═══════════════════════════════════════
+   BUTTONS
+═══════════════════════════════════════ */
+.btn{width:100%;padding:13px;border-radius:12px;border:none;font-family:var(--display);font-size:0.72rem;font-weight:700;letter-spacing:2px;cursor:pointer;transition:all .15s;position:relative;overflow:hidden}
+.btn::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,transparent 40%,rgba(255,255,255,0.08));pointer-events:none}
+.btn:active{transform:scale(0.98)}.btn:disabled{opacity:.35;cursor:not-allowed;transform:none}
+.btn-green{background:linear-gradient(135deg,#FF8C00,#FFB800);color:#000;box-shadow:0 0 20px rgba(255,184,0,0.25)}
+.btn-green:hover:not(:disabled){box-shadow:0 0 30px rgba(255,184,0,0.4);transform:translateY(-1px)}
+.btn-gold{background:linear-gradient(135deg,var(--gold),#ff9500);color:#000;box-shadow:0 0 20px rgba(255,184,0,0.25)}
+.btn-gold:hover:not(:disabled){box-shadow:0 0 30px rgba(255,184,0,0.4);transform:translateY(-1px)}
+.btn-outline{background:transparent;border:1px solid rgba(255,184,0,0.2);color:rgba(255,255,255,0.7)}
+.btn-outline:hover:not(:disabled){border-color:rgba(255,184,0,0.5);color:#fff;background:rgba(255,184,0,0.05)}
+.btn-sm{padding:7px 14px;font-size:0.6rem;width:auto;border-radius:8px}
+.btn-danger{background:linear-gradient(135deg,#FF8C00,#c0005a);color:#fff}
+
+/* ═══════════════════════════════════════
+   DOWNLOAD HERO (shown when ?ref= param)
+═══════════════════════════════════════ */
+#downloadHero{display:none}
+.dl-hero{background:linear-gradient(135deg,rgba(255,184,0,0.06),rgba(255,184,0,0.04));border:1px solid rgba(255,184,0,0.25);border-radius:20px;padding:28px 20px;text-align:center;margin-bottom:16px;position:relative;overflow:hidden}
+.dl-hero::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 50% 0%,rgba(255,184,0,0.08),transparent 60%);pointer-events:none}
+.dl-orbit{width:80px;height:80px;margin:0 auto 16px;position:relative}
+.dl-orbit-ring{position:absolute;inset:0;border-radius:50%;border:1px solid rgba(255,184,0,0.2);animation:spin-slow 8s linear infinite}
+.dl-orbit-ring:nth-child(2){inset:8px;animation-duration:5s;animation-direction:reverse;border-color:rgba(255,184,0,0.3)}
+.dl-orbit-dot{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:36px;height:36px;background:linear-gradient(135deg,var(--g),var(--blue));border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.2rem;box-shadow:0 0 20px rgba(255,184,0,0.4)}
+.dl-title{font-family:var(--display);font-size:1.3rem;font-weight:900;letter-spacing:3px;background:linear-gradient(135deg,#fff,var(--g));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:6px}
+.dl-sub{font-size:0.82rem;color:rgba(255,255,255,0.6);line-height:1.6;margin-bottom:6px}
+.dl-invited{font-family:var(--mono);font-size:0.7rem;color:var(--g);background:rgba(255,184,0,0.08);border:1px solid rgba(255,184,0,0.2);border-radius:8px;padding:6px 14px;display:inline-block;margin-bottom:18px}
+.dl-steps-row{display:flex;gap:10px;justify-content:center;margin-bottom:20px;flex-wrap:wrap}
+.dl-step-chip{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:8px 12px;font-size:0.68rem;color:rgba(255,255,255,0.7);display:flex;align-items:center;gap:6px;min-width:0;flex:1;max-width:140px}
+.dl-step-chip .num{font-family:var(--display);font-size:0.6rem;color:var(--g);font-weight:700;width:18px;height:18px;border-radius:50%;background:rgba(255,184,0,0.12);border:1px solid rgba(255,184,0,0.3);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.dl-btn{background:linear-gradient(135deg,#FF8C00,#FFB800);color:#000;border:none;border-radius:14px;width:100%;padding:16px;font-family:var(--display);font-size:0.85rem;font-weight:900;letter-spacing:2px;cursor:pointer;position:relative;overflow:hidden;box-shadow:0 0 40px rgba(255,184,0,0.3);animation:pulse-btn 2s ease-in-out infinite}
+.dl-btn::before{content:'';position:absolute;top:-50%;left:-60%;width:40%;height:200%;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.2),transparent);transform:skewX(-20deg);animation:btn-sheen 3s ease-in-out infinite}
+.dl-progress{margin-top:14px;font-family:var(--mono);font-size:0.6rem;color:var(--muted);display:flex;align-items:center;gap:8px;justify-content:center}
+.dl-progress-bar{flex:1;max-width:120px;height:3px;background:rgba(255,255,255,0.08);border-radius:99px;overflow:hidden}
+.dl-progress-fill{height:100%;background:var(--g);border-radius:99px;animation:progress-fill 1.5s ease-out forwards}
+
+/* ═══════════════════════════════════════
+   TIERS
+═══════════════════════════════════════ */
+.tiers-grid{display:flex;flex-direction:column;gap:8px;margin-bottom:4px}
+.tier-card{border-radius:14px;padding:14px 16px;cursor:pointer;transition:all .2s;border:1px solid rgba(255,255,255,0.06);position:relative;overflow:hidden;background:rgba(255,255,255,0.02)}
+.tier-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;opacity:.6}
+.tier-card.selected{transform:scale(1.01)}
+.tier-bronze.selected{border-color:var(--tier1);background:rgba(201,123,58,0.08);box-shadow:0 0 15px rgba(201,123,58,0.1)}
+.tier-bronze::before{background:linear-gradient(90deg,transparent,var(--tier1),transparent)}
+.tier-silver.selected{border-color:var(--tier2);background:rgba(168,168,168,0.08);box-shadow:0 0 15px rgba(168,168,168,0.1)}
+.tier-silver::before{background:linear-gradient(90deg,transparent,var(--tier2),transparent)}
+.tier-gold.selected{border-color:var(--tier3);background:rgba(255,215,0,0.07);box-shadow:0 0 15px rgba(255,215,0,0.1)}
+.tier-gold::before{background:linear-gradient(90deg,transparent,var(--tier3),transparent)}
+.tier-diamond.selected{border-color:var(--tier4);background:rgba(126,244,255,0.06);box-shadow:0 0 15px rgba(126,244,255,0.1)}
+.tier-diamond::before{background:linear-gradient(90deg,transparent,var(--tier4),transparent)}
+.tier-elite.selected{border-color:var(--tier5);background:rgba(255,121,198,0.07);box-shadow:0 0 15px rgba(255,121,198,0.1)}
+.tier-elite::before{background:linear-gradient(90deg,transparent,var(--tier5),transparent)}
+.tier-row{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.tier-left{display:flex;align-items:center;gap:10px}
+.tier-icon{font-size:1.5rem;width:36px;text-align:center}
+.tier-name{font-family:var(--display);font-size:0.75rem;font-weight:700}
+.tier-desc{font-size:0.62rem;color:var(--muted);margin-top:2px}
+.tier-right{text-align:right;flex-shrink:0}
+.tier-reward{font-family:var(--display);font-size:0.75rem;font-weight:700}
+.tier-sub{font-size:0.55rem;color:var(--muted);margin-top:2px}
+.tier-progress{margin-top:10px}
+.tier-progress-bar{height:3px;border-radius:99px;background:rgba(255,255,255,0.06);overflow:hidden;margin-top:5px}
+.tier-progress-fill{height:100%;border-radius:99px;transition:width .6s cubic-bezier(.4,0,.2,1)}
+.tier-progress-lbl{font-family:var(--mono);font-size:0.52rem;color:var(--muted);margin-top:3px}
+.tier-check{position:absolute;top:10px;right:12px;font-size:0.65rem;color:var(--g);opacity:0;transition:opacity .2s}
+.tier-card.selected .tier-check{opacity:1}
+
+/* ═══════════════════════════════════════
+   CODE BOX
+═══════════════════════════════════════ */
+.code-box{background:rgba(255,184,0,0.04);border:1px solid rgba(255,184,0,0.25);border-radius:12px;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px;position:relative;overflow:hidden}
+.code-box::before{content:'';position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,184,0,0.03),transparent);animation:shimmer 3s ease-in-out infinite}
+.code-val{font-family:var(--mono);font-size:1.3rem;color:var(--g);letter-spacing:4px;text-shadow:0 0 12px rgba(255,184,0,0.4)}
+.copy-btn{background:rgba(255,184,0,0.1);border:1px solid rgba(255,184,0,0.25);color:var(--g);border-radius:8px;padding:7px 14px;font-family:var(--display);font-size:0.6rem;font-weight:600;letter-spacing:1.5px;cursor:pointer;transition:all .15s;white-space:nowrap}
+.copy-btn:hover{background:rgba(255,184,0,0.18);box-shadow:0 0 10px rgba(255,184,0,0.2)}
+.copy-btn.copied{color:#000;background:var(--g)}
+.link-box{background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.07);border-radius:10px;padding:10px 14px;font-family:var(--mono);font-size:0.62rem;color:rgba(255,255,255,0.4);word-break:break-all;line-height:1.5;margin-bottom:10px;cursor:pointer;transition:all .2s}
+.link-box:hover{border-color:rgba(255,184,0,0.2);color:rgba(255,255,255,0.7)}
+
+/* ═══════════════════════════════════════
+   SHARE OPTIONS
+═══════════════════════════════════════ */
+.share-options{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:10px}
+.share-opt{background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.07);border-radius:12px;padding:10px 8px;text-align:center;cursor:pointer;transition:all .15s;font-family:var(--font)}
+.share-opt:hover{border-color:rgba(255,184,0,0.25);background:rgba(255,184,0,0.04);transform:translateY(-1px)}
+.share-opt:active{transform:scale(0.97)}
+.share-opt .s-icon{font-size:1.3rem;margin-bottom:4px}
+.share-opt .s-name{font-size:0.65rem;font-weight:600;color:#fff}
+.share-opt .s-desc{font-size:0.52rem;color:var(--muted);margin-top:1px}
+
+/* ═══════════════════════════════════════
+   TABS
+═══════════════════════════════════════ */
+.tabs{display:flex;gap:4px;margin-bottom:16px}
+.tab{flex:1;padding:8px 2px;border-radius:10px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);color:var(--muted);font-family:var(--display);font-size:0.5rem;font-weight:700;letter-spacing:1px;cursor:pointer;text-align:center;transition:all .15s}
+.tab.active{background:rgba(255,184,0,0.08);border-color:rgba(255,184,0,0.35);color:var(--g);box-shadow:0 0 12px rgba(255,184,0,0.1)}
+
+/* ═══════════════════════════════════════
+   STATS
+═══════════════════════════════════════ */
+.stats-bar{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:14px}
+.stat{background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.07);border-radius:12px;padding:12px 8px;text-align:center;position:relative;overflow:hidden;transition:all .2s}
+.stat:hover{border-color:rgba(255,184,0,0.2);transform:translateY(-1px)}
+.stat-val{font-family:var(--display);font-size:1.3rem;font-weight:900;color:var(--g);text-shadow:0 0 10px rgba(255,184,0,0.3)}
+.stat-lbl{font-family:var(--mono);font-size:0.48rem;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;margin-top:3px}
+
+/* ═══════════════════════════════════════
+   REWARD BOX
+═══════════════════════════════════════ */
+.reward-box{background:linear-gradient(135deg,rgba(255,184,0,0.07),rgba(255,100,0,0.04));border:1px solid rgba(255,184,0,0.3);border-radius:16px;padding:20px;text-align:center;margin-bottom:14px;position:relative;overflow:hidden}
+.reward-box::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);animation:shimmer 2s ease-in-out infinite}
+.reward-code-box{background:rgba(255,184,0,0.08);border:1px solid rgba(255,184,0,0.3);border-radius:10px;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:10px}
+.reward-code-val{font-family:var(--mono);font-size:1rem;color:var(--gold);letter-spacing:3px;text-shadow:0 0 10px rgba(255,184,0,0.3)}
+
+/* ═══════════════════════════════════════
+   BENEFIT GRID
+═══════════════════════════════════════ */
+.benefit-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:12px}
+.benefit-btn{background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.07);border-radius:12px;padding:12px 8px;text-align:center;cursor:pointer;transition:all .15s;font-family:var(--font)}
+.benefit-btn:hover{border-color:rgba(255,184,0,0.25);background:rgba(255,184,0,0.04);transform:translateY(-1px)}
+.benefit-btn.selected{border-color:var(--g);background:rgba(255,184,0,0.07);box-shadow:0 0 12px rgba(255,184,0,0.1)}
+.benefit-btn .b-icon{font-size:1.3rem;margin-bottom:4px}
+.benefit-btn .b-name{font-size:0.65rem;font-weight:700;color:#fff;display:block}
+.benefit-btn .b-desc{font-size:0.52rem;color:var(--muted);display:block;margin-top:2px}
+
+/* ═══════════════════════════════════════
+   MISC
+═══════════════════════════════════════ */
+.badge{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:20px;font-family:var(--mono);font-size:0.56rem;font-weight:700;letter-spacing:.8px}
+.badge-green{background:rgba(255,184,0,0.08);color:var(--g);border:1px solid rgba(255,184,0,0.2)}
+.badge-gold{background:rgba(255,184,0,0.08);color:var(--gold);border:1px solid rgba(255,184,0,0.2)}
+.badge-red{background:rgba(255,80,80,0.08);color:#ff6b6b;border:1px solid rgba(255,80,80,0.2)}
+.ref-list{display:flex;flex-direction:column;gap:7px}
+.ref-item{display:flex;align-items:center;justify-content:space-between;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:10px;padding:10px 13px;transition:border-color .2s}
+.ref-item:hover{border-color:rgba(255,184,0,0.15)}
+.ref-item .ref-name{font-size:0.75rem;font-weight:600}
+.ref-item .ref-time{font-family:var(--mono);font-size:0.54rem;color:var(--muted);margin-top:2px}
+.divider{display:flex;align-items:center;gap:10px;margin:14px 0;color:var(--muted);font-family:var(--mono);font-size:0.58rem;letter-spacing:1px}
+.divider::before,.divider::after{content:'';flex:1;height:1px;background:rgba(255,255,255,0.06)}
+.error-msg{font-family:var(--mono);font-size:0.62rem;color:#ff6b6b;background:rgba(255,80,80,0.07);border:1px solid rgba(255,80,80,0.2);border-radius:8px;padding:8px 12px;margin-top:7px;display:none}
+.spinner{width:18px;height:18px;border:2px solid rgba(255,255,255,0.08);border-top-color:var(--g);border-radius:50%;animation:spin .7s linear infinite;display:inline-block}
+.live-dot{width:6px;height:6px;border-radius:50%;background:var(--g);display:inline-block;margin-right:5px;box-shadow:0 0 6px var(--g);animation:pulse-dot 1.5s ease-in-out infinite}
+.panel{display:none}.panel.active{display:block}
+.tab-panel{display:none}
+.steps{display:flex;flex-direction:column;gap:10px;margin-bottom:16px}
+.step{display:flex;align-items:flex-start;gap:12px}
+.step-num{width:24px;height:24px;border-radius:50%;background:rgba(255,184,0,0.08);border:1px solid rgba(255,184,0,0.3);color:var(--g);font-family:var(--mono);font-size:0.62rem;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 0 8px rgba(255,184,0,0.1)}
+.step-text{font-size:0.75rem;color:rgba(255,255,255,0.65);line-height:1.6;padding-top:3px}
+.step-text strong{color:#fff}
+.countdown{font-family:var(--mono);font-size:0.72rem;color:var(--gold);background:rgba(255,184,0,0.07);border:1px solid rgba(255,184,0,0.2);border-radius:8px;padding:5px 12px;display:inline-block;margin-top:6px;letter-spacing:1px}
+
+/* ═══════════════════════════════════════
+   TOAST
+═══════════════════════════════════════ */
+#toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(100px);background:rgba(8,13,26,0.95);border:1px solid rgba(255,184,0,0.2);border-radius:12px;padding:10px 20px;font-family:var(--mono);font-size:0.7rem;color:#fff;z-index:9999;transition:transform .3s cubic-bezier(.4,0,.2,1);white-space:nowrap;pointer-events:none;backdrop-filter:blur(10px)}
+#toast.show{transform:translateX(-50%) translateY(0)}
+#toast.green{border-color:rgba(255,184,0,0.4);color:var(--g);box-shadow:0 0 20px rgba(255,184,0,0.1)}
+#toast.gold{border-color:rgba(255,184,0,0.4);color:var(--gold)}
+#toast.red{border-color:rgba(255,80,80,0.4);color:#ff6b6b}
+
+/* ═══════════════════════════════════════
+   GREETING / SIGN OUT BAR
+═══════════════════════════════════════ */
+.dash-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;background:rgba(255,184,0,0.03);border:1px solid rgba(255,184,0,0.1);border-radius:14px;padding:12px 16px}
+.dash-greeting{font-family:var(--display);font-size:0.9rem;font-weight:700;letter-spacing:1px}
+.dash-sub{font-family:var(--mono);font-size:0.55rem;color:var(--muted);margin-top:3px;display:flex;align-items:center}
+
+/* ═══════════════════════════════════════
+   ACTIVE TIER BOX
+═══════════════════════════════════════ */
+#activeTierBox{background:rgba(255,184,0,0.03);border:1px solid rgba(255,184,0,0.15);border-radius:10px;padding:10px 14px;margin-top:8px;font-size:0.72rem;color:rgba(255,255,255,0.75);line-height:1.6;display:none}
+
+/* ═══════════════════════════════════════
+   KEYFRAMES
+═══════════════════════════════════════ */
+@keyframes breathe{0%,100%{opacity:.5;transform:scale(1)}50%{opacity:1;transform:scale(1.05)}}
+@keyframes shimmer{0%{background-position:-200% center}100%{background-position:200% center}}
+@keyframes shimmer-logo{0%,100%{opacity:0;transform:translateX(-100%)}50%{opacity:1;transform:translateX(100%)}}
+@keyframes scan{0%{top:0;opacity:0}10%{opacity:.4}90%{opacity:.4}100%{top:100%;opacity:0}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes spin-slow{to{transform:rotate(360deg)}}
+@keyframes blink-cursor{0%,100%{opacity:.7}50%{opacity:.2}}
+@keyframes pulse-block{0%,100%{opacity:1}50%{opacity:.4}}
+@keyframes pulse-dot{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.7)}}
+@keyframes pulse-btn{0%,100%{box-shadow:0 0 30px rgba(255,184,0,0.25)}50%{box-shadow:0 0 50px rgba(255,184,0,0.45)}}
+@keyframes btn-sheen{0%{left:-60%}100%{left:160%}}
+@keyframes progress-fill{from{width:0}to{width:100%}}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+.fade-in{animation:fadeIn .4s ease forwards}
+
+/* ═══════════════════════════════════════
+   PARTICLE FIELD (canvas bg)
+═══════════════════════════════════════ */
+</style>
+</head>
+<body>
+<canvas id="bg-canvas"></canvas>
+<div class="noise"></div>
+<div id="toast"></div>
+
+<div class="wrap">
+
+<!-- HEADER -->
+<header>
+
+  <div class="logo-wrap">
+    <div class="logo-glow"></div>
+    <div class="logo">
+      <div class="logo-icon"><span></span><span></span><span></span><span></span></div>
+      <span class="logo-text">PUZZLR</span>
+    </div>
+  </div>
+  <div class="logo-sub">SHARE_SYSTEM v2.0 // DAVID AI &gt;_</div>
+</header>
+
+<!-- ══════════════════════════════════════
+     DOWNLOAD HERO (shown when ?ref= link)
+══════════════════════════════════════ -->
+<div id="downloadHero">
+  <div class="dl-hero fade-in">
+    <div class="dl-orbit">
+      <div class="dl-orbit-ring"></div>
+      <div class="dl-orbit-ring"></div>
+      <div class="dl-orbit-dot">🧩</div>
+    </div>
+    <div class="dl-title">YOU'VE BEEN INVITED</div>
+    <div class="dl-sub">Your friend wants you on <strong style="color:#fff">PUZZLR</strong>.<br>Download is starting automatically...</div>
+    <div class="dl-invited" id="inviterLabel">Invited by a friend</div>
+    <div class="dl-steps-row">
+      <div class="dl-step-chip"><div class="num">1</div>Download installs</div>
+      <div class="dl-step-chip"><div class="num">2</div>Open PUZZLR app</div>
+      <div class="dl-step-chip"><div class="num">3</div>Confirm their code</div>
+    </div>
+    <button class="dl-btn" onclick="triggerDownload()">⬇ DOWNLOAD PUZZLR APK</button>
+    <div class="dl-progress">
+      <span>Preparing download</span>
+      <div class="dl-progress-bar"><div class="dl-progress-fill"></div></div>
+      <span id="dlPercent">0%</span>
+    </div>
+    <div style="margin-top:10px;font-size:0.6rem;color:rgba(255,255,255,0.3);font-family:var(--mono)">
+      Android APK · Free · No ads
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     PANEL: LANDING
+══════════════════════════════════════ -->
+<div id="panelLanding" class="panel active">
+  <div class="card fade-in">
+    <div class="card-title">How It Works</div>
+    <div class="steps">
+      <div class="step"><div class="step-num">1</div><div class="step-text"><strong>Register</strong> to get your unique share code</div></div>
+      <div class="step"><div class="step-num">2</div><div class="step-text"><strong>Pick a tier</strong> — share to 1, 3, 5, 10 or 20 people for bigger rewards</div></div>
+      <div class="step"><div class="step-num">3</div><div class="step-text">Each person <strong>confirms your code</strong> on this site after installing</div></div>
+      <div class="step"><div class="step-num">4</div><div class="step-text"><strong>Puzzlr auto-unlocks</strong> your reward when you go online in the app</div></div>
+    </div>
+    <div class="field"><label>Your Name</label><input type="text" id="regName" placeholder="e.g. Alex" maxlength="24" autocomplete="off"></div>
+    <div class="field"><label>Your Email</label><input type="email" id="regEmail" placeholder="you@example.com" autocomplete="off"></div>
+    <div id="regError" class="error-msg"></div>
+    <button class="btn btn-green" id="regBtn" onclick="register()" style="margin-top:6px;">GET MY SHARE CODE →</button>
+    <div class="divider">already have a code?</div>
+    <div class="field" style="margin-bottom:8px;"><label>Sign back in</label><input type="text" id="loginCode" placeholder="PZLR-XXXX" maxlength="12" autocomplete="off" style="letter-spacing:3px;text-transform:uppercase;" oninput="this.value=this.value.toUpperCase()"></div>
+    <button class="btn btn-outline" onclick="loginWithCode()">SIGN IN WITH CODE</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     PANEL: DASHBOARD
+══════════════════════════════════════ -->
+<div id="panelDash" class="panel">
+
+  <div class="dash-header fade-in">
+    <div>
+      <div class="dash-greeting" id="dashGreeting">AGENT —</div>
+      <div class="dash-sub"><span class="live-dot"></span>LIVE SYNC ACTIVE</div>
+    </div>
+    <button class="btn btn-outline" onclick="signOut()" style="width:auto;padding:7px 14px;font-size:0.6rem;">SIGN OUT</button>
+  </div>
+
+  <!-- TABS -->
+  <div class="tabs">
+    <div class="tab active" id="tabShare"    onclick="switchTab('share')">📤 MY CODE</div>
+    <div class="tab"        id="tabProgress" onclick="switchTab('progress')">⚙️ IN PROGRESS</div>
+    <div class="tab"        id="tabConfirm"  onclick="switchTab('confirm')">✅ CONFIRM</div>
+    <div class="tab"        id="tabRewards"  onclick="switchTab('rewards')">🎁 REWARDS</div>
+  </div>
+
+  <!-- ─── TAB: MY CODE ─── -->
+  <div id="tabSharePanel" class="tab-panel" style="display:block;">
+
+    <div class="card">
+      <div class="card-title">Your Share Code</div>
+      <div class="code-box" onclick="copyCode()" style="cursor:pointer;">
+        <span class="code-val" id="myCode">—</span>
+        <span id="codeCopyHint" style="font-size:0.58rem;color:rgba(255,184,0,0.6);letter-spacing:1px;flex-shrink:0;">TAP TO COPY</span>
+      </div>
+      <div class="card-title" style="margin-top:10px;">Your Share Link</div>
+      <div class="link-box" id="myLink" onclick="copyLink(this)">—</div>
+    </div>
+
+    <!-- TIERS -->
+    <div class="card">
+      <div class="card-title">Sharing Tier</div>
+      <div class="tiers-grid">
+
+        <!-- STARTER -->
+        <div class="tier-card tier-bronze" id="tierCard_starter" onclick="confirmTierStart('starter')">
+          <div class="tier-check">✓</div>
+          <div class="tier-row">
+            <div class="tier-left">
+              <div class="tier-icon">🥉</div>
+              <div>
+                <div class="tier-name" style="color:var(--tier1);">STARTER</div>
+                <div class="tier-desc">Share to <strong style="color:#fff;">1 person</strong></div>
+              </div>
+            </div>
+            <div class="tier-right">
+              <div class="tier-reward" style="color:var(--tier1);">2 days</div>
+              <div class="tier-sub">reward window</div>
+            </div>
+          </div>
+          <div style="margin-top:9px;display:grid;grid-template-columns:1fr 1fr;gap:4px;">
+            <div style="background:rgba(201,123,58,0.07);border:1px solid rgba(201,123,58,0.16);border-radius:7px;padding:5px 8px;font-size:0.58rem;color:rgba(255,255,255,0.65);">🎟️ +3 Free Passes</div>
+            <div style="background:rgba(201,123,58,0.07);border:1px solid rgba(201,123,58,0.16);border-radius:7px;padding:5px 8px;font-size:0.58rem;color:rgba(255,255,255,0.65);">💡 +3 Hint Tokens</div>
+            <div style="background:rgba(201,123,58,0.07);border:1px solid rgba(201,123,58,0.16);border-radius:7px;padding:5px 8px;font-size:0.58rem;color:rgba(255,255,255,0.65);">🚫 Ad-Free 6h</div>
+            <div style="background:rgba(201,123,58,0.07);border:1px solid rgba(201,123,58,0.16);border-radius:7px;padding:5px 8px;font-size:0.58rem;color:rgba(255,255,255,0.65);">⚡ 2× XP 1 Day</div>
+          </div>
+          <div style="margin-top:8px;display:flex;align-items:center;justify-content:space-between;">
+            <div class="tier-progress" style="margin-top:0;flex:1;margin-right:10px;">
+              <div class="tier-progress-lbl">Progress: <span id="tierProg_starter">0</span> / 1</div>
+              <div class="tier-progress-bar"><div class="tier-progress-fill" id="tierFill_starter" style="width:0%;background:var(--tier1);"></div></div>
+            </div>
+            <span id="tierDone_starter" style="display:none;font-family:var(--mono);font-size:0.55rem;color:var(--tier1);letter-spacing:1px;">DONE ✓</span>
+          </div>
+          <div style="margin-top:6px;font-family:var(--mono);font-size:0.5rem;color:rgba(201,123,58,0.6);display:flex;align-items:center;gap:4px;">
+            <span style="width:5px;height:5px;border-radius:50%;background:rgba(201,123,58,0.8);display:inline-block;animation:pulse-dot 1.5s ease-in-out infinite;"></span>
+            <span id="tierLiveCount_starter">— users completed</span>
+          </div>
+        </div>
+
+        <!-- BRONZE -->
+        <div class="tier-card tier-silver" id="tierCard_bronze" onclick="confirmTierStart('bronze')">
+          <div class="tier-check">✓</div>
+          <div class="tier-row">
+            <div class="tier-left">
+              <div class="tier-icon">🥈</div>
+              <div>
+                <div class="tier-name" style="color:var(--tier2);">BRONZE</div>
+                <div class="tier-desc">Share to <strong style="color:#fff;">3 people</strong></div>
+              </div>
+            </div>
+            <div class="tier-right">
+              <div class="tier-reward" style="color:var(--tier2);">4 days</div>
+              <div class="tier-sub">reward window</div>
+            </div>
+          </div>
+          <div style="margin-top:9px;display:grid;grid-template-columns:1fr 1fr;gap:4px;">
+            <div style="background:rgba(168,168,168,0.06);border:1px solid rgba(168,168,168,0.14);border-radius:7px;padding:5px 8px;font-size:0.58rem;color:rgba(255,255,255,0.65);">🚫📺 Ad-Free 24h</div>
+            <div style="background:rgba(168,168,168,0.06);border:1px solid rgba(168,168,168,0.14);border-radius:7px;padding:5px 8px;font-size:0.58rem;color:rgba(255,255,255,0.65);">🎟️ +5 Free Passes</div>
+            <div style="background:rgba(168,168,168,0.06);border:1px solid rgba(168,168,168,0.14);border-radius:7px;padding:5px 8px;font-size:0.58rem;color:rgba(255,255,255,0.65);">💡 +6 Hint Tokens</div>
+            <div style="background:rgba(168,168,168,0.06);border:1px solid rgba(168,168,168,0.14);border-radius:7px;padding:5px 8px;font-size:0.58rem;color:rgba(255,255,255,0.65);">⚡ 2× XP 3 Days</div>
+          </div>
+          <div style="margin-top:8px;display:flex;align-items:center;justify-content:space-between;">
+            <div class="tier-progress" style="margin-top:0;flex:1;margin-right:10px;">
+              <div class="tier-progress-lbl">Progress: <span id="tierProg_bronze">0</span> / 3</div>
+              <div class="tier-progress-bar"><div class="tier-progress-fill" id="tierFill_bronze" style="width:0%;background:var(--tier2);"></div></div>
+            </div>
+            <span id="tierDone_bronze" style="display:none;font-family:var(--mono);font-size:0.55rem;color:var(--tier2);letter-spacing:1px;">DONE ✓</span>
+          </div>
+          <div style="margin-top:6px;font-family:var(--mono);font-size:0.5rem;color:rgba(168,168,168,0.6);display:flex;align-items:center;gap:4px;">
+            <span style="width:5px;height:5px;border-radius:50%;background:rgba(168,168,168,0.8);display:inline-block;animation:pulse-dot 1.5s ease-in-out infinite;animation-delay:.3s;"></span>
+            <span id="tierLiveCount_bronze">— users completed</span>
+          </div>
+        </div>
+
+        <!-- SILVER -->
+        <div class="tier-card tier-gold" id="tierCard_silver" onclick="confirmTierStart('silver')">
+          <div class="tier-check">✓</div>
+          <div class="tier-row">
+            <div class="tier-left">
+              <div class="tier-icon">🥇</div>
+              <div>
+                <div class="tier-name" style="color:var(--tier3);">SILVER</div>
+                <div class="tier-desc">Share to <strong style="color:#fff;">5 people</strong></div>
+              </div>
+            </div>
+            <div class="tier-right">
+              <div class="tier-reward" style="color:var(--tier3);">7 days</div>
+              <div class="tier-sub">reward window</div>
+            </div>
+          </div>
+          <div style="margin-top:9px;display:grid;grid-template-columns:1fr 1fr;gap:4px;">
+            <div style="background:rgba(255,215,0,0.05);border:1px solid rgba(255,215,0,0.14);border-radius:7px;padding:5px 8px;font-size:0.58rem;color:rgba(255,255,255,0.65);">🎨 Exclusive Theme</div>
+            <div style="background:rgba(255,215,0,0.05);border:1px solid rgba(255,215,0,0.14);border-radius:7px;padding:5px 8px;font-size:0.58rem;color:rgba(255,255,255,0.65);">🚫 Ad-Free 3 Days</div>
+            <div style="background:rgba(255,215,0,0.05);border:1px solid rgba(255,215,0,0.14);border-radius:7px;padding:5px 8px;font-size:0.58rem;color:rgba(255,255,255,0.65);">🎟️ +10 Free Passes</div>
+            <div style="background:rgba(255,215,0,0.05);border:1px solid rgba(255,215,0,0.14);border-radius:7px;padding:5px 8px;font-size:0.58rem;color:rgba(255,255,255,0.65);">⚡ 2× XP 7 Days</div>
+          </div>
+          <div style="margin-top:8px;display:flex;align-items:center;justify-content:space-between;">
+            <div class="tier-progress" style="margin-top:0;flex:1;margin-right:10px;">
+              <div class="tier-progress-lbl">Progress: <span id="tierProg_silver">0</span> / 5</div>
+              <div class="tier-progress-bar"><div class="tier-progress-fill" id="tierFill_silver" style="width:0%;background:var(--tier3);"></div></div>
+            </div>
+            <span id="tierDone_silver" style="display:none;font-family:var(--mono);font-size:0.55rem;color:var(--tier3);letter-spacing:1px;">DONE ✓</span>
+          </div>
+          <div style="margin-top:6px;font-family:var(--mono);font-size:0.5rem;color:rgba(255,215,0,0.6);display:flex;align-items:center;gap:4px;">
+            <span style="width:5px;height:5px;border-radius:50%;background:rgba(255,215,0,0.8);display:inline-block;animation:pulse-dot 1.5s ease-in-out infinite;animation-delay:.6s;"></span>
+            <span id="tierLiveCount_silver">— users completed</span>
+          </div>
+        </div>
+
+        <!-- GOLD -->
+        <div class="tier-card tier-diamond" id="tierCard_gold" onclick="confirmTierStart('gold')">
+          <div class="tier-check">✓</div>
+          <div class="tier-row">
+            <div class="tier-left">
+              <div class="tier-icon">💎</div>
+              <div>
+                <div class="tier-name" style="color:var(--tier4);">GOLD</div>
+                <div class="tier-desc">Share to <strong style="color:#fff;">10 people</strong></div>
+              </div>
+            </div>
+            <div class="tier-right">
+              <div class="tier-reward" style="color:var(--tier4);">14 days</div>
+              <div class="tier-sub">reward window</div>
+            </div>
+          </div>
+          <div style="margin-top:9px;display:grid;grid-template-columns:1fr 1fr;gap:4px;">
+            <div style="background:rgba(126,244,255,0.04);border:1px solid rgba(126,244,255,0.12);border-radius:7px;padding:5px 8px;font-size:0.58rem;color:rgba(255,255,255,0.65);">⚡️ 2× XP 14 Days</div>
+            <div style="background:rgba(126,244,255,0.04);border:1px solid rgba(126,244,255,0.12);border-radius:7px;padding:5px 8px;font-size:0.58rem;color:rgba(255,255,255,0.65);">🎨 2 Premium Themes</div>
+            <div style="background:rgba(126,244,255,0.04);border:1px solid rgba(126,244,255,0.12);border-radius:7px;padding:5px 8px;font-size:0.58rem;color:rgba(255,255,255,0.65);">🚫 Ad-Free 7 Days</div>
+            <div style="background:rgba(126,244,255,0.04);border:1px solid rgba(126,244,255,0.12);border-radius:7px;padding:5px 8px;font-size:0.58rem;color:rgba(255,255,255,0.65);">🎟️ +20 Free Passes</div>
+          </div>
+          <div style="margin-top:8px;display:flex;align-items:center;justify-content:space-between;">
+            <div class="tier-progress" style="margin-top:0;flex:1;margin-right:10px;">
+              <div class="tier-progress-lbl">Progress: <span id="tierProg_gold">0</span> / 10</div>
+              <div class="tier-progress-bar"><div class="tier-progress-fill" id="tierFill_gold" style="width:0%;background:var(--tier4);"></div></div>
+            </div>
+            <span id="tierDone_gold" style="display:none;font-family:var(--mono);font-size:0.55rem;color:var(--tier4);letter-spacing:1px;">DONE ✓</span>
+          </div>
+          <div style="margin-top:6px;font-family:var(--mono);font-size:0.5rem;color:rgba(126,244,255,0.6);display:flex;align-items:center;gap:4px;">
+            <span style="width:5px;height:5px;border-radius:50%;background:rgba(126,244,255,0.8);display:inline-block;animation:pulse-dot 1.5s ease-in-out infinite;animation-delay:.9s;"></span>
+            <span id="tierLiveCount_gold">— users completed</span>
+          </div>
+        </div>
+
+        <!-- ELITE -->
+        <div class="tier-card tier-elite" id="tierCard_elite" onclick="confirmTierStart('elite')">
+          <div class="tier-check">✓</div>
+          <div class="tier-row">
+            <div class="tier-left">
+              <div class="tier-icon">👑</div>
+              <div>
+                <div class="tier-name" style="color:var(--tier5);">ELITE</div>
+                <div class="tier-desc">Share to <strong style="color:#fff;">20 people</strong></div>
+              </div>
+            </div>
+            <div class="tier-right">
+              <div class="tier-reward" style="color:var(--tier5);">30 days</div>
+              <div class="tier-sub">reward window</div>
+            </div>
+          </div>
+          <div style="margin-top:9px;display:grid;grid-template-columns:1fr 1fr;gap:4px;">
+            <div style="background:rgba(255,121,198,0.05);border:1px solid rgba(255,121,198,0.13);border-radius:7px;padding:5px 8px;font-size:0.58rem;color:rgba(255,255,255,0.65);">⚡️ 2× XP 30 Days</div>
+            <div style="background:rgba(255,121,198,0.05);border:1px solid rgba(255,121,198,0.13);border-radius:7px;padding:5px 8px;font-size:0.58rem;color:rgba(255,255,255,0.65);">🎨 All Premium Themes</div>
+            <div style="background:rgba(255,121,198,0.05);border:1px solid rgba(255,121,198,0.13);border-radius:7px;padding:5px 8px;font-size:0.58rem;color:rgba(255,255,255,0.65);">🎟️ +50 Free Passes</div>
+            <div style="background:rgba(255,121,198,0.05);border:1px solid rgba(255,121,198,0.13);border-radius:7px;padding:5px 8px;font-size:0.58rem;color:rgba(255,255,255,0.65);">🚫 Ad-Free 30 Days</div>
+          </div>
+          <div style="margin-top:8px;display:flex;align-items:center;justify-content:space-between;">
+            <div class="tier-progress" style="margin-top:0;flex:1;margin-right:10px;">
+              <div class="tier-progress-lbl">Progress: <span id="tierProg_elite">0</span> / 20</div>
+              <div class="tier-progress-bar"><div class="tier-progress-fill" id="tierFill_elite" style="width:0%;background:var(--tier5);"></div></div>
+            </div>
+            <span id="tierDone_elite" style="display:none;font-family:var(--mono);font-size:0.55rem;color:var(--tier5);letter-spacing:1px;">DONE ✓</span>
+          </div>
+          <div style="margin-top:6px;font-family:var(--mono);font-size:0.5rem;color:rgba(255,121,198,0.6);display:flex;align-items:center;gap:4px;">
+            <span style="width:5px;height:5px;border-radius:50%;background:rgba(255,121,198,0.8);display:inline-block;animation:pulse-dot 1.5s ease-in-out infinite;animation-delay:1.2s;"></span>
+            <span id="tierLiveCount_elite">— users completed</span>
+          </div>
+        </div>
+
+      </div>
+      <div id="activeTierBox"><span id="activeTierText"></span></div>
+    </div>
+
+    <!-- SHARE OPTIONS -->
+    <div class="card">
+      <div class="card-title">Share Via</div>
+      <div class="share-options">
+        <div class="share-opt" onclick="shareVia('whatsapp')"><div class="s-icon">💬</div><div class="s-name">WhatsApp</div><div class="s-desc">Send to contacts</div></div>
+        <div class="share-opt" onclick="shareVia('sms')"><div class="s-icon">📱</div><div class="s-name">SMS</div><div class="s-desc">Text message</div></div>
+        <div class="share-opt" onclick="shareVia('twitter')"><div class="s-icon">🐦</div><div class="s-name">X / Twitter</div><div class="s-desc">Post publicly</div></div>
+        <div class="share-opt" onclick="shareVia('facebook')"><div class="s-icon">📘</div><div class="s-name">Facebook</div><div class="s-desc">Share with friends</div></div>
+        <div class="share-opt" onclick="shareVia('telegram')"><div class="s-icon">✈️</div><div class="s-name">Telegram</div><div class="s-desc">Send to groups</div></div>
+        <div class="share-opt" onclick="shareVia('copy')"><div class="s-icon">📋</div><div class="s-name">Copy Link</div><div class="s-desc">Paste anywhere</div></div>
+      </div>
+      <button class="btn btn-green" onclick="shareNative()">📤 SHARE NOW</button>
+    </div>
+
+    <!-- Stats -->
+    <div class="card">
+      <div class="card-title">Your Stats</div>
+      <div class="stats-bar">
+        <div class="stat"><div class="stat-val" id="statTotal">0</div><div class="stat-lbl">Referrals</div></div>
+        <div class="stat"><div class="stat-val" id="statPending">0</div><div class="stat-lbl">Pending</div></div>
+        <div class="stat"><div class="stat-val" id="statRewards">0</div><div class="stat-lbl">Rewards</div></div>
+      </div>
+      <div class="card-title">Recent Referrals</div>
+      <div id="refList" class="ref-list">
+        <div style="font-family:var(--mono);font-size:0.62rem;color:var(--muted);text-align:center;padding:12px 0;">NO REFERRALS YET — SHARE YOUR LINK</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── TAB: IN PROGRESS ─── -->
+  <div id="tabProgressPanel" class="tab-panel">
+    <div class="card">
+      <div class="card-title">Tiers In Progress</div>
+      <div id="inProgressList">
+        <div style="font-family:var(--mono);font-size:0.62rem;color:var(--muted);text-align:center;padding:16px 0;">NO TIERS STARTED YET — TAP A TIER AND CONFIRM TO BEGIN</div>
+      </div>
+    </div>
+    <div class="card" style="border-color:rgba(255,80,80,0.12);background:rgba(255,40,40,0.02);">
+      <div class="card-title" style="color:rgba(255,100,100,0.8);">Clean Up</div>
+      <div style="font-family:var(--mono);font-size:0.62rem;color:rgba(255,255,255,0.45);line-height:1.8;margin-bottom:14px;">
+        Tap ✕ on any item to make it disappear. Your data stays saved — it just won't clutter your screen. Use the buttons below to clear everything at once.
+      </div>
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <button onclick="hideAllReferrals()" style="width:100%;padding:11px;background:transparent;border:1px solid rgba(255,80,80,0.3);border-radius:12px;color:rgba(255,100,100,0.85);font-family:'Orbitron',sans-serif;font-size:0.6rem;font-weight:700;letter-spacing:2px;cursor:pointer;transition:all .15s;text-align:left;padding-left:14px;" onmouseover="this.style.background='rgba(255,80,80,0.07)';this.style.borderColor='rgba(255,80,80,0.5)'" onmouseout="this.style.background='transparent';this.style.borderColor='rgba(255,80,80,0.3)'">
+          👥 Clear My Referrals
+        </button>
+        <button onclick="hideAllTiers()" style="width:100%;padding:11px;background:transparent;border:1px solid rgba(255,80,80,0.3);border-radius:12px;color:rgba(255,100,100,0.85);font-family:'Orbitron',sans-serif;font-size:0.6rem;font-weight:700;letter-spacing:2px;cursor:pointer;transition:all .15s;text-align:left;padding-left:14px;" onmouseover="this.style.background='rgba(255,80,80,0.07)';this.style.borderColor='rgba(255,80,80,0.5)'" onmouseout="this.style.background='transparent';this.style.borderColor='rgba(255,80,80,0.3)'">
+          📋 Clear My Tier Progress
+        </button>
+        <button onclick="promptResetHistory()" style="width:100%;padding:11px;background:transparent;border:1px solid rgba(255,80,80,0.3);border-radius:12px;color:rgba(255,100,100,0.85);font-family:'Orbitron',sans-serif;font-size:0.6rem;font-weight:700;letter-spacing:2px;cursor:pointer;transition:all .15s;text-align:left;padding-left:14px;" onmouseover="this.style.background='rgba(255,80,80,0.07)';this.style.borderColor='rgba(255,80,80,0.5)'" onmouseout="this.style.background='transparent';this.style.borderColor='rgba(255,80,80,0.3)'">
+          🗑️ Clear My Reward History
+        </button>
+        <button onclick="promptResetAll()" style="width:100%;padding:11px;background:transparent;border:1px solid rgba(255,80,80,0.3);border-radius:12px;color:rgba(255,100,100,0.85);font-family:'Orbitron',sans-serif;font-size:0.6rem;font-weight:700;letter-spacing:2px;cursor:pointer;transition:all .15s;text-align:left;padding-left:14px;" onmouseover="this.style.background='rgba(255,80,80,0.07)';this.style.borderColor='rgba(255,80,80,0.5)'" onmouseout="this.style.background='transparent';this.style.borderColor='rgba(255,80,80,0.3)'">
+          🔄 Start Fresh — Reset Everything
+        </button>
+        <button onclick="restoreAllHidden()" style="width:100%;padding:11px;background:transparent;border:1px solid rgba(255,184,0,0.2);border-radius:12px;color:rgba(255,184,0,0.7);font-family:'Orbitron',sans-serif;font-size:0.6rem;font-weight:700;letter-spacing:2px;cursor:pointer;transition:all .15s;text-align:left;padding-left:14px;" onmouseover="this.style.background='rgba(255,184,0,0.05)';this.style.borderColor='rgba(255,184,0,0.4)'" onmouseout="this.style.background='transparent';this.style.borderColor='rgba(255,184,0,0.2)'">
+          ↩ Bring It All Back
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── TAB: CONFIRM ─── -->
+  <div id="tabConfirmPanel" class="tab-panel">
+    <div class="card">
+      <div class="card-title">Confirm a Referral Code</div>
+      <div class="steps" style="margin-bottom:14px;">
+        <div class="step"><div class="step-num">1</div><div class="step-text">Someone shared Puzzlr with you? Enter <strong>their code</strong> below</div></div>
+        <div class="step"><div class="step-num">2</div><div class="step-text">This confirms their referral — <strong>they earn a reward</strong></div></div>
+        <div class="step"><div class="step-num">3</div><div class="step-text">You also get your own code to share and earn from others</div></div>
+      </div>
+      <div class="field"><label>Referrer's Code</label><input type="text" id="confirmCodeInput" placeholder="PZLR-XXXX" maxlength="12" autocomplete="off" style="letter-spacing:3px;text-transform:uppercase;" oninput="this.value=this.value.toUpperCase()"></div>
+      <div id="confirmError" class="error-msg"></div>
+      <button class="btn btn-green" id="confirmBtn" onclick="confirmReferral()">✅ CONFIRM REFERRAL</button>
+      <div id="confirmSuccess" style="display:none;margin-top:12px;" class="fade-in">
+        <div style="background:rgba(255,184,0,0.05);border:1px solid rgba(255,184,0,0.2);border-radius:12px;padding:14px;text-align:center;">
+          <div style="font-size:1.6rem;margin-bottom:6px;">🎉</div>
+          <div style="font-family:var(--display);font-size:0.8rem;font-weight:700;color:var(--g);letter-spacing:2px;">REFERRAL CONFIRMED!</div>
+          <div style="font-family:var(--mono);font-size:0.6rem;color:var(--muted);margin-top:4px;">The sharer has been notified and will receive their reward.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── TAB: REWARDS ─── -->
+  <div id="tabRewardsPanel" class="tab-panel">
+    <div id="rewardCountdownCard" class="card" style="display:none;">
+      <div class="card-title">Active Reward Window</div>
+      <div style="display:flex;align-items:center;justify-content:space-between;">
+        <div>
+          <div style="font-size:0.75rem;color:rgba(255,255,255,0.8);">Your reward link is active</div>
+          <div id="rewardExpiry" class="countdown">—</div>
+        </div>
+        <span id="rewardTierBadge" class="badge badge-gold">—</span>
+      </div>
+    </div>
+    <div id="rewardWaiting" class="card" style="display:none;">
+      <div style="text-align:center;padding:20px;">
+        <div class="spinner" style="margin:0 auto 12px;width:24px;height:24px;"></div>
+        <div style="font-family:var(--display);font-size:0.7rem;letter-spacing:2px;color:var(--g);margin-bottom:6px;">AWAITING CONFIRMATIONS</div>
+        <div style="font-family:var(--mono);font-size:0.62rem;color:var(--muted);line-height:1.7;">Keep sharing your link to hit your tier!</div>
+      </div>
+    </div>
+    <div id="rewardReady" style="display:none;" class="fade-in">
+      <div class="reward-box">
+        <div style="font-size:2rem;margin-bottom:8px;animation:float 2s ease-in-out infinite">🎁</div>
+        <div style="font-family:var(--display);font-size:1rem;font-weight:900;color:var(--gold);letter-spacing:3px;margin-bottom:6px;">REWARD UNLOCKED!</div>
+        <div style="font-family:var(--mono);font-size:0.62rem;color:var(--muted);line-height:1.7;">You hit your tier! Your exclusive reward is below.<br>Tap to confirm and save it permanently.</div>
+      </div>
+      <div class="card">
+        <div class="card-title">Your Tier Reward</div>
+        <div id="benefitGrid" class="benefit-grid"></div>
+        <button class="btn btn-gold" id="claimBtn" onclick="claimReward()" disabled>SAVE REWARD →</button>
+        <div style="margin-top:10px;font-family:var(--mono);font-size:0.56rem;color:var(--muted);text-align:center;line-height:1.7;">Saved permanently — copy your code any time from Reward History below:</div>
+        <div class="reward-code-box" id="rewardCodeBox" style="margin-top:8px;">
+          <span class="reward-code-val" id="rewardCodeVal">—</span>
+          <button class="copy-btn" onclick="copyRewardCode()">COPY</button>
+        </div>
+      </div>
+    </div>
+    <div class="card" id="rewardsHistory">
+      <div class="card-title">Reward History</div>
+      <div id="rewardHistoryList"><div style="font-family:var(--mono);font-size:0.62rem;color:var(--muted);text-align:center;padding:12px 0;">NO REWARDS YET</div></div>
+    </div>
+  </div>
+
+</div><!-- end panelDash -->
+</div><!-- end wrap -->
+
+<!-- PARTICLE BACKGROUND -->
+<script>
+(function(){
+  const canvas = document.getElementById('bg-canvas');
+  const ctx = canvas.getContext('2d');
+  let W,H,particles=[];
+  function resize(){ W=canvas.width=window.innerWidth; H=canvas.height=window.innerHeight; }
+  resize(); window.addEventListener('resize',resize);
+  function Particle(){
+    this.x=Math.random()*W; this.y=Math.random()*H;
+    this.vx=(Math.random()-.5)*.3; this.vy=(Math.random()-.5)*.3;
+    this.r=Math.random()*1.2+.2; this.a=Math.random()*.5+.1;
+    this.col=Math.random()<.7?'0,255,225':'0,170,255';
+  }
+  for(let i=0;i<80;i++) particles.push(new Particle());
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+    particles.forEach(p=>{
+      p.x+=p.vx; p.y+=p.vy;
+      if(p.x<0)p.x=W; if(p.x>W)p.x=0;
+      if(p.y<0)p.y=H; if(p.y>H)p.y=0;
+      ctx.beginPath(); ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+      ctx.fillStyle=`rgba(${p.col},${p.a})`; ctx.fill();
+    });
+    // Connect nearby particles
+    for(let i=0;i<particles.length;i++){
+      for(let j=i+1;j<particles.length;j++){
+        const dx=particles[i].x-particles[j].x, dy=particles[i].y-particles[j].y;
+        const d=Math.sqrt(dx*dx+dy*dy);
+        if(d<100){
+          ctx.beginPath();
+          ctx.strokeStyle=`rgba(255,184,0,${.08*(1-d/100)})`;
+          ctx.lineWidth=.5;
+          ctx.moveTo(particles[i].x,particles[i].y);
+          ctx.lineTo(particles[j].x,particles[j].y);
+          ctx.stroke();
+        }
+      }
+    }
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+</script>
+
+<!-- DOWNLOAD AUTO-TRIGGER -->
+<script>
+const APK_URL = "https://github.com/mandlaxolani140-create/DavidAi/releases/download/v2.0.0/DAVID.PUZZLR.apk";
+
+function triggerDownload(){
+  const a = document.createElement('a');
+  a.href = APK_URL;
+  a.download = 'DAVID.PUZZLR.apk';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+}
+
+// Auto-trigger when page loads with ?ref= param
+(function checkAutoDownload(){
+  const p = new URLSearchParams(window.location.search);
+  const ref = p.get('ref');
+  if(!ref) return;
+
+  // Show the hero block
+  document.getElementById('downloadHero').style.display='block';
+
+  // Animate the percentage counter
+  let pct = 0;
+  const dlPct = document.getElementById('dlPercent');
+  const interval = setInterval(()=>{
+    pct += Math.floor(Math.random()*8)+3;
+    if(pct>=100){ pct=100; clearInterval(interval); dlPct.textContent='100%'; }
+    else dlPct.textContent=pct+'%';
+  }, 120);
+
+  // Auto trigger after short delay so user sees it
+  setTimeout(()=>{ triggerDownload(); }, 1200);
+
+  // Pre-fill confirm tab with ref code
+  const inp = document.getElementById('confirmCodeInput');
+  if(inp) inp.value = ref.toUpperCase();
+})();
+</script>
+
+<script type="module">
+import { initializeApp }   from "https://www.gstatic.com/firebasejs/12.14.0/firebase-app.js";
+import { getDatabase, ref, set, get, update, onValue, push, serverTimestamp }
+                           from "https://www.gstatic.com/firebasejs/12.14.0/firebase-database.js";
+import { getAnalytics }    from "https://www.gstatic.com/firebasejs/12.14.0/firebase-analytics.js";
+
+const firebaseConfig = {
+  apiKey:"AIzaSyBFBJSyWKd_GGoQ5IhUZQ9w8j4-HaOeD1s",authDomain:"david-connection.firebaseapp.com",
+  databaseURL:"https://david-connection-default-rtdb.firebaseio.com",projectId:"david-connection",
+  storageBucket:"david-connection.firebasestorage.app",messagingSenderId:"214764400544",
+  appId:"1:214764400544:web:0d2d9b3ab52f44e3033ec5",measurementId:"G-8WYBQN3T1J"
+};
+const fbApp = initializeApp(firebaseConfig);
+const db    = getDatabase(fbApp);
+getAnalytics(fbApp);
+
+const APP_INSTALL_BASE = "https://github.com/mandlaxolani140-create/DavidAi/releases/download/v2.0.0/DAVID.PUZZLR.apk";
+const SITE_URL = window.location.origin + window.location.pathname.replace(/\/$/,'');
+
+const TIERS = {
+  starter: { name:'Starter', icon:'🥉', need:1,  days:2,  color:'var(--tier1)' },
+  bronze:  { name:'Bronze',  icon:'🥈', need:3,  days:4,  color:'var(--tier2)' },
+  silver:  { name:'Silver',  icon:'🥇', need:5,  days:7,  color:'var(--tier3)' },
+  gold:    { name:'Gold',    icon:'💎', need:10, days:14, color:'var(--tier4)' },
+  elite:   { name:'Elite',   icon:'👑', need:20, days:30, color:'var(--tier5)' }
+};
+
+// 4 benefit choices per tier
+const TIER_BENEFITS = {
+  starter: [
+    { key:'passes3',    icon:'🎟️',  name:'+3 Free Passes',    desc:'Three offline puzzle passes' },
+    { key:'hint3',      icon:'💡',  name:'+3 Hint Tokens',    desc:'Reveal hints on tough puzzles' },
+    { key:'adfree6h',   icon:'🚫',  name:'Ad-Free 6 Hours',   desc:'No ads for 6 hours straight' },
+    { key:'xp2_1d',     icon:'⚡',  name:'2× XP — 1 Day',    desc:'Double XP for 24 hours' }
+  ],
+  bronze: [
+    { key:'adfree24',   icon:'🚫📺',name:'Ad-Free 24h',       desc:'Zero ads for a full day' },
+    { key:'passes5',    icon:'🎟️',  name:'+5 Free Passes',    desc:'Five offline puzzle passes' },
+    { key:'hint6',      icon:'💡',  name:'+6 Hint Tokens',    desc:'Stack hints for hard levels' },
+    { key:'xp2_3d',     icon:'⚡',  name:'2× XP — 3 Days',   desc:'Double XP for 3 days' }
+  ],
+  silver: [
+    { key:'theme',      icon:'🎨',  name:'Exclusive Theme',   desc:'Unlock a premium puzzle skin' },
+    { key:'adfree3d',   icon:'🚫',  name:'Ad-Free 3 Days',    desc:'Three full days, zero ads' },
+    { key:'passes10',   icon:'🎟️',  name:'+10 Free Passes',   desc:'Ten offline puzzle passes' },
+    { key:'xp2_7d',     icon:'⚡',  name:'2× XP — 7 Days',   desc:'Double XP for a full week' }
+  ],
+  gold: [
+    { key:'doublexp14', icon:'⚡️', name:'2× XP — 14 Days',  desc:'Double XP for two weeks' },
+    { key:'theme2',     icon:'🎨',  name:'2 Premium Themes',  desc:'Two exclusive puzzle skins' },
+    { key:'adfree7d',   icon:'🚫',  name:'Ad-Free 7 Days',    desc:'A full week with no ads' },
+    { key:'passes20',   icon:'🎟️',  name:'+20 Free Passes',   desc:'Twenty offline passes' }
+  ],
+  elite: [
+    { key:'doublexp30', icon:'⚡️', name:'2× XP — 30 Days',   desc:'Double XP for a full month' },
+    { key:'allthemes',  icon:'🎨',  name:'All Premium Themes', desc:'Unlock every premium skin' },
+    { key:'passes50',   icon:'🎟️',  name:'+50 Free Passes',    desc:'Fifty offline puzzle passes' },
+    { key:'adfree30',   icon:'🚫',  name:'Ad-Free 30 Days',    desc:'A full month with zero ads' }
+  ]
+};
+
+// For the in-progress tile "preview" label — use first option
+const TIER_BENEFIT_PREVIEW = {
+  starter:'🎟️ +3 Free Passes',
+  bronze:'🚫📺 Ad-Free 24h',
+  silver:'🎨 Exclusive Theme',
+  gold:'⚡️ 2× XP 14 Days',
+  elite:'⚡️ 2× XP 30 Days'
+};
+
+function renderBenefitForTier(tierKey){
+  const opts = TIER_BENEFITS[tierKey] || TIER_BENEFITS.starter;
+  const grid = $('benefitGrid');
+  grid.innerHTML = `
+    <div style="font-family:var(--mono);font-size:0.6rem;color:rgba(255,255,255,0.45);letter-spacing:1px;margin-bottom:10px;grid-column:1/-1;text-align:center;">CHOOSE YOUR REWARD — PICK ONE</div>
+    ${opts.map(b=>`
+    <div class="benefit-btn" onclick="selectBenefit(this,'${b.key}')">
+      <div class="b-icon">${b.icon}</div>
+      <span class="b-name">${b.name}</span>
+      <span class="b-desc">${b.desc}</span>
+    </div>`).join('')}`;
+  selectedBenefitVal = null;
+  $('claimBtn').disabled = true;
+  $('claimBtn').textContent = 'PICK A REWARD →';
+}
+
+let currentUser=null, selectedTier=null, selectedBenefitVal=null, rewardListener=null;
+
+function $(id){ return document.getElementById(id); }
+
+function toast(msg,type='',dur=3000){
+  const t=$('toast'); t.textContent=msg; t.className='show '+type;
+  clearTimeout(t._t); t._t=setTimeout(()=>{ t.className=''; },dur);
+}
+function generateCode(){
+  const c='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  let s='PZLR-'; for(let i=0;i<4;i++) s+=c[Math.floor(Math.random()*c.length)]; return s;
+}
+function generateRewardCode(){
+  const c='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  let s='RWD-'; for(let i=0;i<6;i++) s+=c[Math.floor(Math.random()*c.length)]; return s;
+}
+function timeAgo(ts){
+  if(!ts) return '';
+  const d=Date.now()-ts;
+  if(d<60000) return 'just now';
+  if(d<3600000) return Math.floor(d/60000)+'m ago';
+  if(d<86400000) return Math.floor(d/3600000)+'h ago';
+  return Math.floor(d/86400000)+'d ago';
+}
+function showPanel(id){
+  ['panelLanding','panelDash'].forEach(p=>{ const el=$(p); el.classList.toggle('active', el.id===id); });
+}
+
+// Fetch inviter name for download hero
+(async function loadInviterName(){
+  const p=new URLSearchParams(window.location.search);
+  const r=p.get('ref');
+  if(!r) return;
+  try {
+    const snap=await get(ref(db,'users/'+r.toUpperCase()));
+    if(snap.exists()){
+      const lbl=$('inviterLabel');
+      if(lbl) lbl.textContent='Invited by '+snap.val().name+' · Code: '+r.toUpperCase();
+    }
+  } catch(e){}
+})();
+
+let pendingTierKey = null;
+
+window.confirmTierStart = function(tier){
+  if(!currentUser){ toast('Register first','red'); return; }
+  const t = TIERS[tier];
+  const activeTiers = currentUser.activeTiers || {};
+  const completedTiers = currentUser.completedTiers || {};
+  if(completedTiers[tier]){ toast(t.icon+' '+t.name+' already completed!','gold'); return; }
+  if(activeTiers[tier]){ toast(t.icon+' '+t.name+' already in progress!','gold'); return; }
+  pendingTierKey = tier;
+  document.getElementById('tcmIcon').textContent = t.icon;
+  document.getElementById('tcmTitle').textContent = 'START '+t.name.toUpperCase()+' TIER?';
+  document.getElementById('tcmBody').innerHTML =
+    'You need <strong style="color:#FFB800">'+t.need+' person'+(t.need>1?'s':'')+
+    '</strong> to confirm your code specifically for this tier.<br><br>'+
+    'Reward: <strong style="color:#FFB800">'+t.days+'-day window</strong><br><br>'+
+    'This tier will count independently — referrals that come in while this tier is active will count toward it.<br><br>'+
+    '<span style="color:rgba(255,255,255,0.45);">You can run multiple tiers at once.</span>';
+  const modal = document.getElementById('tierConfirmModal');
+  modal.style.display = 'flex';
+};
+
+window.dismissTierModal = function(){
+  document.getElementById('tierConfirmModal').style.display = 'none';
+  pendingTierKey = null;
+};
+
+window.doStartTier = async function(){
+  if(!pendingTierKey || !currentUser) return;
+  const tier = pendingTierKey;
+  const t = TIERS[tier];
+  document.getElementById('tcmConfirmBtn').textContent = 'STARTING…';
+  document.getElementById('tcmConfirmBtn').disabled = true;
+  try {
+    await update(ref(db,'users/'+currentUser.code),{
+      ['activeTiers/'+tier]: { startedAt: Date.now(), progress: 0 },
+      activeTier: tier // keep legacy field pointing to last started tier
+    });
+    // Refresh local user
+    const snap = await get(ref(db,'users/'+currentUser.code));
+    currentUser = snap.val(); currentUser.code = snap.key || currentUser.code ||
+      localStorage.getItem('puzzlr_share_code');
+    dismissTierModal();
+    // Highlight the card
+    document.querySelectorAll('.tier-card').forEach(c=>c.classList.remove('selected'));
+    const card = document.getElementById('tierCard_'+tier);
+    if(card) card.classList.add('selected');
+    const ab = document.getElementById('activeTierBox'); ab.style.display='block';
+    document.getElementById('activeTierText').innerHTML =
+      `<strong style="color:${t.color}">${t.icon} ${t.name} Tier started!</strong> — Get <strong>${t.need}</strong> person${t.need>1?'s':''} to confirm for this tier to earn a <strong>${t.days}-day</strong> reward window.`;
+    toast(t.icon+' '+t.name+' tier started!','green');
+    renderInProgressTiers();
+    switchTab('progress');
+  } catch(e){
+    toast('Error: '+e.message,'red');
+  } finally {
+    document.getElementById('tcmConfirmBtn').textContent = 'YES, START TIER';
+    document.getElementById('tcmConfirmBtn').disabled = false;
+  }
+};
+
+function renderInProgressTiers(){
+  const el = document.getElementById('inProgressList');
+  if(!currentUser){ el.innerHTML='<div style="font-family:var(--mono);font-size:0.62rem;color:var(--muted);text-align:center;padding:16px 0;">NOT LOGGED IN</div>'; return; }
+  const activeTiers   = currentUser.activeTiers   || {};
+  const completedTiers= currentUser.completedTiers || {};
+  const tierProgress  = currentUser.tierProgress   || {};
+  // Merge: show both active AND completed tiers (completed ones stay visible)
+  const allShownKeys = [...new Set([...Object.keys(activeTiers), ...Object.keys(completedTiers)])];
+  const hiddenTiers = getHidden('tiers');
+  const visibleKeys = allShownKeys.filter(k=>!hiddenTiers.includes(k));
+  if(allShownKeys.length===0){
+    el.innerHTML='<div style="font-family:var(--mono);font-size:0.62rem;color:var(--muted);text-align:center;padding:16px 0;">NO TIERS STARTED YET<br><br>Tap any tier on the MY CODE tab and press YES, START TIER to begin.</div>';
+    return;
+  }
+  if(visibleKeys.length===0){
+    el.innerHTML='<div style="font-family:var(--mono);font-size:0.62rem;color:var(--muted);text-align:center;padding:16px 0;">ALL TIERS HIDDEN</div>';
+    return;
+  }
+  // Sort: in-progress first, completed last; within each group by tier order
+  const tierOrder=['starter','bronze','silver','gold','elite'];
+  visibleKeys.sort((a,b)=>{
+    const aDone=!!completedTiers[a], bDone=!!completedTiers[b];
+    if(aDone!==bDone) return aDone?1:-1;
+    return tierOrder.indexOf(a)-tierOrder.indexOf(b);
+  });
+  el.innerHTML = visibleKeys.map(key=>{
+    const t = TIERS[key];
+    if(!t) return '';
+    const prog = tierProgress[key] || 0;
+    const progCapped = Math.min(prog, t.need);
+    const pct = Math.min(100, Math.round((progCapped/t.need)*100));
+    const done = !!completedTiers[key];
+    const preview = TIER_BENEFIT_PREVIEW[key]||'';
+    const useSegments = t.need <= 10;
+    let progressHTML;
+    if(useSegments){
+      const dots = Array.from({length:t.need},(_,i)=>`
+        <div style="flex:1;height:8px;border-radius:3px;background:${i<progCapped?t.color:'rgba(255,255,255,0.07)'};transition:background .4s;position:relative;">
+          ${i<progCapped?'<div style="position:absolute;inset:0;border-radius:3px;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.2));"></div>':''}
+        </div>`).join('');
+      progressHTML=`<div style="display:flex;gap:3px;margin-bottom:5px;">${dots}</div>`;
+    } else {
+      progressHTML=`
+        <div style="height:6px;border-radius:99px;background:rgba(255,255,255,0.06);overflow:hidden;margin-bottom:5px;position:relative;">
+          <div style="height:100%;width:${pct}%;background:${t.color};border-radius:99px;transition:width .6s cubic-bezier(.4,0,.2,1);position:relative;overflow:hidden;">
+            <div style="position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.18),transparent);animation:shimmer 2s ease-in-out infinite;"></div>
+          </div>
+        </div>`;
+    }
+    return `
+    <div id="tierrow_${key}" style="background:${done?'rgba(255,184,0,0.04)':'rgba(255,255,255,0.02)'};border:1px solid ${done?'rgba(255,184,0,0.3)':'rgba(255,255,255,0.07)'};border-radius:14px;padding:14px 16px;margin-bottom:10px;position:relative;overflow:hidden;transition:all .3s;">
+      <div style="position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,${t.color},transparent);opacity:${done?1:0.5};"></div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+        <div style="display:flex;align-items:center;gap:10px;flex:1;min-width:0;">
+          <span style="font-size:1.7rem;${done?'filter:drop-shadow(0 0 6px '+t.color+')':''};">${t.icon}</span>
+          <div>
+            <div style="font-family:'Orbitron',sans-serif;font-size:0.75rem;font-weight:700;color:${t.color};">${t.name.toUpperCase()} TIER</div>
+            <div style="font-size:0.58rem;color:rgba(255,255,255,0.4);font-family:'Share Tech Mono',monospace;margin-top:2px;">${preview}</div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:6px;flex-shrink:0;">
+          ${done
+            ? `<span style="font-family:'Share Tech Mono',monospace;font-size:0.55rem;color:#FFB800;letter-spacing:1px;background:rgba(255,184,0,0.1);border:1px solid rgba(255,184,0,0.3);border-radius:20px;padding:4px 12px;">✓ DONE</span>`
+            : `<span style="font-family:'Share Tech Mono',monospace;font-size:0.52rem;color:rgba(255,255,255,0.35);letter-spacing:1px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:20px;padding:4px 10px;">IN PROGRESS</span>`
+          }
+          <button onclick="hideItem('tiers','${key}',this)" title="Hide this tier" style="background:transparent;border:1px solid rgba(255,80,80,0.25);border-radius:6px;color:rgba(255,100,100,0.6);font-size:0.65rem;padding:3px 7px;cursor:pointer;transition:all .15s;" onmouseover="this.style.borderColor='rgba(255,80,80,0.6)';this.style.color='#ff6b6b'" onmouseout="this.style.borderColor='rgba(255,80,80,0.25)';this.style.color='rgba(255,100,100,0.6)'">✕</button>
+        </div>
+      </div>
+      <div style="font-family:'Share Tech Mono',monospace;font-size:0.6rem;color:rgba(255,255,255,0.5);margin-bottom:8px;display:flex;justify-content:space-between;">
+        <span>Confirmations: <strong style="color:${t.color};">${progCapped}</strong> / ${t.need}</span>
+        <span style="color:rgba(255,255,255,0.3);">${t.days}d reward window</span>
+      </div>
+      ${progressHTML}
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:3px;">
+        <span style="font-family:'Share Tech Mono',monospace;font-size:0.5rem;color:rgba(255,255,255,0.25);">${pct}% complete</span>
+        ${done?'<span style="font-family:\'Share Tech Mono\',monospace;font-size:0.5rem;color:#FFB800;">🎁 Reward ready — check Rewards tab</span>':''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// Live global tier completion counts — reads from Firebase and updates tier cards
+function loadLiveTierCounts(){
+  onValue(ref(db,'tierCompletions'),snap=>{
+    const counts = snap.exists() ? snap.val() : {};
+    Object.keys(TIERS).forEach(key=>{
+      const countEl = document.getElementById('tierLiveCount_'+key);
+      if(countEl){
+        const n = counts[key]||0;
+        countEl.textContent = n+' user'+(n===1?'':'s')+' completed';
+      }
+    });
+  });
+}
+
+window.shareVia = function(platform){
+  if(!currentUser){ toast('Register first','red'); return; }
+  const link=$('myLink').textContent;
+  const code=currentUser.code;
+  const tier=selectedTier?TIERS[selectedTier]:TIERS.starter;
+  const msg=`🧩 Play Puzzlr with me!\n\nDownload the game 👇\n${SITE_URL}?ref=${code}\n\nThen confirm my code: ${code}\n\nHelp me hit ${tier.icon} ${tier.name} tier!`;
+  const enc=encodeURIComponent(msg);
+  const urls={
+    whatsapp:`https://wa.me/?text=${enc}`,
+    sms:`sms:?body=${enc}`,
+    twitter:`https://twitter.com/intent/tweet?text=${encodeURIComponent('🧩 Play Puzzlr! Download: '+SITE_URL+'?ref='+code+' — enter my code '+code)}`,
+    facebook:`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(SITE_URL+'?ref='+code)}`,
+    telegram:`https://t.me/share/url?url=${encodeURIComponent(SITE_URL+'?ref='+code)}&text=${enc}`,
+    copy:null
+  };
+  if(platform==='copy'){ navigator.clipboard.writeText(msg).then(()=>toast('Message copied! Paste anywhere 📋','green')); return; }
+  if(urls[platform]) window.open(urls[platform],'_blank');
+};
+
+window.shareNative = function(){
+  if(!currentUser){ toast('Register first','red'); return; }
+  const link=SITE_URL+'?ref='+currentUser.code;
+  const msg=`🧩 Play Puzzlr with me!\nDownload: ${link}\nThen confirm my code: ${currentUser.code}`;
+  if(navigator.share){ navigator.share({ title:'Join me on Puzzlr!',text:msg,url:link }).catch(()=>{}); }
+  else { navigator.clipboard.writeText(msg).then(()=>toast('Share message copied!','green')); }
+};
+
+window.copyCode = function(){
+  const text = $('myCode').textContent.trim();
+  const hint = $('codeCopyHint');
+  function markCopied(){
+    if(hint){ hint.textContent='COPIED ✓'; hint.style.color='#FFB800'; }
+    toast('Code copied!','green');
+    setTimeout(()=>{ if(hint){ hint.textContent='TAP TO COPY'; hint.style.color='rgba(255,184,0,0.6)'; } },2000);
+  }
+  if(navigator.clipboard && window.isSecureContext){
+    navigator.clipboard.writeText(text).then(markCopied).catch(()=>{ fallbackCopy(text); markCopied(); });
+  } else { fallbackCopy(text); markCopied(); }
+};
+function fallbackCopy(text){
+  const ta=document.createElement('textarea');
+  ta.value=text; ta.style.cssText='position:fixed;top:0;left:0;opacity:0;';
+  document.body.appendChild(ta); ta.focus(); ta.select();
+  try{ document.execCommand('copy'); toast('Code copied!','green'); } catch(e){ toast('Copy failed — select manually','red'); }
+  document.body.removeChild(ta);
+}
+window.copyLink = function(el){ navigator.clipboard.writeText(el.textContent).then(()=>toast('Link copied!','green')); };
+window.copyRewardCode = function(){ navigator.clipboard.writeText($('rewardCodeVal').textContent).then(()=>toast('Reward code copied!','gold')); };
+
+window.register = async function(){
+  const name=$('regName').value.trim();
+  const email=$('regEmail').value.trim().toLowerCase();
+  const errEl=$('regError'); errEl.style.display='none';
+  if(!name){ errEl.textContent='Please enter your name.'; errEl.style.display='block'; return; }
+  if(!email||!email.includes('@')){ errEl.textContent='Please enter a valid email.'; errEl.style.display='block'; return; }
+  const btn=$('regBtn'); btn.disabled=true; btn.textContent='CREATING…';
+  try {
+    const snap=await get(ref(db,'users_by_email/'+email.replace(/\./g,'_')));
+    if(snap.exists()){ await loadUser(snap.val().code); return; }
+    let code,exists;
+    do { code=generateCode(); const cs=await get(ref(db,'users/'+code)); exists=cs.exists(); } while(exists);
+    const userData={ code,name,email,createdAt:Date.now(),referralCount:0,pendingRewards:0,totalRewards:0,activeTier:'starter' };
+    await set(ref(db,'users/'+code),userData);
+    await set(ref(db,'users_by_email/'+email.replace(/\./g,'_')),{ code });
+    localStorage.setItem('puzzlr_share_code',code);
+    await loadUser(code);
+  } catch(e){
+    errEl.textContent='Error: '+e.message; errEl.style.display='block';
+    btn.disabled=false; btn.textContent='GET MY SHARE CODE →';
+  }
+};
+
+window.loginWithCode = async function(){
+  const code=$('loginCode').value.trim().toUpperCase();
+  if(!code.startsWith('PZLR-')||code.length<9){ toast('Enter a valid code like PZLR-XXXX','red'); return; }
+  await loadUser(code);
+};
+
+async function loadUser(code){
+  const snap=await get(ref(db,'users/'+code));
+  if(!snap.exists()){ toast('Code not found','red'); $('regBtn').disabled=false; $('regBtn').textContent='GET MY SHARE CODE →'; return; }
+  currentUser=snap.val(); currentUser.code=code;
+  localStorage.setItem('puzzlr_share_code',code);
+  $('dashGreeting').textContent='AGENT '+currentUser.name.toUpperCase();
+  $('myCode').textContent=code;
+  $('myLink').textContent=SITE_URL+'?ref='+code;
+  showPanel('panelDash');
+  switchTab('share');
+  loadStats(code);
+  listenForRewards(code);
+  checkRefParam();
+  // Highlight any already-active tiers
+  const activeTiers = currentUser.activeTiers || {};
+  Object.keys(activeTiers).forEach(tier=>{
+    const card=$('tierCard_'+tier);
+    if(card) card.classList.add('selected');
+  });
+  renderInProgressTiers();
+  loadLiveTierCounts();
+  toast('Welcome back, '+currentUser.name+'!','green');
+  $('regBtn').disabled=false; $('regBtn').textContent='GET MY SHARE CODE →';
+}
+
+window.signOut = function(){
+  localStorage.removeItem('puzzlr_share_code');
+  currentUser=null; selectedTier=null;
+  if(rewardListener) rewardListener();
+  showPanel('panelLanding');
+  toast('Signed out');
+};
+
+function loadStats(code){
+  onValue(ref(db,'users/'+code),snap=>{
+    if(!snap.exists()) return;
+    const u=snap.val();
+    // Update local currentUser for renderInProgressTiers
+    if(currentUser && currentUser.code===code){ Object.assign(currentUser, u); currentUser.code=code; }
+    $('statTotal').textContent=u.referralCount||0;
+    $('statPending').textContent=u.pendingRewards||0;
+    $('statRewards').textContent=u.totalRewards||0;
+    const tierProgress=u.tierProgress||{};
+    const completedTiers=u.completedTiers||{};
+    const activeTiers=u.activeTiers||{};
+    Object.entries(TIERS).forEach(([key,t])=>{
+      const prog=tierProgress[key]||0;
+      const pct=Math.round((Math.min(prog,t.need)/t.need)*100);
+      const el=$('tierProg_'+key); const fill=$('tierFill_'+key);
+      const doneEl=$('tierDone_'+key);
+      if(el) el.textContent=prog;
+      if(fill) fill.style.width=pct+'%';
+      if(doneEl) doneEl.style.display=completedTiers[key]?'inline':'none';
+      // Mark card as active if in progress
+      const card=$('tierCard_'+key);
+      if(card){
+        card.classList.toggle('selected', !!activeTiers[key] && !completedTiers[key]);
+      }
+    });
+    renderInProgressTiers();
+  });
+  onValue(ref(db,'referrals/'+code),snap=>{
+    const list=$('refList');
+    if(!snap.exists()){ list.innerHTML='<div style="font-family:var(--mono);font-size:0.62rem;color:var(--muted);text-align:center;padding:12px 0;">NO REFERRALS YET — SHARE YOUR LINK</div>'; return; }
+    const hidden=getHidden('referrals');
+    const entries=Object.entries(snap.val());
+    const visible=entries.filter(([k])=>!hidden.includes(k)).sort((a,b)=>(b[1].confirmedAt||0)-(a[1].confirmedAt||0));
+    if(!visible.length){ list.innerHTML='<div style="font-family:var(--mono);font-size:0.62rem;color:var(--muted);text-align:center;padding:12px 0;">ALL REFERRALS HIDDEN</div>'; return; }
+    list.innerHTML=visible.map(([k,r])=>`
+      <div class="ref-item" id="refrow_${k}" style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
+        <div style="flex:1;min-width:0;">
+          <div class="ref-name">${r.name||'Anonymous'}</div>
+          <div class="ref-time">${timeAgo(r.confirmedAt)}</div>
+        </div>
+        <span class="badge badge-green">✓ CONFIRMED</span>
+        <button onclick="hideItem('referrals','${k}',this)" title="Hide this referral" style="background:transparent;border:1px solid rgba(255,80,80,0.25);border-radius:6px;color:rgba(255,100,100,0.6);font-size:0.65rem;padding:3px 7px;cursor:pointer;flex-shrink:0;transition:all .15s;" onmouseover="this.style.borderColor='rgba(255,80,80,0.6)';this.style.color='#ff6b6b'" onmouseout="this.style.borderColor='rgba(255,80,80,0.25)';this.style.color='rgba(255,100,100,0.6)'">✕</button>
+      </div>`).join('');
+  });
+}
+
+function listenForRewards(code){
+  if(rewardListener) rewardListener();
+  rewardListener=onValue(ref(db,'users/'+code+'/pendingRewards'),snap=>{
+    const pending=snap.val()||0;
+    if(pending>0){ $('rewardWaiting').style.display='none'; $('rewardReady').style.display='block'; loadOrCreateRewardCode(code); renderBenefitForTier(currentUser?.activeTier||'starter'); }
+  });
+  onValue(ref(db,'users/'+code+'/rewardExpiresAt'),snap=>{
+    const exp=snap.val();
+    if(!exp) return;
+    const box=$('rewardCountdownCard'); const lbl=$('rewardExpiry'); const badge=$('rewardTierBadge');
+    if(exp>Date.now()){
+      box.style.display='block';
+      const tierKey=currentUser?.activeTier||'starter'; const t=TIERS[tierKey];
+      badge.textContent=t.icon+' '+t.name;
+      function updateCountdown(){
+        const diff=exp-Date.now();
+        if(diff<=0){ lbl.textContent='EXPIRED'; return; }
+        const d=Math.floor(diff/86400000); const h=Math.floor((diff%86400000)/3600000); const m=Math.floor((diff%3600000)/60000);
+        lbl.textContent=(d>0?d+'d ':'')+h+'h '+m+'m REMAINING';
+      }
+      updateCountdown();
+      clearInterval(window._countdownInterval);
+      window._countdownInterval=setInterval(updateCountdown,60000);
+    } else { box.style.display='none'; }
+  });
+}
+
+async function loadOrCreateRewardCode(code){
+  const snap=await get(ref(db,'users/'+code+'/currentRewardCode'));
+  let rCode=snap.exists()?snap.val():generateRewardCode();
+  if(!snap.exists()) await update(ref(db,'users/'+code),{ currentRewardCode:rCode });
+  $('rewardCodeVal').textContent=rCode;
+}
+
+window.confirmReferral = async function(){
+  const code=$('confirmCodeInput').value.trim().toUpperCase();
+  const errEl=$('confirmError'); errEl.style.display='none';
+  if(!code.startsWith('PZLR-')||code.length<9){ errEl.textContent='Enter a valid code like PZLR-XXXX'; errEl.style.display='block'; return; }
+  if(!currentUser){ toast('Please register first','red'); return; }
+  if(code===currentUser.code){ errEl.textContent="You can't confirm your own code!"; errEl.style.display='block'; return; }
+  const refSnap=await get(ref(db,'users/'+code));
+  if(!refSnap.exists()){ errEl.textContent='Code not found.'; errEl.style.display='block'; return; }
+  const alreadySnap=await get(ref(db,'referrals/'+code+'/'+currentUser.code.replace(/-/g,'_')));
+  if(alreadySnap.exists()){ errEl.textContent='You already confirmed this code.'; errEl.style.display='block'; return; }
+  const refData=refSnap.val();
+  const btn=$('confirmBtn'); btn.disabled=true; btn.textContent='Confirming…';
+  try {
+    // Write the referral record
+    await set(ref(db,'referrals/'+code+'/'+currentUser.code.replace(/-/g,'_')),
+      { name:currentUser.name, confirmedAt:Date.now(), confirmerCode:currentUser.code });
+
+    const activeTiers   = refData.activeTiers   || {};
+    const completedTiers= refData.completedTiers || {};
+    const tierProgress  = refData.tierProgress   || {};
+
+    let updates = { referralCount: (refData.referralCount||0)+1 };
+    let rewardsGranted = 0;
+
+    // Credit this confirmation to EVERY active, incomplete tier
+    Object.keys(activeTiers).forEach(tierKey => {
+      if(completedTiers[tierKey]) return; // already done
+      const t = TIERS[tierKey];
+      if(!t) return;
+      const newProg = (tierProgress[tierKey]||0) + 1;
+      updates['tierProgress/'+tierKey] = newProg;
+      // If this referral completes the tier, grant a reward
+      if(newProg >= t.need){
+        const expiresAt = Date.now()+(t.days*86400000);
+        updates.pendingRewards  = (refData.pendingRewards||0)  + 1 + rewardsGranted;
+        updates.totalRewards    = (refData.totalRewards||0)    + 1 + rewardsGranted;
+        updates.rewardExpiresAt = expiresAt;
+        updates.rewardTier      = tierKey;
+        updates['completedTiers/'+tierKey] = true;
+        // Remove from activeTiers so it's done
+        updates['activeTiers/'+tierKey] = null;
+        rewardsGranted++;
+        // Increment global live completion counter for this tier
+        get(ref(db,'tierCompletions/'+tierKey)).then(cs=>{
+          update(ref(db,'tierCompletions'),{ [tierKey]: (cs.exists()?cs.val():0)+1 });
+        }).catch(()=>{});
+      }
+    });
+
+    await update(ref(db,'users/'+code), updates);
+    await update(ref(db,'users/'+currentUser.code),{ hasConfirmed:code });
+    $('confirmSuccess').style.display='block';
+    toast('🎉 Referral confirmed! They earned progress.','green',4000);
+    btn.textContent='✓ CONFIRMED';
+  } catch(e){
+    errEl.textContent='Error: '+e.message; errEl.style.display='block';
+    btn.disabled=false; btn.textContent='✅ CONFIRM REFERRAL';
+  }
+};
+
+window.selectBenefit = function(el,benefit){
+  document.querySelectorAll('.benefit-btn').forEach(b=>b.classList.remove('selected'));
+  el.classList.add('selected'); selectedBenefitVal=benefit;
+  $('claimBtn').disabled=false; $('claimBtn').textContent='SAVE REWARD →';
+};
+
+window.claimReward = async function(){
+  if(!selectedBenefitVal||!currentUser) return;
+  const rCode=$('rewardCodeVal').textContent;
+  const btn=$('claimBtn'); btn.disabled=true; btn.textContent='Saving…';
+  try {
+    // Save reward to history permanently
+    await push(ref(db,'rewardHistory/'+currentUser.code),{ benefit:selectedBenefitVal,code:rCode,claimedAt:Date.now(),tier:currentUser.activeTier||'starter' });
+    // Only clear pendingRewards — keep rewardReady/rewardCode/rewardBenefit intact so app can still detect
+    await update(ref(db,'users/'+currentUser.code),{ rewardBenefit:selectedBenefitVal,rewardCode:rCode,rewardClaimedAt:Date.now(),rewardReady:true,pendingRewards:0 });
+    toast('🎁 Reward saved! Your code is stored below — copy it any time.','gold',5000);
+    btn.textContent='✓ REWARD SAVED';
+    // Hide the claim panel; the saved code now lives in Reward History
+    $('rewardReady').style.display='none';
+    loadRewardHistory(currentUser.code);
+  } catch(e){
+    btn.disabled=false; btn.textContent='SAVE REWARD →';
+    toast('Error: '+e.message,'red');
+  }
+};
+
+function loadRewardHistory(code){
+  onValue(ref(db,'rewardHistory/'+code),snap=>{
+    const listEl=$('rewardHistoryList');
+    if(!snap.exists()){ listEl.innerHTML='<div style="font-family:var(--mono);font-size:0.62rem;color:var(--muted);text-align:center;padding:12px 0;">NO REWARDS YET</div>'; return; }
+    const labels={
+      passes3:'🎟️ +3 Passes', hint3:'💡 +3 Hint Tokens', adfree6h:'🚫 Ad-Free 6h', xp2_1d:'⚡ 2× XP 1 Day',
+      adfree24:'🚫 Ad-Free 24h', passes5:'🎟️ +5 Passes', hint6:'💡 +6 Hint Tokens', xp2_3d:'⚡ 2× XP 3 Days',
+      theme:'🎨 Exclusive Theme', adfree3d:'🚫 Ad-Free 3 Days', passes10:'🎟️ +10 Passes', xp2_7d:'⚡ 2× XP 7 Days',
+      doublexp14:'⚡️ 2× XP 14 Days', theme2:'🎨 2 Premium Themes', adfree7d:'🚫 Ad-Free 7 Days', passes20:'🎟️ +20 Passes',
+      doublexp30:'⚡️ 2× XP 30 Days', allthemes:'🎨 All Themes', passes50:'🎟️ +50 Passes', adfree30:'🚫 Ad-Free 30 Days',
+      // legacy keys
+      adfree:'🚫 Ad-Free 24h', doublexp:'⚡️ Double XP 7d', passes:'🎟️ +5 Passes', unlock:'🔓 Theme Unlock', vip:'👑 VIP (Legacy)'
+    };
+    const tierIcons={starter:'🥉',bronze:'🥈',silver:'🥇',gold:'💎',elite:'👑'};
+    const hidden=getHidden('rewards');
+    const allEntries=Object.entries(snap.val());
+    const visible=allEntries.filter(([k])=>!hidden.includes(k)).sort((a,b)=>(b[1].claimedAt||0)-(a[1].claimedAt||0));
+    if(!visible.length){ listEl.innerHTML='<div style="font-family:var(--mono);font-size:0.62rem;color:var(--muted);text-align:center;padding:12px 0;">ALL REWARDS HIDDEN</div>'; return; }
+    listEl.innerHTML=visible.map(([k,r])=>`
+      <div id="rewardrow_${k}" style="background:rgba(255,255,255,0.02);border:1px solid rgba(255,184,0,0.12);border-radius:12px;padding:12px 14px;margin-bottom:8px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+          <div style="flex:1;min-width:0;">
+            <div style="font-size:0.78rem;font-weight:600;">${labels[r.benefit]||r.benefit} ${tierIcons[r.tier]||''}</div>
+            <div style="font-family:var(--mono);font-size:0.54rem;color:var(--muted);margin-top:2px;">${timeAgo(r.claimedAt)}</div>
+          </div>
+          <span class="badge badge-gold" style="flex-shrink:0;">Claimed</span>
+          <button onclick="hideItem('rewards','${k}',this)" title="Hide this reward" style="margin-left:6px;background:transparent;border:1px solid rgba(255,80,80,0.25);border-radius:6px;color:rgba(255,100,100,0.6);font-size:0.65rem;padding:3px 7px;cursor:pointer;flex-shrink:0;transition:all .15s;" onmouseover="this.style.borderColor='rgba(255,80,80,0.6)';this.style.color='#ff6b6b'" onmouseout="this.style.borderColor='rgba(255,80,80,0.25)';this.style.color='rgba(255,100,100,0.6)'">✕</button>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <input value="${r.code}" readonly style="flex:1;background:rgba(255,184,0,0.05);border:1px solid rgba(255,184,0,0.2);border-radius:8px;padding:7px 10px;color:var(--gold);font-family:var(--mono);font-size:0.78rem;letter-spacing:2px;outline:none;">
+          <button onclick="navigator.clipboard.writeText('${r.code}').then(()=>{ this.textContent='✓'; setTimeout(()=>this.textContent='COPY',1500); })" style="background:rgba(255,184,0,0.1);border:1px solid rgba(255,184,0,0.25);color:var(--gold);border-radius:8px;padding:7px 12px;font-family:var(--display);font-size:0.58rem;font-weight:600;letter-spacing:1px;cursor:pointer;white-space:nowrap;flex-shrink:0;">COPY</button>
+        </div>
+      </div>`).join('');
+  });
+}
+
+window.switchTab = function(tab){
+  ['share','progress','confirm','rewards'].forEach(t=>{
+    const T=t.charAt(0).toUpperCase()+t.slice(1);
+    $('tab'+T).classList.toggle('active',t===tab);
+    $('tab'+T+'Panel').style.display=t===tab?'block':'none';
+  });
+  if(tab==='progress') renderInProgressTiers();
+  if(tab==='rewards'&&currentUser){
+    const pending=parseInt($('statPending').textContent)||0;
+    if(pending===0) $('rewardWaiting').style.display='block';
+    loadRewardHistory(currentUser.code);
+  }
+};
+
+function checkRefParam(){
+  const p=new URLSearchParams(window.location.search);
+  const r=p.get('ref');
+  if(r){ const inp=$('confirmCodeInput'); if(inp){ inp.value=r.toUpperCase(); switchTab('confirm'); } }
+}
+
+// ── RESET ALL ────────────────────────────────────────────────
+window.promptResetAll = function(){
+  if(!currentUser) return;
+  const completedTiers = currentUser.completedTiers || {};
+  const activeTiers    = currentUser.activeTiers    || {};
+  const tierProgress   = currentUser.tierProgress   || {};
+  // Check for ANY in-progress tier that hasn't been completed yet
+  const hasUnfinished = Object.keys(activeTiers).some(k => !completedTiers[k] && (tierProgress[k]||0) > 0);
+  const hasCompleted  = Object.keys(completedTiers).length > 0;
+  const $m = document.getElementById('resetModal');
+  const $warn = document.getElementById('resetWarnMsg');
+  if(hasUnfinished){
+    $warn.style.display='block';
+    $warn.innerHTML='⚠️ <strong style="color:#ff6b6b;">WARNING:</strong> You have tiers still in progress with confirmations that haven\'t been completed yet. Resetting now means losing that progress permanently. You should only reset once all your active tiers are done.';
+  } else {
+    $warn.style.display='none';
+  }
+  $m.style.display='flex';
+};
+
+window.dismissResetModal = function(){
+  document.getElementById('resetModal').style.display='none';
+};
+
+window.doResetAll = async function(){
+  if(!currentUser) return;
+  const btn = document.getElementById('resetConfirmBtn');
+  btn.disabled=true; btn.textContent='RESETTING…';
+  try {
+    // Wipe all tier state and referral counts — keep name, email, code, createdAt
+    const resetData = {
+      referralCount:  0,
+      pendingRewards: 0,
+      totalRewards:   0,
+      activeTiers:    null,
+      completedTiers: null,
+      tierProgress:   null,
+      activeTier:     null,
+      currentRewardCode: null,
+      rewardExpiresAt:   null,
+      rewardTier:        null,
+      rewardBenefit:     null,
+      rewardCode:        null,
+      rewardClaimedAt:   null,
+      rewardReady:       null,
+      hasConfirmed:      null,
+    };
+    await update(ref(db,'users/'+currentUser.code), resetData);
+    // Delete referrals node for this user
+    await set(ref(db,'referrals/'+currentUser.code), null);
+    // Refresh local user
+    const snap = await get(ref(db,'users/'+currentUser.code));
+    currentUser = snap.val(); currentUser.code = snap.key || localStorage.getItem('puzzlr_share_code');
+    dismissResetModal();
+    // Reset all tier card visuals
+    document.querySelectorAll('.tier-card').forEach(c=>c.classList.remove('selected'));
+    Object.keys(TIERS).forEach(key=>{
+      const el = document.getElementById('tierProg_'+key);
+      const fill = document.getElementById('tierFill_'+key);
+      const done = document.getElementById('tierDone_'+key);
+      if(el) el.textContent='0';
+      if(fill) fill.style.width='0%';
+      if(done) done.style.display='none';
+    });
+    document.getElementById('statTotal').textContent='0';
+    document.getElementById('statPending').textContent='0';
+    document.getElementById('statRewards').textContent='0';
+    document.getElementById('activeTierBox').style.display='none';
+    renderInProgressTiers();
+    toast('✅ All progress reset. Start fresh!','green',4000);
+  } catch(e){
+    toast('Error: '+e.message,'red');
+  } finally {
+    btn.disabled=false; btn.textContent='YES, RESET EVERYTHING';
+  }
+};
+
+// ── HIDE SYSTEM (localStorage, not Firebase) ─────────────────
+function hiddenKey(type){ return 'puzzlr_hidden_'+type+'_'+(currentUser?currentUser.code:''); }
+function getHidden(type){ try{ return JSON.parse(localStorage.getItem(hiddenKey(type))||'[]'); }catch(e){ return []; } }
+function saveHidden(type,arr){ localStorage.setItem(hiddenKey(type), JSON.stringify(arr)); }
+
+window.hideItem = function(type, id, btn){
+  const arr = getHidden(type);
+  if(!arr.includes(id)) arr.push(id);
+  saveHidden(type, arr);
+  // Animate out the parent row
+  const row = document.getElementById(type.slice(0,-1)==='reward'?'rewardrow_'+id : type==='tiers'?'tierrow_'+id : 'refrow_'+id) ||
+              (btn && btn.closest('[id]'));
+  if(row){ row.style.transition='opacity .3s, transform .3s'; row.style.opacity='0'; row.style.transform='translateX(20px)'; setTimeout(()=>{ row.style.display='none'; refreshVisibleEmpty(type); },320); }
+  toast('✕ Hidden from view','green',2000);
+};
+
+function refreshVisibleEmpty(type){
+  if(type==='tiers') renderInProgressTiers();
+  // referrals and rewards re-render on next Firebase push; force it:
+  if(type==='referrals'){ const l=$('refList'); if(l&&l.children.length===0) l.innerHTML='<div style="font-family:var(--mono);font-size:0.62rem;color:var(--muted);text-align:center;padding:12px 0;">ALL REFERRALS HIDDEN</div>'; }
+  if(type==='rewards'){ const l=$('rewardHistoryList'); if(l&&l.children.length===0) l.innerHTML='<div style="font-family:var(--mono);font-size:0.62rem;color:var(--muted);text-align:center;padding:12px 0;">ALL REWARDS HIDDEN</div>'; }
+}
+
+window.hideAllReferrals = function(){
+  if(!currentUser) return;
+  // collect all currently rendered referral row IDs
+  const rows = document.querySelectorAll('[id^="refrow_"]');
+  if(!rows.length){ toast('No referrals to hide','red',2000); return; }
+  const arr = getHidden('referrals');
+  rows.forEach(r=>{ const id=r.id.replace('refrow_',''); if(!arr.includes(id)) arr.push(id); });
+  saveHidden('referrals', arr);
+  rows.forEach(r=>{ r.style.transition='opacity .3s'; r.style.opacity='0'; setTimeout(()=>r.style.display='none',300); });
+  setTimeout(()=>{ $('refList').innerHTML='<div style="font-family:var(--mono);font-size:0.62rem;color:var(--muted);text-align:center;padding:12px 0;">ALL REFERRALS HIDDEN</div>'; },350);
+  toast('👥 All referrals hidden','green',2500);
+};
+
+window.hideAllTiers = function(){
+  if(!currentUser) return;
+  const rows = document.querySelectorAll('[id^="tierrow_"]');
+  if(!rows.length){ toast('No tier progress to hide','red',2000); return; }
+  const arr = getHidden('tiers');
+  rows.forEach(r=>{ const id=r.id.replace('tierrow_',''); if(!arr.includes(id)) arr.push(id); });
+  saveHidden('tiers', arr);
+  rows.forEach(r=>{ r.style.transition='opacity .3s'; r.style.opacity='0'; setTimeout(()=>r.style.display='none',300); });
+  setTimeout(()=>{ $('inProgressList').innerHTML='<div style="font-family:var(--mono);font-size:0.62rem;color:var(--muted);text-align:center;padding:16px 0;">ALL TIERS HIDDEN</div>'; },350);
+  toast('📋 All tier progress hidden','green',2500);
+};
+
+window.restoreAllHidden = function(){
+  if(!currentUser) return;
+  ['referrals','tiers','rewards'].forEach(t=>localStorage.removeItem(hiddenKey(t)));
+  renderInProgressTiers();
+  if(currentUser) loadStats(currentUser.code);
+  if(currentUser) loadRewardHistory(currentUser.code);
+  toast('↩ All hidden items restored','green',2500);
+};
+
+window.promptResetHistory = function(){
+  if(!currentUser) return;
+  document.getElementById('resetHistoryModal').style.display='flex';
+};
+
+window.dismissResetHistoryModal = function(){
+  document.getElementById('resetHistoryModal').style.display='none';
+};
+
+window.doResetHistory = function(){
+  if(!currentUser) return;
+  const btn = document.getElementById('resetHistoryConfirmBtn');
+  btn.disabled=true; btn.textContent='HIDING…';
+  // Hide all reward history items from view (localStorage only)
+  const rows = document.querySelectorAll('[id^="rewardrow_"]');
+  const arr = getHidden('rewards');
+  rows.forEach(r=>{ const id=r.id.replace('rewardrow_',''); if(!arr.includes(id)) arr.push(id); });
+  saveHidden('rewards', arr);
+  rows.forEach(r=>{ r.style.transition='opacity .3s'; r.style.opacity='0'; setTimeout(()=>r.style.display='none',300); });
+  setTimeout(()=>{
+    const l=$('rewardHistoryList');
+    if(l) l.innerHTML='<div style="font-family:var(--mono);font-size:0.62rem;color:var(--muted);text-align:center;padding:12px 0;">ALL REWARDS HIDDEN</div>';
+  },350);
+  dismissResetHistoryModal();
+  toast('🗑️ Reward history hidden from view','green',3000);
+  btn.disabled=false; btn.textContent='YES, HIDE HISTORY';
+};
+
+(async function init(){
+  const saved=localStorage.getItem('puzzlr_share_code');
+  if(saved) await loadUser(saved);
+  else checkRefParam();
+})();
+</script>
+<!-- TIER CONFIRM MODAL -->
+<div id="tierConfirmModal" style="display:none;position:fixed;inset:0;z-index:9998;background:rgba(0,0,0,0.75);backdrop-filter:blur(6px);align-items:center;justify-content:center;padding:20px;">
+  <div style="background:#0F0D14;border:1px solid rgba(255,184,0,0.3);border-radius:20px;padding:28px 22px;max-width:360px;width:100%;text-align:center;position:relative;box-shadow:0 0 60px rgba(255,184,0,0.1);">
+    <div id="tcmIcon" style="font-size:2.5rem;margin-bottom:10px;"></div>
+    <div id="tcmTitle" style="font-family:'Orbitron',sans-serif;font-size:0.9rem;font-weight:900;letter-spacing:2px;color:#FFB800;margin-bottom:8px;"></div>
+    <div id="tcmBody" style="font-family:'Share Tech Mono',monospace;font-size:0.65rem;color:rgba(255,255,255,0.65);line-height:1.8;margin-bottom:20px;"></div>
+    <div style="display:flex;gap:10px;">
+      <button onclick="dismissTierModal()" style="flex:1;padding:12px;background:transparent;border:1px solid rgba(255,255,255,0.12);border-radius:12px;color:rgba(255,255,255,0.6);font-family:'Orbitron',sans-serif;font-size:0.62rem;font-weight:700;letter-spacing:1.5px;cursor:pointer;">CANCEL</button>
+      <button id="tcmConfirmBtn" onclick="doStartTier()" style="flex:1;padding:12px;background:linear-gradient(135deg,#FF8C00,#FFB800);border:none;border-radius:12px;color:#000;font-family:'Orbitron',sans-serif;font-size:0.62rem;font-weight:900;letter-spacing:1.5px;cursor:pointer;">YES, START TIER</button>
+    </div>
+  </div>
+</div>
+<!-- RESET / REFRESH MODAL -->
+<div id="resetModal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.82);backdrop-filter:blur(8px);align-items:center;justify-content:center;padding:20px;">
+  <div style="background:#0F0D14;border:1px solid rgba(255,80,80,0.35);border-radius:20px;padding:28px 22px;max-width:360px;width:100%;text-align:center;position:relative;box-shadow:0 0 60px rgba(255,60,60,0.1);">
+    <div style="font-size:2.5rem;margin-bottom:10px;">⚠️</div>
+    <div style="font-family:'Orbitron',sans-serif;font-size:0.9rem;font-weight:900;letter-spacing:2px;color:#ff6b6b;margin-bottom:12px;">RESET ALL PROGRESS?</div>
+    <div id="resetWarnMsg" style="display:none;background:rgba(255,80,80,0.07);border:1px solid rgba(255,80,80,0.2);border-radius:10px;padding:10px 14px;font-family:'Share Tech Mono',monospace;font-size:0.6rem;color:rgba(255,255,255,0.7);line-height:1.8;margin-bottom:12px;text-align:left;"></div>
+    <div style="font-family:'Share Tech Mono',monospace;font-size:0.63rem;color:rgba(255,255,255,0.55);line-height:1.9;margin-bottom:8px;text-align:left;">
+      This will permanently wipe:<br>
+      <span style="color:rgba(255,100,100,0.8);">✗ All tier progress &amp; confirmations</span><br>
+      <span style="color:rgba(255,100,100,0.8);">✗ Active &amp; completed tier records</span><br>
+      <span style="color:rgba(255,100,100,0.8);">✗ Referral count &amp; pending rewards</span><br>
+      <span style="color:rgba(255,255,255,0.35);">✓ Your name, email &amp; share code are kept</span><br>
+      <span style="color:rgba(255,255,255,0.35);">✓ Previously saved reward codes are kept</span>
+    </div>
+    <div style="font-family:'Share Tech Mono',monospace;font-size:0.58rem;color:rgba(255,184,0,0.7);background:rgba(255,184,0,0.05);border:1px solid rgba(255,184,0,0.15);border-radius:8px;padding:8px 12px;margin-bottom:20px;">
+      💡 Only reset after all in-progress tiers are fully completed and rewards are saved.
+    </div>
+    <div style="display:flex;gap:10px;">
+      <button onclick="dismissResetModal()" style="flex:1;padding:12px;background:transparent;border:1px solid rgba(255,255,255,0.12);border-radius:12px;color:rgba(255,255,255,0.6);font-family:'Orbitron',sans-serif;font-size:0.6rem;font-weight:700;letter-spacing:1px;cursor:pointer;">CANCEL</button>
+      <button id="resetConfirmBtn" onclick="doResetAll()" style="flex:1;padding:12px;background:linear-gradient(135deg,#c0005a,#ff3030);border:none;border-radius:12px;color:#fff;font-family:'Orbitron',sans-serif;font-size:0.58rem;font-weight:900;letter-spacing:1px;cursor:pointer;">YES, RESET EVERYTHING</button>
+    </div>
+  </div>
+</div>
+
+<!-- RESET HISTORY MODAL -->
+<div id="resetHistoryModal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.82);backdrop-filter:blur(8px);align-items:center;justify-content:center;padding:20px;">
+  <div style="background:#0F0D14;border:1px solid rgba(255,80,80,0.35);border-radius:20px;padding:28px 22px;max-width:360px;width:100%;text-align:center;position:relative;box-shadow:0 0 60px rgba(255,60,60,0.1);">
+    <div style="font-size:2.5rem;margin-bottom:10px;">🗑️</div>
+    <div style="font-family:'Orbitron',sans-serif;font-size:0.9rem;font-weight:900;letter-spacing:2px;color:#ff6b6b;margin-bottom:12px;">HIDE REWARD HISTORY?</div>
+    <div style="font-family:'Share Tech Mono',monospace;font-size:0.63rem;color:rgba(255,255,255,0.55);line-height:1.9;margin-bottom:8px;text-align:left;">
+      This will hide from your view:<br>
+      <span style="color:rgba(255,100,100,0.8);">✗ All saved reward codes (visually)</span><br>
+      <span style="color:rgba(255,100,100,0.8);">✗ Entire reward history list</span><br>
+      <span style="color:rgba(255,255,255,0.35);">✓ Data stays safe in Firebase</span><br>
+      <span style="color:rgba(255,255,255,0.35);">✓ Restore anytime via "Restore All Hidden"</span>
+    </div>
+    <div style="font-family:'Share Tech Mono',monospace;font-size:0.58rem;color:rgba(255,184,0,0.7);background:rgba(255,184,0,0.05);border:1px solid rgba(255,184,0,0.15);border-radius:8px;padding:8px 12px;margin-bottom:20px;">
+      💡 Nothing is permanently deleted — items are just hidden from view.
+    </div>
+    <div style="display:flex;gap:10px;">
+      <button onclick="dismissResetHistoryModal()" style="flex:1;padding:12px;background:transparent;border:1px solid rgba(255,255,255,0.12);border-radius:12px;color:rgba(255,255,255,0.6);font-family:'Orbitron',sans-serif;font-size:0.6rem;font-weight:700;letter-spacing:1px;cursor:pointer;">CANCEL</button>
+      <button id="resetHistoryConfirmBtn" onclick="doResetHistory()" style="flex:1;padding:12px;background:linear-gradient(135deg,#c0005a,#ff3030);border:none;border-radius:12px;color:#fff;font-family:'Orbitron',sans-serif;font-size:0.58rem;font-weight:900;letter-spacing:1px;cursor:pointer;">YES, HIDE HISTORY</button>
+    </div>
+  </div>
+</div>
+
+
+
+</body>
+</html>
