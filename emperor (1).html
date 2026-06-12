@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PUZZLR — EMPEROR PORTAL 👑</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Rajdhani:wght@300;400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+:root{
+  --g:#FFB800;--gold:#ffb800;--emp:#D97706;--emp2:#FBBF24;--emp3:#F59E0B;
+  --bg:#04030A;--card:#0D0A10;--card2:#150F18;
+  --border:rgba(217,119,6,0.18);--muted:rgba(255,255,255,0.38);
+  --font:'Rajdhani',sans-serif;--display:'Orbitron',sans-serif;--mono:'Share Tech Mono',monospace;
+  --tier1:#c97b3a;--tier2:#a8a8a8;--tier3:#ffd700;--tier4:#7ef4ff;--tier5:#ff79c6;
+  --glow:0 0 30px rgba(217,119,6,0.2);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:#fff;font-family:var(--font);min-height:100vh;overflow-x:hidden;font-size:16px}
+canvas#empBg{position:fixed;inset:0;z-index:0;pointer-events:none}
+.wrap{position:relative;z-index:1;max-width:480px;margin:0 auto;padding:0 16px 100px}
+
+/* ── EMPEROR HEADER ── */
+header{text-align:center;padding:40px 0 28px;position:relative}
+.emp-crown-aura{position:absolute;top:0;left:50%;transform:translateX(-50%);width:300px;height:300px;
+  background:radial-gradient(circle,rgba(217,119,6,0.18) 0%,transparent 70%);
+  animation:breathe 3s ease-in-out infinite;pointer-events:none}
+.emp-logo-crown{font-size:3rem;display:block;animation:crownFloat 3s ease-in-out infinite;
+  filter:drop-shadow(0 0 20px rgba(251,191,36,0.8));}
+.logo-text{font-family:var(--display);font-size:1.7rem;font-weight:900;letter-spacing:6px;
+  background:linear-gradient(135deg,#fff 0%,#FBBF24 50%,#D97706 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  margin-top:8px}
+.emp-subtitle{font-family:var(--mono);font-size:0.58rem;color:var(--emp2);letter-spacing:4px;
+  margin-top:6px;opacity:.8;animation:blink 1.5s step-end infinite}
+.emp-name-tag{
+  display:inline-block;margin-top:14px;
+  background:linear-gradient(135deg,rgba(217,119,6,0.15),rgba(251,191,36,0.08));
+  border:1px solid rgba(217,119,6,0.5);border-radius:50px;
+  padding:8px 22px;font-family:var(--display);font-size:0.7rem;font-weight:700;
+  color:#FBBF24;letter-spacing:3px;
+  box-shadow:0 0 30px rgba(217,119,6,0.25);
+  animation:empTagPulse 2.5s ease-in-out infinite}
+.emp-servant-line{font-size:0.55rem;color:rgba(255,255,255,0.35);letter-spacing:2px;margin-top:8px;font-family:var(--mono)}
+
+/* ── CARDS ── */
+.card{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:20px 18px;margin-bottom:16px;
+  box-shadow:var(--glow);position:relative;overflow:hidden}
+.card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,transparent,rgba(217,119,6,0.6),transparent)}
+.card-title{font-family:var(--display);font-size:0.72rem;font-weight:700;letter-spacing:3px;
+  color:var(--emp2);margin-bottom:14px;text-transform:uppercase}
+.btn{display:block;width:100%;padding:13px 20px;border:none;border-radius:12px;cursor:pointer;
+  font-family:var(--display);font-size:0.72rem;font-weight:700;letter-spacing:2px;transition:.2s}
+.btn-emp{background:linear-gradient(135deg,#D97706,#92400E);color:#fff;
+  box-shadow:0 4px 24px rgba(217,119,6,0.4)}
+.btn-emp:hover{box-shadow:0 4px 40px rgba(217,119,6,0.7);transform:translateY(-1px)}
+.btn-outline{background:transparent;border:1px solid var(--border);color:var(--emp2)}
+.btn-outline:hover{border-color:var(--emp);color:var(--emp2)}
+.field{margin-bottom:12px}
+.field label{display:block;font-size:0.6rem;font-weight:700;letter-spacing:2px;
+  color:var(--muted);text-transform:uppercase;margin-bottom:6px;font-family:var(--mono)}
+.field input,.field select{width:100%;background:rgba(217,119,6,0.04);border:1px solid rgba(217,119,6,0.2);
+  border-radius:10px;padding:10px 14px;color:#fff;font-family:var(--mono);font-size:0.8rem;
+  letter-spacing:1px;outline:none;transition:.2s}
+.field input:focus{border-color:var(--emp);box-shadow:0 0 0 3px rgba(217,119,6,0.1)}
+.error-msg{color:#f87171;font-size:0.6rem;font-family:var(--mono);margin-top:4px;min-height:16px;letter-spacing:1px}
+.divider{text-align:center;font-size:0.55rem;color:var(--muted);letter-spacing:2px;margin:14px 0;
+  display:flex;align-items:center;gap:10px;font-family:var(--mono)}
+.divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--border)}
+
+/* ── PANELS ── */
+.panel{display:none}
+.panel.active{display:block}
+
+/* ── STAT CARDS ── */
+.stat-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
+.stat-card{background:var(--card2);border:1px solid var(--border);border-radius:14px;padding:14px 12px;text-align:center}
+.stat-num{font-family:var(--display);font-size:1.4rem;font-weight:900;color:var(--emp2)}
+.stat-label{font-size:0.52rem;color:var(--muted);letter-spacing:2px;margin-top:4px;font-family:var(--mono)}
+
+/* ── TIER PROGRESS ── */
+.tier-block{background:var(--card2);border:1px solid var(--border);border-radius:14px;padding:14px;margin-bottom:10px;position:relative;overflow:hidden}
+.tier-name{font-family:var(--display);font-size:0.68rem;font-weight:700;letter-spacing:2px;margin-bottom:6px}
+.tier-prog-bar{height:6px;background:rgba(255,255,255,0.06);border-radius:3px;overflow:hidden;margin-bottom:6px}
+.tier-prog-fill{height:100%;border-radius:3px;transition:width 1s ease}
+.tier-code-wrap{display:flex;gap:8px;align-items:center;margin-top:8px}
+.tier-code-wrap input{flex:1;background:rgba(217,119,6,0.05);border:1px solid rgba(217,119,6,0.2);border-radius:8px;
+  padding:6px 10px;color:var(--emp2);font-family:var(--mono);font-size:0.72rem;letter-spacing:2px;outline:none}
+.copy-btn{background:rgba(217,119,6,0.15);border:1px solid rgba(217,119,6,0.3);border-radius:8px;
+  padding:6px 12px;color:var(--emp2);font-size:0.6rem;cursor:pointer;font-family:var(--mono);white-space:nowrap}
+.copy-btn:hover{background:rgba(217,119,6,0.3)}
+
+/* ── REWARD HISTORY ── */
+.hist-item{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid rgba(217,119,6,0.08)}
+.hist-item:last-child{border-bottom:none}
+.hist-icon{width:32px;height:32px;border-radius:8px;background:rgba(217,119,6,0.12);
+  display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0}
+.hist-info{flex:1}
+.hist-title{font-size:0.7rem;font-weight:700;color:rgba(255,255,255,0.85)}
+.hist-date{font-family:var(--mono);font-size:0.52rem;color:var(--muted);margin-top:2px}
+.hist-tier{font-size:0.55rem;font-family:var(--mono);padding:2px 7px;border-radius:5px;
+  background:rgba(217,119,6,0.15);color:var(--emp2);margin-left:auto}
+
+/* ── LIVE ACTIVITY ── */
+.live-dot{width:6px;height:6px;border-radius:50%;background:#00ff88;display:inline-block;
+  box-shadow:0 0 6px #00ff88;animation:pulse-dot 1.5s ease-in-out infinite;margin-right:6px}
+#liveActivityBar{background:rgba(0,255,136,0.04);border:1px solid rgba(0,255,136,0.15);border-radius:12px;
+  padding:10px 14px;margin-bottom:14px;display:none;overflow:hidden;position:relative}
+
+/* ── EMPEROR SCROLL ── */
+.emp-scroll{background:linear-gradient(135deg,rgba(217,119,6,0.07),rgba(251,191,36,0.03));
+  border:1px solid rgba(217,119,6,0.35);border-radius:14px;padding:18px;
+  text-align:center;margin-bottom:16px}
+.emp-scroll-title{font-size:0.55rem;font-family:var(--mono);letter-spacing:3px;color:rgba(217,119,6,0.7);margin-bottom:10px}
+.emp-scroll-text{font-size:0.72rem;color:rgba(255,255,255,0.75);line-height:1.8}
+
+/* ── SIGN-IN GATE ── */
+#gatePanel{display:flex;align-items:center;justify-content:center;min-height:calc(100vh - 200px)}
+
+/* ── NAV ── */
+nav{position:fixed;bottom:0;left:0;right:0;z-index:100;background:rgba(4,3,10,0.95);
+  backdrop-filter:blur(20px);border-top:1px solid rgba(217,119,6,0.15);
+  display:flex;justify-content:space-around;padding:10px 0 max(10px,env(safe-area-inset-bottom))}
+.nav-btn{background:none;border:none;color:var(--muted);cursor:pointer;
+  display:flex;flex-direction:column;align-items:center;gap:3px;padding:4px 12px;
+  font-family:var(--mono);font-size:0.45rem;letter-spacing:1px;text-transform:uppercase;transition:.2s}
+.nav-btn.active{color:var(--emp2)}
+.nav-btn svg{width:20px;height:20px}
+.nav-btn.active svg{filter:drop-shadow(0 0 6px rgba(251,191,36,0.7))}
+
+/* ── PARTICLES / KEYFRAMES ── */
+@keyframes breathe{0%,100%{opacity:.7;transform:translateX(-50%) scale(1)}50%{opacity:1;transform:translateX(-50%) scale(1.08)}}
+@keyframes crownFloat{0%,100%{transform:translateY(0) rotate(-3deg)}50%{transform:translateY(-8px) rotate(3deg)}}
+@keyframes blink{0%,100%{opacity:.8}50%{opacity:.3}}
+@keyframes empTagPulse{0%,100%{box-shadow:0 0 20px rgba(217,119,6,0.2)}50%{box-shadow:0 0 40px rgba(217,119,6,0.5)}}
+@keyframes pulse-dot{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.4);opacity:.6}}
+@keyframes fadeInUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+@keyframes shimmerBg{0%{background-position:0%}100%{background-position:200%}}
+@keyframes spinGold{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+<canvas id="empBg"></canvas>
+
+<div class="wrap">
+  <header>
+    <div class="emp-crown-aura"></div>
+    <span class="emp-logo-crown">👑</span>
+    <div class="logo-text">PUZZLR</div>
+    <div class="emp-subtitle">EMPEROR'S PORTAL · CLASSIFIED</div>
+    <div class="emp-name-tag" id="empNameTag">EMPEROR — LOADING...</div>
+    <div class="emp-servant-line">Your servant awaits your command, Your Majesty</div>
+  </header>
+
+  <!-- ── GATE: emperor code sign-in ── -->
+  <div id="gatePanel" class="panel active">
+    <div style="width:100%;animation:fadeInUp 0.5s ease">
+      <div class="emp-scroll">
+        <div class="emp-scroll-title">🛡 IMPERIAL ACCESS REQUIRED 🛡</div>
+        <div class="emp-scroll-text">
+          Only the Emperor of PUZZLR may enter.<br>
+          Present your Emperor Code to proceed.
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">👑 Emperor Authentication</div>
+        <div class="field">
+          <label>Emperor Code</label>
+          <input type="text" id="empCodeInput" placeholder="EMP-XXX-XXXX" maxlength="12" autocomplete="off"
+            style="letter-spacing:3px;text-transform:uppercase"
+            oninput="this.value=this.value.toUpperCase().replace(/[^A-Z0-9-]/g,'')">
+        </div>
+        <div id="gateError" class="error-msg"></div>
+        <button class="btn btn-emp" onclick="empLogin()" style="margin-top:8px;">👑 ENTER THE EMPEROR PORTAL →</button>
+        <div style="margin-top:14px;text-align:center;font-size:0.5rem;color:rgba(255,255,255,0.2);font-family:var(--mono);line-height:1.8">
+          Your Emperor Code was issued in-game when you conquered all 49 medals.<br>
+          It was displayed on the URGENT NOTICE screen.<br>
+          <span style="color:rgba(255,100,100,0.5);">⛔ Never share this code with anyone.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── PANEL: THRONE (Dashboard) ── -->
+  <div id="panelThrone" class="panel">
+    <div id="liveActivityBar">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+        <span class="live-dot"></span>
+        <span style="font-family:var(--mono);font-size:0.58rem;color:rgba(0,255,136,0.7);letter-spacing:1px">LIVE SYNC ACTIVE</span>
+        <span style="margin-left:auto;font-family:var(--mono);font-size:0.52rem;color:rgba(255,255,255,0.3)" id="lastSync">--</span>
+      </div>
+      <div id="liveActivityText" style="font-family:var(--mono);font-size:0.58rem;color:rgba(255,255,255,0.5);line-height:1.6"></div>
+    </div>
+
+    <div class="emp-scroll" id="davidSpeech" style="display:none">
+      <div class="emp-scroll-title">✨ DAVID AI ADDRESSES THE EMPEROR</div>
+      <div class="emp-scroll-text" id="davidSpeechText">
+        <span style="opacity:.4;font-size:0.62rem">Composing imperial address…</span>
+      </div>
+    </div>
+
+    <div class="stat-row">
+      <div class="stat-card"><div class="stat-num" id="statTotalRefs">—</div><div class="stat-label">Total Referrals</div></div>
+      <div class="stat-card"><div class="stat-num" id="statActiveTiers">—</div><div class="stat-label">Active Tiers</div></div>
+    </div>
+    <div class="stat-row">
+      <div class="stat-card"><div class="stat-num" id="statRewards">—</div><div class="stat-label">Rewards Earned</div></div>
+      <div class="stat-card"><div class="stat-num" id="statDaysSince">—</div><div class="stat-label">Days Ruling</div></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">⚔️ Your Imperial Tier Progress</div>
+      <div id="tiersList">
+        <div style="text-align:center;padding:14px;color:var(--muted);font-size:0.65rem;font-family:var(--mono)">Loading imperial records…</div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-bottom:16px">
+      <div class="card-title">📜 Your Main Code</div>
+      <div id="mainCodeWrap">
+        <div style="font-size:0.58rem;color:rgba(255,255,255,0.4);font-family:var(--mono);margin-bottom:8px">
+          This is your account's main code. Use it in the game to log back in.
+        </div>
+        <div style="display:flex;gap:8px;align-items:center">
+          <input id="mainCodeDisplay" value="—" readonly
+            style="flex:1;background:rgba(217,119,6,0.05);border:1px solid rgba(217,119,6,0.2);border-radius:8px;padding:8px 12px;color:var(--emp2);font-family:var(--mono);font-size:0.78rem;letter-spacing:2px;outline:none">
+          <button class="copy-btn" onclick="copyField('mainCodeDisplay')">COPY</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">🏆 Reward History</div>
+      <div id="rewardHistList">
+        <div style="text-align:center;padding:14px;color:var(--muted);font-size:0.65rem;font-family:var(--mono)">Loading…</div>
+      </div>
+    </div>
+
+    <button class="btn btn-outline" onclick="empSignOut()" style="margin-top:8px;font-size:0.6rem">SIGN OUT OF EMPEROR PORTAL</button>
+  </div>
+
+  <!-- ── PANEL: REFERRALS ── -->
+  <div id="panelRefs" class="panel">
+    <div class="card">
+      <div class="card-title">⚔️ Imperial Referral Records</div>
+      <div id="refsList">
+        <div style="text-align:center;padding:14px;color:var(--muted);font-size:0.65rem;font-family:var(--mono)">Loading…</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── PANEL: SCROLLS (How It Works) ── -->
+  <div id="panelScrolls" class="panel">
+    <div class="emp-scroll">
+      <div class="emp-scroll-title">📜 THE EMPEROR'S SCROLLS</div>
+      <div class="emp-scroll-text">
+        Your Majesty, this portal is your private command centre.<br>
+        Your conquests are recorded here in real time.
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">How the Emperor Share System Works</div>
+      <div style="font-size:0.68rem;line-height:1.9;color:rgba(255,255,255,0.7)">
+        <div style="margin-bottom:10px"><span style="color:var(--emp2);font-weight:700">1. Your Main Code</span><br>Your permanent login. Format: <span style="font-family:var(--mono);color:var(--emp2)">name-xxxxx</span>. Keep it safe.</div>
+        <div style="margin-bottom:10px"><span style="color:var(--emp2);font-weight:700">2. Emperor Code</span><br>The code issued when you earned your 49th medal. This logs you into this portal only. Never share it.</div>
+        <div style="margin-bottom:10px"><span style="color:var(--emp2);font-weight:700">3. Tier Codes</span><br>Each tier (STR, BRZ, SLV, GLD, ELT) has its own share code. Give that code to friends to confirm. When they do, your tier count rises.</div>
+        <div style="margin-bottom:10px"><span style="color:var(--emp2);font-weight:700">4. Rewards Auto-Unlock</span><br>When your tier fills up, Puzzlr detects it and unlocks your reward automatically next time you go online in the game.</div>
+        <div><span style="color:var(--emp2);font-weight:700">5. Emperor Status</span><br>As Emperor, the public share site redirects to your portal. Your identity is protected — the public sees only the gate.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── NAV ── -->
+<nav id="empNav" style="display:none">
+  <button class="nav-btn active" id="navThrone" onclick="showPanel('panelThrone','navThrone')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+    THRONE
+  </button>
+  <button class="nav-btn" id="navRefs" onclick="showPanel('panelRefs','navRefs')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+    SUBJECTS
+  </button>
+  <button class="nav-btn" id="navScrolls" onclick="showPanel('panelScrolls','navScrolls')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+    SCROLLS
+  </button>
+</nav>
+
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+<script>
+const fbConfig={
+  apiKey:"AIzaSyBFBJSyWKd_GGoQ5IhUZQ9w8j4-HaOeD1s",
+  authDomain:"david-connection.firebaseapp.com",
+  databaseURL:"https://david-connection-default-rtdb.firebaseio.com",
+  projectId:"david-connection",
+  storageBucket:"david-connection.firebasestorage.app",
+  messagingSenderId:"214764400544",
+  appId:"1:214764400544:web:e7c4bd26e9fac3e3b0f1c7"
+};
+firebase.initializeApp(fbConfig);
+const db=firebase.database();
+
+// ── Particle background ───────────────────────────────────────────
+(function(){
+  const c=document.getElementById('empBg'),x=c.getContext('2d');
+  function resize(){c.width=window.innerWidth;c.height=window.innerHeight;}resize();
+  window.addEventListener('resize',resize);
+  const pts=Array.from({length:55},()=>({
+    x:Math.random()*window.innerWidth,y:Math.random()*window.innerHeight,
+    vx:(Math.random()-.5)*.3,vy:(Math.random()-.5)*.3,
+    r:Math.random()*1.5+.5,a:Math.random()
+  }));
+  function draw(){
+    x.clearRect(0,0,c.width,c.height);
+    // Subtle gold gradient base
+    const g=x.createRadialGradient(c.width/2,c.height*.35,0,c.width/2,c.height*.35,c.width*.6);
+    g.addColorStop(0,'rgba(217,119,6,0.04)');g.addColorStop(1,'transparent');
+    x.fillStyle=g;x.fillRect(0,0,c.width,c.height);
+    pts.forEach(p=>{
+      p.x+=p.vx;p.y+=p.vy;p.a+=0.005;
+      if(p.x<0)p.x=c.width;if(p.x>c.width)p.x=0;
+      if(p.y<0)p.y=c.height;if(p.y>c.height)p.y=0;
+      x.beginPath();x.arc(p.x,p.y,p.r,0,Math.PI*2);
+      x.fillStyle=`rgba(251,191,36,${0.15+0.1*Math.sin(p.a)})`;x.fill();
+    });
+    requestAnimationFrame(draw);
+  }draw();
+})();
+
+// ── Globals ───────────────────────────────────────────────────────
+let currentEmperor=null; // Firebase user object
+let currentMainCode=null;
+
+// ── Helpers ───────────────────────────────────────────────────────
+function escH(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function copyField(id){
+  const el=document.getElementById(id);
+  if(!el)return;
+  if(navigator.clipboard){navigator.clipboard.writeText(el.value).then(()=>{el.style.borderColor='#86efac';setTimeout(()=>{el.style.borderColor='';},1200);}).catch(()=>{});}
+}
+function copyText(t){
+  if(navigator.clipboard)navigator.clipboard.writeText(t).catch(()=>{});
+}
+function showPanel(panelId,navId){
+  document.querySelectorAll('.panel').forEach(p=>{if(p.id!=='gatePanel')p.style.display='none';});
+  const p=document.getElementById(panelId);if(p)p.style.display='block';
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  const nb=document.getElementById(navId);if(nb)nb.classList.add('active');
+}
+
+// ── TIER CONFIG (mirrors share_index) ────────────────────────────
+const TIERS=[
+  {id:'STR',name:'STARTER',icon:'🌱',color:'var(--tier1)',goal:3},
+  {id:'BRZ',name:'BRONZE',icon:'🥉',color:'var(--tier1)',goal:5},
+  {id:'SLV',name:'SILVER',icon:'🥈',color:'var(--tier2)',goal:8},
+  {id:'GLD',name:'GOLD',icon:'🥇',color:'var(--tier3)',goal:12},
+  {id:'ELT',name:'ELITE',icon:'💎',color:'var(--tier4)',goal:20},
+];
+
+// ── SIGN IN ───────────────────────────────────────────────────────
+async function empLogin(){
+  const raw=(document.getElementById('empCodeInput').value||'').trim().toUpperCase();
+  const errEl=document.getElementById('gateError');
+  errEl.textContent='';
+  if(!raw||!raw.startsWith('EMP-')){errEl.textContent='Enter a valid Emperor Code (EMP-XXX-XXXX)';return;}
+  errEl.textContent='Verifying…';
+  try{
+    // Look up the emperor_codes index
+    const snap=await db.ref('emperor_codes/'+raw).once('value');
+    const rec=snap.val();
+    if(!rec||!rec.ownerCode){errEl.textContent='⛔ Emperor Code not recognised. Check your code and try again.';return;}
+    // Load the user
+    const uSnap=await db.ref('users/'+rec.ownerCode).once('value');
+    const user=uSnap.val();
+    if(!user||!user.stagesComplete){errEl.textContent='This code is not yet linked to an Emperor account.';return;}
+    currentMainCode=rec.ownerCode;
+    currentEmperor={...user,code:rec.ownerCode,emperorCode:raw};
+    // Persist session
+    localStorage.setItem('puzzlr_emperor_session',JSON.stringify({empCode:raw,mainCode:rec.ownerCode}));
+    errEl.textContent='';
+    activateEmperorPortal();
+  }catch(e){
+    errEl.textContent='Connection error. Try again.';
+  }
+}
+
+// ── AUTO LOGIN from session ───────────────────────────────────────
+(async function autoLogin(){
+  const sess=localStorage.getItem('puzzlr_emperor_session');
+  if(!sess)return;
+  try{
+    const {empCode: _ec, mainCode}=JSON.parse(sess);
+    const empCode = (_ec||'').toUpperCase();
+    if(!empCode||!mainCode)return;
+    const snap=await db.ref('emperor_codes/'+empCode).once('value');
+    const rec=snap.val();
+    if(!rec||rec.ownerCode!==mainCode)return;
+    const uSnap=await db.ref('users/'+mainCode).once('value');
+    const user=uSnap.val();
+    if(!user||!user.stagesComplete)return;
+    currentMainCode=mainCode;
+    currentEmperor={...user,code:mainCode,emperorCode:empCode};
+    activateEmperorPortal();
+  }catch(e){}
+})();
+
+// ── ACTIVATE PORTAL ───────────────────────────────────────────────
+function activateEmperorPortal(){
+  const name=(currentEmperor.emperorName||currentMainCode||'EMPEROR').toUpperCase();
+  document.getElementById('empNameTag').textContent='EMPEROR ('+name+')';
+  document.getElementById('gatePanel').style.display='none';
+  document.getElementById('empNav').style.display='flex';
+  showPanel('panelThrone','navThrone');
+  loadThroneData();
+  loadTierProgress();
+  loadRewardHistory();
+  loadReferrals();
+  startLiveSync();
+  fetchDavidSpeech(name);
+}
+
+// ── THRONE DATA ───────────────────────────────────────────────────
+async function loadThroneData(){
+  if(!currentEmperor)return;
+  document.getElementById('mainCodeDisplay').value=currentMainCode||'—';
+  // Days ruling
+  const d=currentEmperor.emperorDate?Math.floor((Date.now()-new Date(currentEmperor.emperorDate).getTime())/(1000*60*60*24)):0;
+  document.getElementById('statDaysSince').textContent=d>=0?d:'—';
+  // Count total referrals across all tiers
+  let total=0;
+  try{
+    const snap=await db.ref('referrals/'+currentMainCode).once('value');
+    const refs=snap.val()||{};
+    Object.values(refs).forEach(v=>{if(v&&typeof v==='object')total+=Object.keys(v).length;else if(v)total++;});
+  }catch(e){}
+  document.getElementById('statTotalRefs').textContent=total||0;
+  // Rewards earned
+  try{
+    const snap=await db.ref('rewardHistory/'+currentMainCode).once('value');
+    const hist=snap.val()||{};
+    document.getElementById('statRewards').textContent=Object.keys(hist).length||0;
+  }catch(e){}
+  // Active tiers — tiers with at least 1 referral
+  try{
+    const tierCodes=currentEmperor.tierCodes||{};
+    let active=0;
+    for(const tc of Object.values(tierCodes)){
+      if(!tc)continue;
+      const snap=await db.ref('referrals/'+currentMainCode+'/'+tc).once('value');
+      const v=snap.val();if(v&&Object.keys(v).length>0)active++;
+    }
+    document.getElementById('statActiveTiers').textContent=active;
+  }catch(e){}
+}
+
+// ── TIER PROGRESS ─────────────────────────────────────────────────
+async function loadTierProgress(){
+  if(!currentEmperor)return;
+  const container=document.getElementById('tiersList');
+  const tierCodes=currentEmperor.tierCodes||{};
+  let html='';
+  for(const t of TIERS){
+    const tc=tierCodes[t.id]||null;
+    let count=0;
+    if(tc){
+      try{
+        const snap=await db.ref('referrals/'+currentMainCode+'/'+tc).once('value');
+        const v=snap.val()||{};count=Object.keys(v).length;
+      }catch(e){}
+    }
+    const pct=Math.min(100,Math.round((count/t.goal)*100));
+    const done=count>=t.goal;
+    html+=`<div class="tier-block">
+      <div class="tier-name" style="color:${t.color}">${t.icon} ${t.name} TIER ${done?'<span style="color:#86efac;font-size:0.58rem;margin-left:6px">✅ COMPLETE</span>':''}</div>
+      <div style="display:flex;justify-content:space-between;font-size:0.55rem;font-family:var(--mono);color:var(--muted);margin-bottom:4px">
+        <span>${count} / ${t.goal} subjects</span><span>${pct}%</span>
+      </div>
+      <div class="tier-prog-bar"><div class="tier-prog-fill" style="width:${pct}%;background:${t.color}"></div></div>
+      ${tc?`<div class="tier-code-wrap">
+        <input value="${escH(tc)}" readonly id="tc_${t.id}">
+        <button class="copy-btn" onclick="copyText('${escH(tc)}');document.querySelector('#tc_${t.id}').style.borderColor='#86efac';setTimeout(()=>document.querySelector('#tc_${t.id}').style.borderColor='',1200)">COPY</button>
+      </div>`:
+      `<button class="btn btn-outline" style="margin-top:8px;font-size:0.58rem;padding:8px" onclick="startTier('${t.id}')">START ${t.name} TIER</button>`}
+    </div>`;
+  }
+  container.innerHTML=html||'<div style="text-align:center;padding:14px;color:var(--muted);font-size:0.65rem;font-family:var(--mono)">No tier data found.</div>';
+}
+
+// ── REWARD HISTORY ────────────────────────────────────────────────
+async function loadRewardHistory(){
+  if(!currentEmperor)return;
+  const container=document.getElementById('rewardHistList');
+  try{
+    const snap=await db.ref('rewardHistory/'+currentMainCode).once('value');
+    const hist=snap.val()||{};
+    const entries=Object.entries(hist).sort((a,b)=>{const ta=a[1].date||0,tb=b[1].date||0;return tb-ta;});
+    if(!entries.length){container.innerHTML='<div style="text-align:center;padding:14px;color:var(--muted);font-size:0.65rem;font-family:var(--mono)">No rewards yet — share your tier codes to earn!</div>';return;}
+    const TIER_ICONS={STR:'🌱',BRZ:'🥉',SLV:'🥈',GLD:'🥇',ELT:'💎'};
+    container.innerHTML=entries.slice(0,20).map(([key,val])=>`
+      <div class="hist-item">
+        <div class="hist-icon">${TIER_ICONS[val.tier]||'🎁'}</div>
+        <div class="hist-info">
+          <div class="hist-title">${escH(val.reward||val.tier+' Tier Reward')}</div>
+          <div class="hist-date">${val.date?new Date(val.date).toLocaleDateString():''}</div>
+        </div>
+        <div class="hist-tier">${escH(val.tier||'—')}</div>
+      </div>`).join('');
+  }catch(e){container.innerHTML='<div style="text-align:center;padding:14px;color:var(--muted);font-size:0.65rem;font-family:var(--mono)">Could not load rewards.</div>';}
+}
+
+// ── REFERRALS LIST ────────────────────────────────────────────────
+async function loadReferrals(){
+  if(!currentEmperor)return;
+  const container=document.getElementById('refsList');
+  try{
+    const snap=await db.ref('referrals/'+currentMainCode).once('value');
+    const refs=snap.val()||{};
+    const tierCodes=currentEmperor.tierCodes||{};
+    const codeToTier={};Object.entries(tierCodes).forEach(([tid,tc])=>{if(tc)codeToTier[tc]=tid;});
+    let rows=[];
+    Object.entries(refs).forEach(([tc,confirms])=>{
+      const tier=codeToTier[tc]||tc;
+      if(confirms&&typeof confirms==='object'){
+        Object.entries(confirms).forEach(([ck,cv])=>{
+          rows.push({tier,name:cv.name||ck,date:cv.date});
+        });
+      }
+    });
+    rows.sort((a,b)=>(b.date||0)-(a.date||0));
+    if(!rows.length){container.innerHTML='<div style="text-align:center;padding:14px;color:var(--muted);font-size:0.65rem;font-family:var(--mono)">No subjects have confirmed yet. Share your tier codes to recruit them!</div>';return;}
+    container.innerHTML=rows.map(r=>`
+      <div class="hist-item">
+        <div class="hist-icon" style="font-size:0.8rem">👤</div>
+        <div class="hist-info">
+          <div class="hist-title">${escH(r.name)}</div>
+          <div class="hist-date">${r.date?new Date(r.date).toLocaleDateString():''}</div>
+        </div>
+        <div class="hist-tier">${escH(r.tier)}</div>
+      </div>`).join('');
+  }catch(e){container.innerHTML='<div style="text-align:center;padding:14px;color:var(--muted);font-size:0.65rem;font-family:var(--mono)">Could not load subjects.</div>';}
+}
+
+// ── START TIER ────────────────────────────────────────────────────
+async function startTier(tierId){
+  if(!currentEmperor||!currentMainCode)return;
+  const tierCodes=currentEmperor.tierCodes||{};
+  if(tierCodes[tierId]){await loadTierProgress();return;}
+  const prefix=tierId.toLowerCase();
+  const code=prefix+'-'+Math.random().toString(36).slice(2,6);
+  // Save to Firebase under user and tier_codes index
+  try{
+    await db.ref('users/'+currentMainCode+'/tierCodes/'+tierId).set(code);
+    await db.ref('tier_codes/'+code).set({ownerCode:currentMainCode,tier:tierId,created:Date.now()});
+    currentEmperor.tierCodes=currentEmperor.tierCodes||{};
+    currentEmperor.tierCodes[tierId]=code;
+    await loadTierProgress();
+  }catch(e){alert('Failed to start tier. Check connection.');}
+}
+
+// ── LIVE SYNC ─────────────────────────────────────────────────────
+function startLiveSync(){
+  if(!currentMainCode)return;
+  const bar=document.getElementById('liveActivityBar');
+  const txt=document.getElementById('liveActivityText');
+  const sync=document.getElementById('lastSync');
+  bar.style.display='block';
+  db.ref('referrals/'+currentMainCode).on('value',snap=>{
+    const refs=snap.val()||{};
+    let total=0;Object.values(refs).forEach(v=>{if(v&&typeof v==='object')total+=Object.keys(v).length;});
+    document.getElementById('statTotalRefs').textContent=total;
+    txt.innerHTML=`<span style="color:rgba(251,191,36,0.7)">👑</span> ${total} total subject${total===1?'':'s'} confirmed`;
+    sync.textContent='Synced '+new Date().toLocaleTimeString();
+  });
+}
+
+// ── DAVID AI SPEECH ───────────────────────────────────────────────
+async function fetchDavidSpeech(name){
+  const el=document.getElementById('davidSpeech');
+  const textEl=document.getElementById('davidSpeechText');
+  el.style.display='block';
+  try{
+    const resp=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-20250514',
+        max_tokens:1000,
+        system:'You are David AI — the ancient, mystical intelligence at the heart of the DAVID PUZZLR universe. You speak in a ceremonial, poetic, epic tone: wise, warm, and deeply respectful. You are serving a newly crowned Emperor of the puzzle realm. Keep your address to 5 sentences maximum. No markdown. Speak directly to the Emperor by name. Be brief, powerful, and personal.',
+        messages:[{role:'user',content:'The Emperor '+name+' has returned to their throne room. Address them with a brief, powerful imperial greeting. Make them feel like a true Emperor.'}]
+      })
+    });
+    const data=await resp.json();
+    const text=data&&data.content&&data.content[0]&&data.content[0].text;
+    if(text){
+      const formatted=text.trim().replace(/\n\n/g,'<br><br>').replace(/\n/g,'<br>');
+      textEl.innerHTML=formatted+'<br><span style="font-size:0.6rem;color:rgba(251,191,36,0.45);margin-top:8px;display:block">— David AI, Keeper of the Puzzle Realm</span>';
+    }else{
+      textEl.innerHTML='Your conquest is absolute, Emperor '+escH(name)+'. Every puzzle has surrendered to your will. The realm is yours. <br><span style="font-size:0.6rem;color:rgba(251,191,36,0.45);margin-top:8px;display:block">— David AI, Keeper of the Puzzle Realm</span>';
+    }
+  }catch(e){
+    textEl.innerHTML='The realm bows before you, Emperor '+escH(name)+'. Your 49 medals shine across the puzzle universe like stars. <br><span style="font-size:0.6rem;color:rgba(251,191,36,0.45);margin-top:8px;display:block">— David AI, Keeper of the Puzzle Realm</span>';
+  }
+}
+
+// ── SIGN OUT ──────────────────────────────────────────────────────
+function empSignOut(){
+  localStorage.removeItem('puzzlr_emperor_session');
+  location.reload();
+}
+</script>
+</body>
+</html>
