@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{
+  background:#07060A;
+  min-height:100dvh;
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  font-family:'Share Tech Mono',monospace;
+  position:relative;overflow:hidden;
+  /* safe area for notch/home bar */
+  padding-top:env(safe-area-inset-top);
+  padding-bottom:env(safe-area-inset-bottom);
+  padding-left:env(safe-area-inset-left);
+  padding-right:env(safe-area-inset-right);
+}
+canvas{position:absolute;inset:0;pointer-events:none;z-index:0;}
+
+.wrap{
+  position:relative;z-index:2;
+  display:flex;flex-direction:column;
+  align-items:center;width:100%;
+  padding:24px 16px 20px;
+  gap:0;
+}
+
+/* ── TITLE ── */
+.title-block{text-align:center;margin-bottom:28px;animation:fadeUp .5s ease both;}
+.title-main{
+  font-family:'Orbitron',sans-serif;
+  font-size:clamp(1.65rem,8vw,2.1rem);
+  font-weight:900;letter-spacing:6px;
+  background:linear-gradient(135deg,#fff 0%,#FFB800 55%,#FF8C00 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  line-height:1.1;animation:titleGlow 3s ease-in-out infinite;
+}
+.title-sub{
+  font-family:'Share Tech Mono',monospace;
+  font-size:clamp(0.55rem,2.8vw,0.7rem);
+  letter-spacing:5px;color:rgba(255,184,0,0.4);margin-top:8px;
+}
+
+/* ── CARDS WRAPPER ── */
+.cards{
+  display:flex;
+  flex-direction:column;   /* STACKED on mobile */
+  gap:14px;
+  align-items:stretch;
+  width:100%;max-width:340px;
+  transition:all .4s ease;
+}
+
+/* ── CARD ── */
+.card{
+  width:100%;              /* full width in column layout */
+  border-radius:18px;padding:0;
+  position:relative;overflow:hidden;cursor:pointer;
+  display:flex;flex-direction:row;align-items:stretch; /* horizontal layout inside card */
+  border:1px solid rgba(255,184,0,0.22);
+  background:linear-gradient(160deg,#141118 0%,#0F0D14 60%,#0A0810 100%);
+  transition:box-shadow .2s, opacity .4s, transform .4s, max-height .4s, margin .4s;
+  -webkit-tap-highlight-color:transparent;
+  min-height:110px;
+}
+.card.share{animation:floatA 3.8s ease-in-out infinite,fadeUp .5s .1s ease both;}
+.card.emperor{animation:floatB 4.3s ease-in-out infinite,fadeUp .5s .25s ease both;}
+.card:active{transform:scale(0.97)!important;animation:none!important;}
+.card:hover{box-shadow:0 0 30px rgba(255,184,0,0.2);}
+/* top shimmer line */
+.card::before{content:'';position:absolute;top:0;left:10%;right:10%;height:1px;background:linear-gradient(90deg,transparent,#FFB800,transparent);}
+
+/* ── HIDDEN STATE ── */
+.card.card-gone{
+  opacity:0;pointer-events:none;
+  max-height:0!important;min-height:0!important;
+  margin:0!important;padding:0!important;
+  border-width:0!important;overflow:hidden;
+  animation:none!important;
+}
+
+/* ── SOLO STATE ── */
+.card.solo{min-height:130px;}
+
+/* ── SHINE ── */
+.shine{
+  position:absolute;inset:0;
+  background:linear-gradient(105deg,transparent 30%,rgba(255,184,0,0.06) 50%,transparent 70%);
+  animation:shine 5s ease-in-out infinite;pointer-events:none;z-index:1;
+}
+.card.emperor .shine{animation-delay:2.5s;}
+
+/* ── ICON AREA — left column ── */
+.card-icon-area{
+  width:110px;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  padding:16px 10px;position:relative;
+}
+.icon-ring-wrap{position:relative;width:68px;height:68px;display:flex;align-items:center;justify-content:center;}
+.ring{position:absolute;inset:0;border-radius:50%;border:1px solid rgba(255,184,0,0.28);animation:spin 9s linear infinite;}
+.ring2{position:absolute;inset:7px;border-radius:50%;border:1px dashed rgba(255,184,0,0.14);animation:spin 6s linear infinite reverse;}
+.ring3{position:absolute;inset:14px;border-radius:50%;border:1px solid rgba(255,184,0,0.08);animation:spin 12s linear infinite;}
+.emoji{font-size:2rem;position:relative;z-index:2;animation:iconPulse 2.6s ease-in-out infinite;line-height:1;}
+.sw-text{font-family:'Orbitron',sans-serif;font-size:1.1rem;font-weight:900;color:#FFB800;letter-spacing:3px;position:relative;z-index:2;text-shadow:0 0 20px rgba(255,184,0,0.6);animation:iconPulse 2.6s ease-in-out infinite;}
+
+/* ── CARD BODY — right column ── */
+.card-body{
+  flex:1;
+  padding:16px 14px 16px 10px;
+  border-left:1px solid rgba(255,184,0,0.08);
+  display:flex;flex-direction:column;
+  align-items:flex-start;justify-content:center;
+  gap:4px;
+}
+.card-label{font-size:clamp(0.5rem,2.4vw,0.62rem);letter-spacing:3px;color:rgba(255,184,0,0.45);text-transform:uppercase;}
+.card-name{font-family:'Orbitron',sans-serif;font-size:clamp(0.75rem,3.5vw,0.9rem);font-weight:900;letter-spacing:2px;color:#FFB800;line-height:1.25;}
+.card-desc{font-size:clamp(0.55rem,2.5vw,0.68rem);letter-spacing:0.5px;color:rgba(255,255,255,0.28);line-height:1.8;margin-top:2px;}
+.card-btn{
+  margin-top:10px;
+  padding:8px 16px;border-radius:99px;
+  border:1px solid rgba(255,184,0,0.3);
+  background:rgba(255,184,0,0.06);
+  font-family:'Orbitron',sans-serif;
+  font-size:clamp(0.55rem,2.5vw,0.65rem);
+  font-weight:700;letter-spacing:3px;color:#FFB800;
+  transition:all .2s;
+  /* large tap target */
+  min-height:38px;display:flex;align-items:center;
+}
+.card:active .card-btn{background:rgba(255,184,0,0.14);border-color:rgba(255,184,0,0.6);}
+
+/* badge */
+.def-badge{
+  position:absolute;top:8px;right:8px;
+  font-size:clamp(0.42rem,1.8vw,0.52rem);letter-spacing:2px;
+  padding:2px 6px;border-radius:99px;
+  background:rgba(255,184,0,0.1);color:#FFB800;
+  border:1px solid rgba(255,184,0,0.3);
+  z-index:3;font-family:'Share Tech Mono',monospace;
+}
+
+/* ── MANAGE ROW ── */
+.manage{
+  display:flex;gap:0;
+  margin-top:18px;
+  animation:fadeUp .5s .4s ease both;
+  border:1px solid rgba(255,184,0,0.12);
+  border-radius:99px;overflow:hidden;
+  /* keep it from overflowing narrow screens */
+  max-width:340px;width:100%;
+}
+.mgr-btn{
+  flex:1;text-align:center;
+  font-size:clamp(0.48rem,2.2vw,0.58rem);letter-spacing:1.5px;
+  color:rgba(255,255,255,0.3);cursor:pointer;
+  padding:11px 6px;     /* bigger tap target */
+  transition:all .2s;-webkit-tap-highlight-color:transparent;
+  white-space:nowrap;background:transparent;border:none;
+  font-family:'Share Tech Mono',monospace;
+}
+.mgr-btn:active{color:#FFB800;background:rgba(255,184,0,0.08);}
+.mgr-btn.active-hide{color:#FFB800;}
+.mgr-sep{width:1px;background:rgba(255,184,0,0.12);flex-shrink:0;}
+
+/* ── RESTORE PILL ── */
+.restore-pill{
+  margin-top:12px;
+  padding:10px 22px;border-radius:99px;
+  border:1px dashed rgba(255,184,0,0.25);
+  font-size:clamp(0.5rem,2.4vw,0.6rem);letter-spacing:2px;color:rgba(255,184,0,0.5);
+  cursor:pointer;transition:all .2s;
+  animation:fadeUp .3s ease both;
+  -webkit-tap-highlight-color:transparent;
+  display:none;min-height:40px;
+  align-items:center;justify-content:center;
+  text-align:center;
+}
+.restore-pill:active{border-color:rgba(255,184,0,0.6);color:#FFB800;background:rgba(255,184,0,0.05);}
+
+.particle{position:absolute;border-radius:50%;pointer-events:none;z-index:1;}
+
+@keyframes floatA{0%,100%{transform:translateY(0) rotate(-0.4deg)}50%{transform:translateY(-8px) rotate(0.4deg)}}
+@keyframes floatB{0%,100%{transform:translateY(-4px) rotate(0.4deg)}50%{transform:translateY(4px) rotate(-0.4deg)}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+@keyframes shine{0%{opacity:0;transform:translateX(-100%)}20%{opacity:1}60%,100%{opacity:0;transform:translateX(200%)}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes iconPulse{0%,100%{filter:drop-shadow(0 0 4px rgba(255,184,0,0.3))}50%{filter:drop-shadow(0 0 14px rgba(255,184,0,0.85))}}
+@keyframes titleGlow{0%,100%{filter:brightness(1)}50%{filter:brightness(1.2) drop-shadow(0 0 18px rgba(255,184,0,0.35))}}
+@keyframes drift{0%{transform:translateY(0) translateX(0);opacity:.8}100%{transform:translateY(-120px) translateX(var(--dx));opacity:0}}
+
+/* ── DESKTOP BREAKPOINT — restore side-by-side layout ── */
+@media(min-width:520px){
+  .cards{flex-direction:row;align-items:stretch;}
+  .card{
+    width:180px;flex-shrink:0;
+    flex-direction:column;
+    min-height:220px;
+  }
+  .card.solo{width:210px;}
+  .card-icon-area{width:auto;padding:22px 12px 14px;}
+  .card-body{
+    border-left:none;
+    border-top:1px solid rgba(255,184,0,0.08);
+    align-items:center;padding:14px 14px 18px;
+  }
+  .card-name{text-align:center;}
+  .card-desc{text-align:center;}
+  .card.card-gone{
+    width:0!important;min-width:0!important;
+    max-height:unset!important;
+  }
+}
+@media(prefers-reduced-motion:reduce){
+  .card,.card.share,.card.emperor{animation:fadeUp .3s ease both!important;}
+  .shine,.ring,.ring2,.ring3{animation:none!important;}
+}
+
+/* ── EMPEROR LOCKED STATE ── */
+.card.emperor.locked{
+  opacity:0.28;pointer-events:none;filter:grayscale(0.6);
+  border-color:rgba(255,184,0,0.08);
+}
+.card.emperor.locked .card-btn{display:none;}
+.lock-msg{
+  font-size:clamp(0.48rem,2.1vw,0.58rem);letter-spacing:2px;
+  color:rgba(255,184,0,0.3);margin-top:6px;font-family:'Share Tech Mono',monospace;
+}
+
+/* ── CONGRATULATIONS OVERLAY ── */
+#empCongrats{
+  position:fixed;inset:0;z-index:999;
+  background:rgba(4,3,10,0.97);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:32px 24px;text-align:center;
+  opacity:0;pointer-events:none;
+  transition:opacity .5s ease;
+}
+#empCongrats.show{opacity:1;pointer-events:all;}
+.congrats-crown{font-size:3.5rem;animation:iconPulse 2s ease-in-out infinite;margin-bottom:16px;}
+.congrats-title{
+  font-family:'Orbitron',sans-serif;font-size:clamp(1.1rem,5vw,1.5rem);
+  font-weight:900;letter-spacing:5px;
+  background:linear-gradient(135deg,#fff 0%,#FFB800 55%,#FF8C00 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  margin-bottom:8px;
+}
+.congrats-sub{
+  font-size:clamp(0.52rem,2.4vw,0.65rem);letter-spacing:4px;
+  color:rgba(255,184,0,0.45);margin-bottom:24px;
+  font-family:'Share Tech Mono',monospace;
+}
+.congrats-speech{
+  font-size:clamp(0.62rem,2.8vw,0.78rem);color:rgba(255,255,255,0.7);
+  line-height:2;max-width:340px;font-family:'Share Tech Mono',monospace;
+  min-height:80px;
+}
+.congrats-code{
+  margin-top:20px;
+  font-family:'Orbitron',sans-serif;font-size:clamp(0.85rem,4vw,1.1rem);
+  font-weight:900;letter-spacing:4px;color:#FFB800;
+  border:1px solid rgba(255,184,0,0.3);border-radius:12px;
+  padding:12px 24px;background:rgba(255,184,0,0.06);
+}
+.congrats-label{font-size:0.5rem;letter-spacing:3px;color:rgba(255,184,0,0.4);margin-top:6px;font-family:'Share Tech Mono',monospace;}
+.congrats-enter{
+  margin-top:28px;
+  padding:14px 32px;border-radius:99px;
+  border:1px solid rgba(255,184,0,0.4);background:rgba(255,184,0,0.08);
+  font-family:'Orbitron',sans-serif;font-size:clamp(0.6rem,2.8vw,0.72rem);
+  font-weight:900;letter-spacing:4px;color:#FFB800;cursor:pointer;
+  transition:all .2s;min-height:48px;display:flex;align-items:center;
+  -webkit-tap-highlight-color:transparent;
+}
+.congrats-enter:active{background:rgba(255,184,0,0.18);border-color:#FFB800;}
+@keyframes empParticle{0%{transform:translateY(0) scale(1);opacity:1}100%{transform:translateY(-80px) translateX(var(--dx)) scale(0);opacity:0}}
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+
+<div class="wrap">
+  <div class="title-block">
+    <div class="title-main">DAVID<br>PUZZLR</div>
+    <div class="title-sub">CHOOSE YOUR REALM</div>
+  </div>
+
+  <div class="cards" id="cardsRow">
+
+    <div class="card share" id="shareCard" onclick="goTo('share')">
+      <div class="shine"></div>
+      <div class="def-badge" id="shareDef" style="display:none">DEFAULT</div>
+      <div class="card-icon-area">
+        <div class="icon-ring-wrap">
+          <div class="ring"></div><div class="ring2"></div><div class="ring3"></div>
+          <div class="sw-text">SW</div>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="card-label">SHARE WEBSITE</div>
+        <div class="card-name">SHARE SITE</div>
+        <div class="card-desc">Referrals · Tiers<br>Rewards · Codes</div>
+        <div class="card-btn">ENTER →</div>
+      </div>
+    </div>
+
+    <div class="card emperor" id="empCard" onclick="goTo('emperor')">
+      <div class="shine"></div>
+      <div class="def-badge" id="empDef" style="display:none">DEFAULT</div>
+      <div class="card-icon-area">
+        <div class="icon-ring-wrap">
+          <div class="ring"></div><div class="ring2"></div><div class="ring3"></div>
+          <div class="emoji">👑</div>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="card-label">EMPEROR PORTAL</div>
+        <div class="card-name">EMPEROR PORTAL</div>
+        <div class="card-desc">All 50 medals<br>The empire awaits</div>
+        <div class="card-btn">ENTER →</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- RESTORE PILL shown when something is hidden -->
+  <div class="restore-pill" id="restorePill" onclick="restoreAll()">⊕ RESTORE HIDDEN PORTAL</div>
+
+  <!-- MANAGE BUTTONS -->
+  <div class="manage">
+    <div class="mgr-btn" id="hideShareBtn" onclick="toggleHide('share')">HIDE SHARE</div>
+    <div class="mgr-sep"></div>
+    <div class="mgr-btn" id="hideEmpBtn" onclick="toggleHide('emperor')">HIDE EMPEROR</div>
+    <div class="mgr-sep"></div>
+    <div class="mgr-btn" id="defBtn" onclick="cycleDefault()">SET DEFAULT</div>
+  </div>
+</div>
+
+<!-- CONGRATULATIONS OVERLAY -->
+<div id="empCongrats">
+  <div class="congrats-crown">👑</div>
+  <div class="congrats-title">EMPEROR</div>
+  <div class="congrats-sub">ALL 50 MEDALS CONQUERED</div>
+  <div class="congrats-speech" id="congratsSpeech">Loading your address…</div>
+  <div class="congrats-code" id="congratsCode">EMP-???-????</div>
+  <div class="congrats-label">YOUR EMPEROR CODE</div>
+  <button class="congrats-enter" onclick="enterEmperor()">👑 ENTER THE EMPIRE →</button>
+</div>
+
+<script>
+// ── STARS ──
+const cv=document.getElementById('c'),cx=cv.getContext('2d');
+let W,H,stars=[];
+function resize(){W=cv.width=window.innerWidth;H=cv.height=Math.max(620,window.innerHeight);stars=Array.from({length:110},()=>({x:Math.random()*W,y:Math.random()*H,r:Math.random()*1.2+.2,a:Math.random(),s:Math.random()*.005+.001}));}
+function draw(){cx.clearRect(0,0,W,H);stars.forEach(s=>{s.a+=s.s;if(s.a>1||s.a<0)s.s=-s.s;cx.beginPath();cx.arc(s.x,s.y,s.r,0,Math.PI*2);cx.fillStyle=`rgba(255,184,0,${(Math.abs(s.a)*.22).toFixed(2)})`;cx.fill();});requestAnimationFrame(draw);}
+resize();window.addEventListener('resize',resize);draw();
+
+// ── PARTICLES ──
+function spawnP(){const p=document.createElement('div');p.className='particle';const sz=Math.random()*2.5+1;p.style.cssText=`width:${sz}px;height:${sz}px;background:rgba(255,184,0,${(Math.random()*.3+.07).toFixed(2)});left:${Math.random()*100}%;bottom:${Math.random()*30}%;--dx:${((Math.random()-.5)*50).toFixed(0)}px;animation:drift ${(Math.random()*3+2.5).toFixed(1)}s ease-out forwards;`;document.body.appendChild(p);setTimeout(()=>p.remove(),6000);}
+setInterval(spawnP,500);
+
+// ── EMPEROR PARTICLES (burst during congrats) ──
+function burstParticles(){
+  for(let i=0;i<30;i++){
+    setTimeout(()=>{
+      const p=document.createElement('div');
+      const sz=Math.random()*4+2;
+      p.style.cssText=`position:fixed;border-radius:50%;pointer-events:none;z-index:1000;width:${sz}px;height:${sz}px;background:rgba(255,184,0,${(Math.random()*.6+.3).toFixed(2)});left:${Math.random()*100}%;top:${(Math.random()*60+20)}%;--dx:${((Math.random()-.5)*120).toFixed(0)}px;animation:empParticle ${(Math.random()*1.5+1).toFixed(1)}s ease-out forwards;`;
+      document.body.appendChild(p);setTimeout(()=>p.remove(),3000);
+    },i*60);
+  }
+}
+
+const shareCard=document.getElementById('shareCard');
+const empCard=document.getElementById('empCard');
+const shareDef=document.getElementById('shareDef');
+const empDef=document.getElementById('empDef');
+const hideShareBtn=document.getElementById('hideShareBtn');
+const hideEmpBtn=document.getElementById('hideEmpBtn');
+const defBtn=document.getElementById('defBtn');
+const restorePill=document.getElementById('restorePill');
+
+// ── EMPEROR UNLOCK STATE ──
+function isEmperorUnlocked(){
+  return !!localStorage.getItem('puzzlr_emperor_code');
+}
+
+function applyState(){
+  const def=localStorage.getItem('puzzlr_default_page')||'none';
+  const shareHidden=localStorage.getItem('puzzlr_hide_share')==='1';
+  // emperor can only be hidden if unlocked; if locked, always hidden from manage
+  const unlocked=isEmperorUnlocked();
+  const empHidden=!unlocked || localStorage.getItem('puzzlr_hide_emperor')==='1';
+
+  // badges
+  shareDef.style.display=def==='share'?'':'none';
+  empDef.style.display=(def==='emperor'&&unlocked)?'':'none';
+
+  // lock / show emperor card
+  empCard.classList.toggle('locked', !unlocked);
+  empCard.classList.toggle('card-gone', unlocked && empHidden);
+  // update emperor card text when locked
+  const lockMsg=empCard.querySelector('.lock-msg');
+  if(!unlocked){
+    empCard.style.pointerEvents='none';
+    if(!lockMsg){
+      const d=empCard.querySelector('.card-desc');
+      if(d){d.insertAdjacentHTML('afterend','<div class="lock-msg">🔒 EARN ALL 50 MEDALS</div>');}
+    }
+  } else {
+    empCard.style.pointerEvents='';
+    if(lockMsg) lockMsg.remove();
+  }
+
+  // hide/show share
+  shareCard.classList.toggle('card-gone', shareHidden);
+
+  // solo centering
+  const onlyShare = !shareHidden && (!unlocked || empHidden);
+  const onlyEmp   = shareHidden && unlocked && !empHidden;
+  shareCard.classList.toggle('solo', onlyShare);
+  empCard.classList.toggle('solo', onlyEmp);
+
+  // restore pill — only relevant for unlocked+hidden combos
+  const anyHidden = shareHidden || (unlocked && empHidden);
+  restorePill.style.display = anyHidden ? 'flex' : 'none';
+  if(shareHidden && unlocked && empHidden) restorePill.textContent='⊕ RESTORE ALL PORTALS';
+  else if(shareHidden) restorePill.textContent='⊕ RESTORE SHARE SITE';
+  else if(unlocked && empHidden) restorePill.textContent='⊕ RESTORE EMPEROR PORTAL';
+
+  // manage btn labels
+  hideShareBtn.textContent=shareHidden?'SHOW SHARE':'HIDE SHARE';
+  hideShareBtn.classList.toggle('active-hide',shareHidden);
+  hideEmpBtn.textContent=(unlocked&&empHidden)?'SHOW EMPEROR':'HIDE EMPEROR';
+  hideEmpBtn.classList.toggle('active-hide',unlocked&&empHidden);
+  hideEmpBtn.style.opacity=unlocked?'1':'0.35';
+  hideEmpBtn.style.pointerEvents=unlocked?'':'none';
+
+  // default label
+  defBtn.textContent=def==='share'?'✓ SHARE DEFAULT':def==='emperor'?'✓ EMPEROR DEFAULT':'SET DEFAULT';
+}
+
+applyState();
+
+// ── NAVIGATION ──
+function goTo(dest){
+  window.location.href=dest==='emperor'?'emperor.html':'share_index.html';
+}
+
+function toggleHide(which){
+  if(which==='emperor'&&!isEmperorUnlocked()) return;
+  const key=which==='share'?'puzzlr_hide_share':'puzzlr_hide_emperor';
+  const isHidden=localStorage.getItem(key)==='1';
+  const otherKey=which==='share'?'puzzlr_hide_emperor':'puzzlr_hide_share';
+  const otherHidden=localStorage.getItem(otherKey)==='1'||(which==='share'&&!isEmperorUnlocked());
+  if(!isHidden&&otherHidden){
+    const btn=which==='share'?hideShareBtn:hideEmpBtn;
+    const orig=btn.textContent;
+    btn.textContent='NEED ONE VISIBLE!';btn.style.color='#FF8C00';
+    setTimeout(()=>{btn.textContent=orig;btn.style.color='';},1500);
+    return;
+  }
+  localStorage.setItem(key,isHidden?'0':'1');
+  if(!isHidden&&localStorage.getItem('puzzlr_default_page')===which) localStorage.removeItem('puzzlr_default_page');
+  applyState();
+}
+
+function restoreAll(){
+  localStorage.setItem('puzzlr_hide_share','0');
+  if(isEmperorUnlocked()) localStorage.setItem('puzzlr_hide_emperor','0');
+  applyState();
+}
+
+function cycleDefault(){
+  const cur=localStorage.getItem('puzzlr_default_page')||'none';
+  const unlocked=isEmperorUnlocked();
+  const shareHidden=localStorage.getItem('puzzlr_hide_share')==='1';
+  const empHidden=localStorage.getItem('puzzlr_hide_emperor')==='1';
+  let next;
+  if(cur==='none'||cur==='emperor') next='share';
+  else next=(unlocked&&!empHidden)?'emperor':'none';
+  if(next==='none') localStorage.removeItem('puzzlr_default_page');
+  else localStorage.setItem('puzzlr_default_page',next);
+  applyState();
+}
+
+// ── CONGRATULATIONS FLOW ──
+function enterEmperor(){
+  localStorage.setItem('puzzlr_sp_emperor_popup_shown','1');
+  window.location.href='emperor.html';
+}
+
+async function fetchCongratsSpeech(empCode){
+  const empData=JSON.parse(localStorage.getItem('puzzlr_sp_emperor')||'{}');
+  const name=(empData.player||empCode||'EMPEROR').toUpperCase();
+  const el=document.getElementById('congratsSpeech');
+  try{
+    const res=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-6',
+        max_tokens:1000,
+        messages:[{role:'user',content:`The player ${name} has just earned all 50 medals in DAVID PUZZLR and is being crowned EMPEROR (${empCode}). Write a short ceremonial congratulatory address from David AI — 3 sentences max. Address them as EMPEROR ${name}. Make it powerful, moving, and epic. No markdown, plain text only.`}]
+      })
+    });
+    const data=await res.json();
+    const text=(data.content&&data.content[0]&&data.content[0].text)||'You have conquered every stage. The empire is yours, Emperor.';
+    el.textContent=text;
+  }catch(e){
+    el.textContent=`Every puzzle has fallen before you, Emperor ${name}. 50 medals — a feat no one else has achieved. The empire is yours.`;
+  }
+}
+
+function showCongratsOverlay(empCode){
+  document.getElementById('congratsCode').textContent=empCode;
+  const overlay=document.getElementById('empCongrats');
+  overlay.classList.add('show');
+  burstParticles();
+  fetchCongratsSpeech(empCode);
+  // repeat burst every 2s while overlay is open
+  const burst=setInterval(()=>{if(overlay.classList.contains('show'))burstParticles();else clearInterval(burst);},2200);
+}
+
+// ── ON LOAD: check if emperor just unlocked and congrats not shown yet ──
+(function checkEmperorOnLoad(){
+  const empCode=localStorage.getItem('puzzlr_emperor_code');
+  const popupShown=localStorage.getItem('puzzlr_sp_emperor_popup_shown');
+  if(empCode && !popupShown){
+    // Small delay so the index renders first
+    setTimeout(()=>showCongratsOverlay(empCode), 600);
+  }
+})();
+</script>
+</body>
+</html>
