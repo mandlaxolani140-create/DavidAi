@@ -1,0 +1,2294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PUZZLR — Share & Earn v3</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Rajdhani:wght@300;400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+<style>
+:root {
+  --g: #FFB800; --gold: #ffb800; --pink: #FF8C00; --blue: #FFB800;
+  --bg: #07060A; --card: #0F0D14; --card2: #18151F;
+  --border: rgba(255,184,0,0.1); --muted: rgba(255,255,255,0.38);
+  --font: 'Rajdhani',sans-serif; --display: 'Orbitron',sans-serif; --mono: 'Share Tech Mono',monospace;
+  --tier1:#c97b3a; --tier2:#a8a8a8; --tier3:#ffd700; --tier4:#7ef4ff; --tier5:#ff79c6;
+  --glow: 0 0 20px rgba(255,184,0,0.15);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:#fff;font-family:var(--font);min-height:100vh;overflow-x:hidden;font-size:16px}
+
+/* ═══════════════════════════════════════
+   ANIMATED BACKGROUND
+═══════════════════════════════════════ */
+#bg-canvas{position:fixed;inset:0;z-index:0;pointer-events:none}
+.noise{position:fixed;inset:0;z-index:0;opacity:.025;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");pointer-events:none}
+
+/* ═══════════════════════════════════════
+   LAYOUT
+═══════════════════════════════════════ */
+.wrap{position:relative;z-index:1;max-width:480px;margin:0 auto;padding:0 16px 100px}
+
+/* ═══════════════════════════════════════
+   HEADER
+═══════════════════════════════════════ */
+header{text-align:center;padding:40px 0 30px;position:relative}
+.logo-wrap{display:inline-block;position:relative}
+.logo-glow{position:absolute;inset:-20px;background:radial-gradient(circle,rgba(255,184,0,0.12) 0%,transparent 70%);animation:breathe 3s ease-in-out infinite;pointer-events:none}
+.logo{display:inline-flex;align-items:center;gap:12px;position:relative}
+.logo-icon{width:44px;height:44px;display:grid;grid-template-columns:1fr 1fr;gap:4px;padding:8px;background:linear-gradient(135deg,rgba(255,184,0,0.15),rgba(255,184,0,0.1));border:1px solid rgba(255,184,0,0.3);border-radius:12px;position:relative;overflow:hidden}
+.logo-icon::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,transparent 40%,rgba(255,184,0,0.08));animation:shimmer-logo 2s ease-in-out infinite}
+.logo-icon span{background:var(--g);border-radius:3px;display:block;animation:pulse-block 2s ease-in-out infinite}
+.logo-icon span:nth-child(2){animation-delay:.3s}
+.logo-icon span:nth-child(3){animation-delay:.6s}
+.logo-icon span:nth-child(4){animation-delay:.9s}
+.logo-text{font-family:var(--display);font-size:2rem;font-weight:900;letter-spacing:6px;background:linear-gradient(135deg,#fff 0%,var(--g) 60%,var(--blue) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.logo-sub{font-family:var(--mono);font-size:0.6rem;color:var(--g);letter-spacing:4px;margin-top:6px;opacity:.7;animation:blink-cursor 1.5s step-end infinite}
+
+
+/* ═══════════════════════════════════════
+   CARDS
+═══════════════════════════════════════ */
+.card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:20px 18px;margin-bottom:14px;position:relative;overflow:hidden;backdrop-filter:blur(10px)}
+.card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(255,184,0,0.5),transparent);animation:shimmer 3s ease-in-out infinite}
+.card::after{content:'';position:absolute;top:0;left:0;bottom:0;width:1px;background:linear-gradient(180deg,var(--g),transparent);opacity:.3}
+.card-title{font-family:var(--display);font-size:0.52rem;font-weight:600;color:var(--g);text-transform:uppercase;letter-spacing:3px;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.card-title::before{content:'//';opacity:.5;font-family:var(--mono)}
+
+/* ═══════════════════════════════════════
+   FORM ELEMENTS
+═══════════════════════════════════════ */
+.field{margin-bottom:12px}
+.field label{display:block;font-family:var(--mono);font-size:0.62rem;color:var(--g);text-transform:uppercase;letter-spacing:2px;margin-bottom:5px;opacity:.8}
+.field input,.field select{width:100%;background:rgba(255,184,0,0.03);border:1px solid rgba(255,184,0,0.15);border-radius:10px;padding:11px 14px;color:#fff;font-family:var(--mono);font-size:0.85rem;outline:none;transition:all .2s;-webkit-appearance:none}
+.field input:focus,.field select:focus{border-color:rgba(255,184,0,0.5);background:rgba(255,184,0,0.05);box-shadow:0 0 0 3px rgba(255,184,0,0.07)}
+.field input::placeholder{color:rgba(255,255,255,0.18)}
+.field select option{background:#18151F;color:#fff}
+
+/* ═══════════════════════════════════════
+   BUTTONS
+═══════════════════════════════════════ */
+.btn{width:100%;padding:13px;border-radius:12px;border:none;font-family:var(--display);font-size:0.72rem;font-weight:700;letter-spacing:2px;cursor:pointer;transition:all .15s;position:relative;overflow:hidden}
+.btn::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,transparent 40%,rgba(255,255,255,0.08));pointer-events:none}
+.btn:active{transform:scale(0.98)}.btn:disabled{opacity:.35;cursor:not-allowed;transform:none}
+.btn-green{background:linear-gradient(135deg,#FF8C00,#FFB800);color:#000;box-shadow:0 0 20px rgba(255,184,0,0.25)}
+.btn-green:hover:not(:disabled){box-shadow:0 0 30px rgba(255,184,0,0.4);transform:translateY(-1px)}
+.btn-gold{background:linear-gradient(135deg,var(--gold),#ff9500);color:#000;box-shadow:0 0 20px rgba(255,184,0,0.25)}
+.btn-gold:hover:not(:disabled){box-shadow:0 0 30px rgba(255,184,0,0.4);transform:translateY(-1px)}
+.btn-outline{background:transparent;border:1px solid rgba(255,184,0,0.2);color:rgba(255,255,255,0.7)}
+.btn-outline:hover:not(:disabled){border-color:rgba(255,184,0,0.5);color:#fff;background:rgba(255,184,0,0.05)}
+.btn-sm{padding:7px 14px;font-size:0.6rem;width:auto;border-radius:8px}
+.btn-danger{background:linear-gradient(135deg,#FF8C00,#c0005a);color:#fff}
+
+/* ═══════════════════════════════════════
+   DOWNLOAD HERO (shown when ?ref= param)
+═══════════════════════════════════════ */
+#downloadHero{display:none}
+.dl-hero{background:linear-gradient(135deg,rgba(255,184,0,0.06),rgba(255,184,0,0.04));border:1px solid rgba(255,184,0,0.25);border-radius:20px;padding:28px 20px;text-align:center;margin-bottom:16px;position:relative;overflow:hidden}
+.dl-hero::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 50% 0%,rgba(255,184,0,0.08),transparent 60%);pointer-events:none}
+.dl-orbit{width:80px;height:80px;margin:0 auto 16px;position:relative}
+.dl-orbit-ring{position:absolute;inset:0;border-radius:50%;border:1px solid rgba(255,184,0,0.2);animation:spin-slow 8s linear infinite}
+.dl-orbit-ring:nth-child(2){inset:8px;animation-duration:5s;animation-direction:reverse;border-color:rgba(255,184,0,0.3)}
+.dl-orbit-dot{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:36px;height:36px;background:linear-gradient(135deg,var(--g),var(--blue));border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.2rem;box-shadow:0 0 20px rgba(255,184,0,0.4)}
+.dl-title{font-family:var(--display);font-size:1.3rem;font-weight:900;letter-spacing:3px;background:linear-gradient(135deg,#fff,var(--g));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:6px}
+.dl-sub{font-size:0.82rem;color:rgba(255,255,255,0.6);line-height:1.6;margin-bottom:6px}
+.dl-invited{font-family:var(--mono);font-size:0.7rem;color:var(--g);background:rgba(255,184,0,0.08);border:1px solid rgba(255,184,0,0.2);border-radius:8px;padding:6px 14px;display:inline-block;margin-bottom:18px}
+.dl-steps-row{display:flex;gap:10px;justify-content:center;margin-bottom:20px;flex-wrap:wrap}
+.dl-step-chip{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:8px 12px;font-size:0.68rem;color:rgba(255,255,255,0.7);display:flex;align-items:center;gap:6px;min-width:0;flex:1;max-width:140px}
+.dl-step-chip .num{font-family:var(--display);font-size:0.6rem;color:var(--g);font-weight:700;width:18px;height:18px;border-radius:50%;background:rgba(255,184,0,0.12);border:1px solid rgba(255,184,0,0.3);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.dl-btn{background:linear-gradient(135deg,#FF8C00,#FFB800);color:#000;border:none;border-radius:14px;width:100%;padding:16px;font-family:var(--display);font-size:0.85rem;font-weight:900;letter-spacing:2px;cursor:pointer;position:relative;overflow:hidden;box-shadow:0 0 40px rgba(255,184,0,0.3);animation:pulse-btn 2s ease-in-out infinite}
+.dl-btn::before{content:'';position:absolute;top:-50%;left:-60%;width:40%;height:200%;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.2),transparent);transform:skewX(-20deg);animation:btn-sheen 3s ease-in-out infinite}
+.dl-progress{margin-top:14px;font-family:var(--mono);font-size:0.6rem;color:var(--muted);display:flex;align-items:center;gap:8px;justify-content:center}
+.dl-progress-bar{flex:1;max-width:120px;height:3px;background:rgba(255,255,255,0.08);border-radius:99px;overflow:hidden}
+.dl-progress-fill{height:100%;background:var(--g);border-radius:99px;animation:progress-fill 1.5s ease-out forwards}
+
+/* ═══════════════════════════════════════
+   TIERS
+═══════════════════════════════════════ */
+.tiers-grid{display:flex;flex-direction:column;gap:8px;margin-bottom:4px}
+.tier-card{border-radius:14px;padding:14px 16px;cursor:pointer;transition:all .2s;border:1px solid rgba(255,255,255,0.06);position:relative;overflow:hidden;background:rgba(255,255,255,0.02)}
+.tier-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;opacity:.6}
+.tier-card.selected{transform:scale(1.01)}
+.tier-bronze.selected{border-color:var(--tier1);background:rgba(201,123,58,0.08);box-shadow:0 0 15px rgba(201,123,58,0.1)}
+.tier-bronze::before{background:linear-gradient(90deg,transparent,var(--tier1),transparent)}
+.tier-silver.selected{border-color:var(--tier2);background:rgba(168,168,168,0.08);box-shadow:0 0 15px rgba(168,168,168,0.1)}
+.tier-silver::before{background:linear-gradient(90deg,transparent,var(--tier2),transparent)}
+.tier-gold.selected{border-color:var(--tier3);background:rgba(255,215,0,0.07);box-shadow:0 0 15px rgba(255,215,0,0.1)}
+.tier-gold::before{background:linear-gradient(90deg,transparent,var(--tier3),transparent)}
+.tier-diamond.selected{border-color:var(--tier4);background:rgba(126,244,255,0.06);box-shadow:0 0 15px rgba(126,244,255,0.1)}
+.tier-diamond::before{background:linear-gradient(90deg,transparent,var(--tier4),transparent)}
+.tier-elite.selected{border-color:var(--tier5);background:rgba(255,121,198,0.07);box-shadow:0 0 15px rgba(255,121,198,0.1)}
+.tier-elite::before{background:linear-gradient(90deg,transparent,var(--tier5),transparent)}
+.tier-row{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.tier-left{display:flex;align-items:center;gap:10px}
+.tier-icon{font-size:1.5rem;width:36px;text-align:center}
+.tier-name{font-family:var(--display);font-size:0.75rem;font-weight:700}
+.tier-desc{font-size:0.62rem;color:var(--muted);margin-top:2px}
+.tier-right{text-align:right;flex-shrink:0}
+.tier-reward{font-family:var(--display);font-size:0.75rem;font-weight:700}
+.tier-sub{font-size:0.55rem;color:var(--muted);margin-top:2px}
+.tier-progress{margin-top:10px}
+.tier-progress-bar{height:3px;border-radius:99px;background:rgba(255,255,255,0.06);overflow:hidden;margin-top:5px}
+.tier-progress-fill{height:100%;border-radius:99px;transition:width .6s cubic-bezier(.4,0,.2,1)}
+.tier-progress-lbl{font-family:var(--mono);font-size:0.52rem;color:var(--muted);margin-top:3px}
+.tier-check{position:absolute;top:10px;right:12px;font-size:0.65rem;color:var(--g);opacity:0;transition:opacity .2s}
+.tier-card.selected .tier-check{opacity:1}
+
+/* ═══════════════════════════════════════
+   CODE BOX
+═══════════════════════════════════════ */
+.code-box{background:rgba(255,184,0,0.04);border:1px solid rgba(255,184,0,0.25);border-radius:12px;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px;position:relative;overflow:hidden}
+.code-box::before{content:'';position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,184,0,0.03),transparent);animation:shimmer 3s ease-in-out infinite}
+.code-val{font-family:var(--mono);font-size:1.3rem;color:var(--g);letter-spacing:4px;text-shadow:0 0 12px rgba(255,184,0,0.4)}
+.copy-btn{background:rgba(255,184,0,0.1);border:1px solid rgba(255,184,0,0.25);color:var(--g);border-radius:8px;padding:7px 14px;font-family:var(--display);font-size:0.6rem;font-weight:600;letter-spacing:1.5px;cursor:pointer;transition:all .15s;white-space:nowrap}
+.copy-btn:hover{background:rgba(255,184,0,0.18);box-shadow:0 0 10px rgba(255,184,0,0.2)}
+.copy-btn.copied{color:#000;background:var(--g)}
+.link-box{background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.07);border-radius:10px;padding:10px 14px;font-family:var(--mono);font-size:0.62rem;color:rgba(255,255,255,0.4);word-break:break-all;line-height:1.5;margin-bottom:10px;cursor:pointer;transition:all .2s}
+.link-box:hover{border-color:rgba(255,184,0,0.2);color:rgba(255,255,255,0.7)}
+
+/* ═══════════════════════════════════════
+   SHARE OPTIONS
+═══════════════════════════════════════ */
+.share-options{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:10px}
+.share-opt{background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.07);border-radius:12px;padding:10px 8px;text-align:center;cursor:pointer;transition:all .15s;font-family:var(--font)}
+.share-opt:hover{border-color:rgba(255,184,0,0.25);background:rgba(255,184,0,0.04);transform:translateY(-1px)}
+.share-opt:active{transform:scale(0.97)}
+.share-opt .s-icon{font-size:1.3rem;margin-bottom:4px}
+.share-opt .s-name{font-size:0.65rem;font-weight:600;color:#fff}
+.share-opt .s-desc{font-size:0.52rem;color:var(--muted);margin-top:1px}
+
+/* ═══════════════════════════════════════
+   TABS
+═══════════════════════════════════════ */
+.tabs{display:flex;gap:4px;margin-bottom:16px}
+.tab{flex:1;padding:8px 2px;border-radius:10px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);color:var(--muted);font-family:var(--display);font-size:0.5rem;font-weight:700;letter-spacing:1px;cursor:pointer;text-align:center;transition:all .15s}
+.tab.active{background:rgba(255,184,0,0.08);border-color:rgba(255,184,0,0.35);color:var(--g);box-shadow:0 0 12px rgba(255,184,0,0.1)}
+
+/* ═══════════════════════════════════════
+   STATS
+═══════════════════════════════════════ */
+.stats-bar{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:14px}
+.stat{background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.07);border-radius:12px;padding:12px 8px;text-align:center;position:relative;overflow:hidden;transition:all .2s}
+.stat:hover{border-color:rgba(255,184,0,0.2);transform:translateY(-1px)}
+.stat-val{font-family:var(--display);font-size:1.3rem;font-weight:900;color:var(--g);text-shadow:0 0 10px rgba(255,184,0,0.3)}
+.stat-lbl{font-family:var(--mono);font-size:0.48rem;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;margin-top:3px}
+
+/* ═══════════════════════════════════════
+   REWARD BOX
+═══════════════════════════════════════ */
+.reward-box{background:linear-gradient(135deg,rgba(255,184,0,0.07),rgba(255,100,0,0.04));border:1px solid rgba(255,184,0,0.3);border-radius:16px;padding:20px;text-align:center;margin-bottom:14px;position:relative;overflow:hidden}
+.reward-box::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);animation:shimmer 2s ease-in-out infinite}
+.reward-code-box{background:rgba(255,184,0,0.08);border:1px solid rgba(255,184,0,0.3);border-radius:10px;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:10px}
+.reward-code-val{font-family:var(--mono);font-size:1rem;color:var(--gold);letter-spacing:3px;text-shadow:0 0 10px rgba(255,184,0,0.3)}
+
+/* ═══════════════════════════════════════
+   BENEFIT GRID
+═══════════════════════════════════════ */
+.benefit-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:12px}
+.benefit-btn{background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.07);border-radius:12px;padding:12px 8px;text-align:center;cursor:pointer;transition:all .15s;font-family:var(--font)}
+.benefit-btn:hover{border-color:rgba(255,184,0,0.25);background:rgba(255,184,0,0.04);transform:translateY(-1px)}
+.benefit-btn.selected{border-color:var(--g);background:rgba(255,184,0,0.07);box-shadow:0 0 12px rgba(255,184,0,0.1)}
+.benefit-btn .b-icon{font-size:1.3rem;margin-bottom:4px}
+.benefit-btn .b-name{font-size:0.65rem;font-weight:700;color:#fff;display:block}
+.benefit-btn .b-desc{font-size:0.52rem;color:var(--muted);display:block;margin-top:2px}
+
+/* ═══════════════════════════════════════
+   MISC
+═══════════════════════════════════════ */
+.badge{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:20px;font-family:var(--mono);font-size:0.56rem;font-weight:700;letter-spacing:.8px}
+.badge-green{background:rgba(255,184,0,0.08);color:var(--g);border:1px solid rgba(255,184,0,0.2)}
+.badge-gold{background:rgba(255,184,0,0.08);color:var(--gold);border:1px solid rgba(255,184,0,0.2)}
+.badge-red{background:rgba(255,80,80,0.08);color:#ff6b6b;border:1px solid rgba(255,80,80,0.2)}
+.ref-list{display:flex;flex-direction:column;gap:7px}
+.ref-item{display:flex;align-items:center;justify-content:space-between;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:10px;padding:10px 13px;transition:border-color .2s}
+.ref-item:hover{border-color:rgba(255,184,0,0.15)}
+.ref-item .ref-name{font-size:0.75rem;font-weight:600}
+.ref-item .ref-time{font-family:var(--mono);font-size:0.54rem;color:var(--muted);margin-top:2px}
+.divider{display:flex;align-items:center;gap:10px;margin:14px 0;color:var(--muted);font-family:var(--mono);font-size:0.58rem;letter-spacing:1px}
+.divider::before,.divider::after{content:'';flex:1;height:1px;background:rgba(255,255,255,0.06)}
+.error-msg{font-family:var(--mono);font-size:0.62rem;color:#ff6b6b;background:rgba(255,80,80,0.07);border:1px solid rgba(255,80,80,0.2);border-radius:8px;padding:8px 12px;margin-top:7px;display:none}
+.spinner{width:18px;height:18px;border:2px solid rgba(255,255,255,0.08);border-top-color:var(--g);border-radius:50%;animation:spin .7s linear infinite;display:inline-block}
+.live-dot{width:6px;height:6px;border-radius:50%;background:var(--g);display:inline-block;margin-right:5px;box-shadow:0 0 6px var(--g);animation:pulse-dot 1.5s ease-in-out infinite}
+.panel{display:none}.panel.active{display:block}
+.tab-panel{display:none}
+.steps{display:flex;flex-direction:column;gap:10px;margin-bottom:16px}
+.step{display:flex;align-items:flex-start;gap:12px}
+.step-num{width:24px;height:24px;border-radius:50%;background:rgba(255,184,0,0.08);border:1px solid rgba(255,184,0,0.3);color:var(--g);font-family:var(--mono);font-size:0.62rem;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 0 8px rgba(255,184,0,0.1)}
+.step-text{font-size:0.75rem;color:rgba(255,255,255,0.65);line-height:1.6;padding-top:3px}
+.step-text strong{color:#fff}
+.countdown{font-family:var(--mono);font-size:0.72rem;color:var(--gold);background:rgba(255,184,0,0.07);border:1px solid rgba(255,184,0,0.2);border-radius:8px;padding:5px 12px;display:inline-block;margin-top:6px;letter-spacing:1px}
+
+/* ═══════════════════════════════════════
+   TOAST
+═══════════════════════════════════════ */
+#toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(100px);background:rgba(8,13,26,0.95);border:1px solid rgba(255,184,0,0.2);border-radius:12px;padding:10px 20px;font-family:var(--mono);font-size:0.7rem;color:#fff;z-index:9999;transition:transform .3s cubic-bezier(.4,0,.2,1);white-space:nowrap;pointer-events:none;backdrop-filter:blur(10px)}
+#toast.show{transform:translateX(-50%) translateY(0)}
+#toast.green{border-color:rgba(255,184,0,0.4);color:var(--g);box-shadow:0 0 20px rgba(255,184,0,0.1)}
+#toast.gold{border-color:rgba(255,184,0,0.4);color:var(--gold)}
+#toast.red{border-color:rgba(255,80,80,0.4);color:#ff6b6b}
+
+/* ═══════════════════════════════════════
+   GREETING / SIGN OUT BAR
+═══════════════════════════════════════ */
+.dash-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;background:rgba(255,184,0,0.03);border:1px solid rgba(255,184,0,0.1);border-radius:14px;padding:12px 16px}
+.dash-greeting{font-family:var(--display);font-size:0.9rem;font-weight:700;letter-spacing:1px}
+.dash-sub{font-family:var(--mono);font-size:0.55rem;color:var(--muted);margin-top:3px;display:flex;align-items:center}
+
+/* ═══════════════════════════════════════
+   ACTIVE TIER BOX
+═══════════════════════════════════════ */
+#activeTierBox{background:rgba(255,184,0,0.03);border:1px solid rgba(255,184,0,0.15);border-radius:10px;padding:10px 14px;margin-top:8px;font-size:0.72rem;color:rgba(255,255,255,0.75);line-height:1.6;display:none}
+
+/* Main code label */
+.main-code-label{font-family:var(--mono);font-size:0.58rem;color:rgba(255,184,0,0.65);background:rgba(255,184,0,0.05);border:1px solid rgba(255,184,0,0.15);border-radius:8px;padding:7px 12px;margin-bottom:12px;line-height:1.7}
+/* Tier code chips in My Codes tab */
+.tc-chip{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:11px 14px;border-radius:12px;margin-bottom:8px;cursor:pointer;transition:background .15s}
+.tc-chip:hover{filter:brightness(1.12)}
+.tc-chip-code{font-family:var(--mono);font-size:1rem;letter-spacing:3px;font-weight:700}
+.tc-chip-hint{font-family:var(--display);font-size:0.52rem;letter-spacing:1px;opacity:.6;flex-shrink:0}
+
+
+#tierCodeModal{display:none;position:fixed;inset:0;z-index:9997;background:rgba(0,0,0,0.78);backdrop-filter:blur(7px);align-items:center;justify-content:center;padding:20px;}
+.tier-code-modal-inner{background:#0F0D14;border-radius:22px;padding:28px 22px;max-width:360px;width:100%;text-align:center;position:relative;box-shadow:0 0 60px rgba(255,184,0,0.1);}
+.tier-code-modal-inner::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;border-radius:22px 22px 0 0;background:linear-gradient(90deg,transparent,var(--tier-accent,var(--g)),transparent);}
+#tcmCodeBox{background:rgba(255,184,0,0.05);border:1px solid rgba(255,184,0,0.28);border-radius:14px;padding:16px 18px;display:flex;align-items:center;justify-content:space-between;gap:12px;margin:16px 0 10px;cursor:pointer;transition:background .15s;}
+#tcmCodeBox:hover{background:rgba(255,184,0,0.1);}
+#tcmCodeBox:active{transform:scale(0.98);}
+#tcmCodeVal{font-family:var(--mono);font-size:1.4rem;color:var(--g);letter-spacing:4px;text-shadow:0 0 14px rgba(255,184,0,0.5);}
+#tcmCopyHint{font-family:var(--display);font-size:0.58rem;color:rgba(255,184,0,0.6);letter-spacing:1.5px;flex-shrink:0;transition:color .2s;}
+#tcmShareLink{background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:9px 14px;font-family:var(--mono);font-size:0.6rem;color:rgba(255,255,255,0.38);word-break:break-all;line-height:1.5;margin-bottom:14px;cursor:pointer;transition:all .2s;}
+#tcmShareLink:hover{border-color:rgba(255,184,0,0.22);color:rgba(255,255,255,0.7);}
+
+/* ═══════════════════════════════════════
+   KEYFRAMES
+═══════════════════════════════════════ */
+@keyframes breathe{0%,100%{opacity:.5;transform:scale(1)}50%{opacity:1;transform:scale(1.05)}}
+@keyframes shimmer{0%{background-position:-200% center}100%{background-position:200% center}}
+@keyframes shimmer-logo{0%,100%{opacity:0;transform:translateX(-100%)}50%{opacity:1;transform:translateX(100%)}}
+@keyframes scan{0%{top:0;opacity:0}10%{opacity:.4}90%{opacity:.4}100%{top:100%;opacity:0}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes spin-slow{to{transform:rotate(360deg)}}
+@keyframes blink-cursor{0%,100%{opacity:.7}50%{opacity:.2}}
+@keyframes pulse-block{0%,100%{opacity:1}50%{opacity:.4}}
+@keyframes pulse-dot{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.7)}}
+@keyframes pulse-btn{0%,100%{box-shadow:0 0 30px rgba(255,184,0,0.25)}50%{box-shadow:0 0 50px rgba(255,184,0,0.45)}}
+@keyframes btn-sheen{0%{left:-60%}100%{left:160%}}
+@keyframes progress-fill{from{width:0}to{width:100%}}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+.fade-in{animation:fadeIn .4s ease forwards}
+
+/* ═══════════════════════════════════════
+   DAVID 2.0 TEASER — ENHANCED
+═══════════════════════════════════════ */
+.d2-teaser{text-align:center;padding:28px 18px 26px;overflow:hidden;position:relative;}
+.d2-teaser::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,0,0,0.04) 3px,rgba(0,0,0,0.04) 4px);pointer-events:none;z-index:0;border-radius:inherit;}
+.d2-teaser::after{content:'';position:absolute;inset:12px;border:1px solid rgba(255,184,0,0.07);border-radius:10px;pointer-events:none;}
+.d2-teaser>*{position:relative;z-index:1;}
+.d2-orbit{position:relative;width:160px;height:160px;margin:0 auto 20px;display:flex;align-items:center;justify-content:center;}
+.d2-ring{position:absolute;border-radius:50%;border:1.5px solid rgba(255,184,0,0.22);}
+.d2-ring-1{width:64px;height:64px;animation:d2-spin 5s linear infinite;}
+.d2-ring-2{width:104px;height:104px;border-color:rgba(126,244,255,0.16);animation:d2-spin 9s linear infinite reverse;}
+.d2-ring-3{width:150px;height:150px;border-color:rgba(255,121,198,0.13);animation:d2-spin 15s linear infinite;}
+.d2-ring-4{width:64px;height:64px;border-style:dashed;border-color:rgba(255,184,0,0.1);animation:d2-spin 20s linear infinite reverse;}
+.d2-core{position:relative;font-size:2.3rem;animation:d2-pulse 2.4s ease-in-out infinite;filter:drop-shadow(0 0 18px rgba(255,184,0,0.55));}
+.d2-spark{position:absolute;font-size:0.8rem;opacity:0;animation:d2-orbit-spark 6s linear infinite;}
+.d2-spark-a{animation-delay:0s;}.d2-spark-b{animation-delay:2s;}.d2-spark-c{animation-delay:4s;}
+.d2-spark-d{font-size:0.65rem;animation-delay:1s;animation-duration:8s;}
+.d2-dot{position:absolute;width:3px;height:3px;border-radius:50%;background:rgba(255,184,0,0.6);animation:d2-float-dot 4s ease-in-out infinite;}
+.d2-dot:nth-child(1){top:14%;left:8%;animation-delay:0s;background:rgba(126,244,255,0.7);}
+.d2-dot:nth-child(2){top:70%;left:5%;animation-delay:.8s;}
+.d2-dot:nth-child(3){top:22%;right:6%;animation-delay:1.4s;background:rgba(255,121,198,0.7);}
+.d2-dot:nth-child(4){top:78%;right:9%;animation-delay:2.1s;}
+.d2-dot:nth-child(5){top:50%;left:2%;animation-delay:3s;background:rgba(126,244,255,0.5);}
+.d2-dot:nth-child(6){top:40%;right:3%;animation-delay:1.8s;background:rgba(255,121,198,0.5);}
+@keyframes d2-float-dot{0%,100%{transform:translateY(0) scale(1);opacity:0.5}50%{transform:translateY(-10px) scale(1.5);opacity:1}}
+@keyframes d2-spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+@keyframes d2-pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.15)}}
+@keyframes d2-orbit-spark{
+  0%{opacity:0;transform:rotate(0deg) translateX(80px) scale(0.6)}
+  10%{opacity:1}90%{opacity:1}
+  100%{opacity:0;transform:rotate(360deg) translateX(80px) scale(0.6)}
+}
+.d2-title{font-family:var(--display);font-size:1.6rem;font-weight:900;letter-spacing:5px;background:linear-gradient(135deg,#fff 0%,#ffb800 30%,#ff79c6 60%,#7ef4ff 80%,#fff 100%);background-size:300% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:d2-shimmer 4s linear infinite;position:relative;}
+.d2-title::after{content:'DAVID 2.0';position:absolute;left:2px;top:2px;background:linear-gradient(135deg,rgba(126,244,255,0.35),transparent);-webkit-background-clip:text;background-clip:text;color:transparent;animation:d2-glitch 7s steps(1) infinite;pointer-events:none;}
+@keyframes d2-shimmer{0%{background-position:0% 50%}100%{background-position:300% 50%}}
+@keyframes d2-glitch{0%,92%,100%{transform:translate(0);opacity:0}93%{transform:translate(-2px,1px);opacity:.6}95%{transform:translate(2px,-1px);opacity:.4}97%{transform:translate(-1px,0);opacity:.7}}
+
+.d2-sub{font-family:var(--mono);font-size:0.66rem;color:rgba(255,255,255,0.42);margin-top:12px;line-height:1.8;max-width:290px;margin-left:auto;margin-right:auto;}
+
+.d2-badge{display:inline-block;margin-top:14px;padding:7px 18px;border-radius:99px;background:rgba(255,184,0,0.1);border:1px solid rgba(255,184,0,0.35);color:var(--g);font-family:var(--display);font-size:0.6rem;font-weight:800;letter-spacing:3px;animation:pulse-btn 2.5s ease-in-out infinite;}
+
+
+
+.d2-install-note{display:flex;align-items:flex-start;gap:10px;margin-top:22px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:12px 14px;font-family:var(--mono);font-size:0.6rem;color:rgba(255,255,255,0.55);line-height:1.7;text-align:left;}
+.d2-install-note strong{color:rgba(255,255,255,0.85);}
+.d2-install-icon{font-size:1rem;flex-shrink:0;margin-top:1px;}
+.d2-footnote{margin-top:14px;font-family:var(--mono);font-size:0.53rem;color:rgba(255,255,255,0.22);letter-spacing:0.5px;line-height:1.8;}
+
+/* ═══════════════════════════════════════
+   PARTICLE FIELD (canvas bg)
+═══════════════════════════════════════ */
+</style>
+</head>
+<body>
+<canvas id="bg-canvas"></canvas>
+<div class="noise"></div>
+<div id="toast"></div>
+
+<div class="wrap">
+
+<!-- HEADER -->
+<header>
+
+  <div class="logo-wrap">
+    <div class="logo-glow"></div>
+    <div class="logo">
+      <div class="logo-icon"><span></span><span></span><span></span><span></span></div>
+      <span class="logo-text">PUZZLR</span>
+    </div>
+  </div>
+  <div class="logo-sub">SHARE_SYSTEM v3.0 // DAVID AI &gt;_</div>
+</header>
+
+<!-- ══════════════════════════════════════
+     DOWNLOAD HERO (shown when ?ref= link)
+══════════════════════════════════════ -->
+<div id="downloadHero">
+  <div class="dl-hero fade-in">
+    <div class="dl-orbit">
+      <div class="dl-orbit-ring"></div>
+      <div class="dl-orbit-ring"></div>
+      <div class="dl-orbit-dot">🧩</div>
+    </div>
+    <div class="dl-title">YOU'VE BEEN INVITED</div>
+    <div class="dl-sub">Your friend wants you on <strong style="color:#fff">PUZZLR</strong>.<br>Download is starting automatically...</div>
+    <div class="dl-invited" id="inviterLabel">Invited by a friend</div>
+    <div class="dl-steps-row">
+      <div class="dl-step-chip"><div class="num">1</div>Download installs</div>
+      <div class="dl-step-chip"><div class="num">2</div>Open PUZZLR app</div>
+      <div class="dl-step-chip"><div class="num">3</div>Confirm their code</div>
+    </div>
+    <button class="dl-btn" onclick="triggerDownload()">⬇ DOWNLOAD PUZZLR APK</button>
+    <div class="dl-progress">
+      <span>Preparing download</span>
+      <div class="dl-progress-bar"><div class="dl-progress-fill"></div></div>
+      <span id="dlPercent">0%</span>
+    </div>
+    <div style="margin-top:10px;font-size:0.6rem;color:rgba(255,255,255,0.3);font-family:var(--mono)">
+      Android APK · Free · No ads
+    </div>
+    <div style="margin-top:14px;background:rgba(255,184,0,0.04);border:1px solid rgba(255,184,0,0.15);border-radius:10px;padding:11px 14px;font-family:var(--mono);font-size:0.58rem;line-height:1.7;color:rgba(255,255,255,0.45);text-align:left;display:flex;gap:10px;align-items:flex-start;">
+      <span style="font-size:0.82rem;line-height:1.4;flex-shrink:0;">📲</span>
+      <span>If Android shows <strong style="color:rgba(255,255,255,0.75);">"Install anyway"</strong> — tap it. This appears for all apps downloaded outside the Play Store. PUZZLR is safe to install.</span>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════
+     PANEL: LANDING
+══════════════════════════════════════ -->
+<div id="panelLanding" class="panel active">
+  <div class="card fade-in">
+    <div class="card-title">How It Works</div>
+    <div class="steps">
+      <div class="step"><div class="step-num">1</div><div class="step-text"><strong>Download the APK</strong> and create your account inside the app — registration is in-app only.</div></div>
+      <div class="step"><div class="step-num">2</div><div class="step-text"><strong>Start a tier</strong> — each tier generates its own share code (e.g. <span style="font-family:var(--mono);color:var(--g);">starter-3732</span>)</div></div>
+      <div class="step"><div class="step-num">3</div><div class="step-text"><strong>Friends confirm your code on their APK</strong> — when they enter it at the gate, your tier progress is credited.</div></div>
+      <div class="step"><div class="step-num">4</div><div class="step-text"><strong>Login here with your APK email</strong> to track your tiers and rewards.</div></div>
+    </div>
+
+    <!-- WARNING BLOCK -->
+    <div style="background:rgba(255,59,92,0.06);border:1px solid rgba(255,59,92,0.25);border-radius:12px;padding:13px 15px;margin-bottom:16px;font-size:0.59rem;color:rgba(255,160,160,0.85);line-height:1.9;">
+      <div style="font-weight:700;color:#ff6b6b;margin-bottom:6px;letter-spacing:0.4px;">⚠️ IMPORTANT — PLEASE READ</div>
+      <div>⛔ <strong>Do not delete the APK, cache or data</strong> — all your progress will be permanently lost.</div>
+      <div>🔐 <strong>Accounts are created inside the APK only.</strong> This website does not register new accounts.</div>
+      <div>📧 <strong>Your email is permanent</strong> — it is set in the APK and cannot be changed. Choose carefully.</div>
+      <div>✅ <strong>Confirm referral codes on the APK</strong> — not on this website.</div>
+      <div>🚫 <strong>Fraud and illegal acts</strong> are tracked by the backend. Violations result in permanent account suspension with all progress lost forever.</div>
+    </div>
+
+    <!-- Auto-return card (device already bound) -->
+    <div id="welcomeBackBox" style="display:none;">
+      <div style="background:rgba(0,255,136,0.05);border:1px solid rgba(0,255,136,0.2);border-radius:10px;padding:14px 16px;margin-bottom:14px;font-family:'Share Tech Mono',monospace;font-size:0.62rem;color:rgba(255,255,255,0.6);line-height:1.7;">
+        Welcome back — <strong style="color:#00ff88;" id="welcomeBackName">AGENT</strong>. Your account was found automatically.
+      </div>
+      <button class="btn btn-green" id="welcomeBackBtn" onclick="signBackIn()" style="margin-top:2px;">▶ CONTINUE TO MY ACCOUNT</button>
+    </div>
+
+    <!-- Email login form (login only, no registration) -->
+    <div id="regFormBox">
+      <div class="field">
+        <label>Your APK Email</label>
+        <input type="email" id="regEmail" placeholder="The email you set inside the Puzzlr APK" autocomplete="off"
+          oninput="(function(){var b=document.getElementById('login2faBlock');if(b&&b.getAttribute('data-tfa-ready')==='1'){b.style.display='none';b.removeAttribute('data-tfa-ready');var i=document.getElementById('login2faCodeInput');if(i)i.value='';var e=document.getElementById('login2faError');if(e)e.style.display='none';var el=document.getElementById('regEmail');if(el){el.style.opacity='';el.style.pointerEvents='';}document.getElementById('regBtn').textContent='LOGIN WITH EMAIL →';}})()">
+        <div style="font-size:0.54rem;color:rgba(255,184,0,0.55);margin-top:4px;line-height:1.6;">📧 This must match the email you entered when creating your account in the APK. Your email is permanent and cannot be changed.</div>
+        <div style="font-size:0.54rem;color:rgba(255,100,100,0.65);margin-top:3px;line-height:1.6;">🚫 Fraud and illegal acts are monitored. Violations lead to permanent suspension.</div>
+      </div>
+
+      <!-- 2FA step — shown only after the email is found -->
+      <div id="login2faBlock" style="display:none;margin-top:10px;margin-bottom:4px;background:rgba(255,184,0,0.04);border:1px solid rgba(255,184,0,0.18);border-radius:10px;padding:12px 14px;">
+        <div style="font-size:0.6rem;font-weight:700;color:rgba(255,184,0,0.8);text-transform:uppercase;letter-spacing:2px;margin-bottom:5px;">🔐 Verify your identity</div>
+        <div style="font-size:0.54rem;color:rgba(255,255,255,0.35);margin-bottom:8px;line-height:1.6;">Enter your <strong style="color:rgba(255,184,0,0.65);">main code</strong> — the one shown inside the Puzzlr APK (e.g. <span style="font-family:monospace;color:rgba(255,184,0,0.7);">john-3682</span>).</div>
+        <input type="text" id="login2faCodeInput" placeholder="yourname-xxxxx" maxlength="32" autocomplete="off"
+          style="width:100%;box-sizing:border-box;background:rgba(255,255,255,0.04);border:1px solid rgba(255,184,0,0.25);border-radius:8px;padding:10px 13px;color:#fff;font-family:'Share Tech Mono',monospace;font-size:0.85rem;letter-spacing:2px;outline:none;"
+          oninput="this.value=this.value.toLowerCase().replace(/\s/g,'');document.getElementById('login2faError').style.display='none'">
+        <div id="login2faError" style="display:none;font-size:0.62rem;color:#ff6b6b;background:rgba(255,80,80,0.07);border:1px solid rgba(255,80,80,0.2);border-radius:7px;padding:7px 10px;margin-top:6px;"></div>
+      </div>
+
+      <!-- hidden compat fields so existing JS references don't break -->
+      <input type="hidden" id="regName" value="">
+      <input type="checkbox" id="regAck" checked style="display:none;">
+      <div id="regError" class="error-msg"></div>
+      <button class="btn btn-green" id="regBtn" onclick="loginWithEmail()" style="margin-top:6px;">LOGIN WITH EMAIL →</button>
+      <div style="font-size:0.55rem;color:rgba(255,255,255,0.3);text-align:center;margin-top:10px;line-height:1.6;">No account? Download the APK and create one there. This website is login-only.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     PANEL: DASHBOARD
+══════════════════════════════════════ -->
+<div id="panelDash" class="panel">
+
+  <div class="dash-header fade-in">
+    <div>
+      <div class="dash-greeting" id="dashGreeting">AGENT —</div>
+      <div class="dash-sub"><span class="live-dot"></span>LIVE SYNC ACTIVE</div>
+      <div id="dashEmailDisplay" style="font-size:0.52rem;color:rgba(255,184,0,0.55);margin-top:3px;font-family:'Share Tech Mono',monospace;"></div>
+    </div>
+    <button class="btn btn-outline" onclick="renameAccount()" style="width:auto;padding:7px 14px;font-size:0.6rem;">✏️ RENAME</button>
+  </div>
+  <!-- Permanent fraud + account warning -->
+  <div style="background:rgba(255,59,92,0.05);border:1px solid rgba(255,59,92,0.18);border-radius:11px;padding:10px 13px;margin-bottom:12px;font-size:0.54rem;color:rgba(255,160,160,0.8);line-height:1.85;">
+    <div>📧 <strong>Email is permanent</strong> — set in the APK, cannot be changed here. <span id="dashEmailInline" style="color:rgba(255,184,0,0.6);"></span></div>
+    <div>🚫 <strong>Fraud and illegal acts</strong> are tracked by the backend and result in permanent account suspension with all progress lost forever. Do not even try.</div>
+    <div>⛔ <strong>Do not delete the APK</strong> — all progress will be lost.</div>
+  </div>
+
+  <!-- LIVE ACTIVITY TICKER -->
+  <div id="liveActivityBar" style="background:rgba(0,255,136,0.04);border:1px solid rgba(0,255,136,0.15);border-radius:12px;padding:10px 14px;margin-bottom:14px;display:none;overflow:hidden;position:relative;">
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+      <span style="width:6px;height:6px;border-radius:50%;background:#00ff88;display:inline-block;box-shadow:0 0 6px #00ff88;animation:pulse-dot 1.5s ease-in-out infinite;flex-shrink:0;"></span>
+      <span style="font-family:'Orbitron',sans-serif;font-size:0.48rem;font-weight:700;letter-spacing:2px;color:rgba(0,255,136,0.7);">LIVE ACTIVITY</span>
+    </div>
+    <div id="liveActivityList" style="display:flex;flex-direction:column;gap:5px;max-height:90px;overflow:hidden;"></div>
+  </div>
+
+  <!-- TABS -->
+  <div class="tabs">
+    <div class="tab active" id="tabShare"    onclick="switchTab('share')">📤 MY CODES</div>
+    <div class="tab"        id="tabProgress" onclick="switchTab('progress')">⚙️ PROGRESS</div>
+    <div class="tab"        id="tabConfirm"  onclick="switchTab('confirm')">🚀 DAVID 2.0</div>
+    <div class="tab"        id="tabRewards"  onclick="switchTab('rewards')">🎁 REWARDS</div>
+  </div>
+
+  <!-- ─── TAB: MY CODE ─── -->
+  <div id="tabSharePanel" class="tab-panel" style="display:block;">
+
+    <div class="card">
+      <div class="card-title">Your Main Code (Login Password)</div>
+      <div class="main-code-label">🔑 This is your <strong style="color:#FFB800;">login password</strong> — use it to sign back in anytime. Format: <strong style="color:#FFB800;">yourname-xxxxx</strong> (e.g. <span style="color:var(--g);">john-wghgw</span>)</div>
+      <div class="code-box" onclick="copyCode()" style="cursor:pointer;">
+        <span class="code-val" id="myCode" style="font-size:1rem;letter-spacing:3px;">—</span>
+        <span id="codeCopyHint" style="font-size:0.58rem;color:rgba(255,184,0,0.6);letter-spacing:1px;flex-shrink:0;font-family:var(--display);">TAP TO COPY</span>
+      </div>
+    </div>
+
+    <!-- Tier share codes — one per started tier -->
+    <div class="card">
+      <div class="card-title">Tier Share Codes</div>
+      <div style="font-family:var(--mono);font-size:0.58rem;color:rgba(255,255,255,0.38);margin-bottom:12px;line-height:1.7;">Each tier has its own unique code. Start a tier below, then share <strong style="color:#fff;">that tier's code</strong> — friends confirm it to count toward <em>that specific tier</em>.</div>
+      <div id="tierCodesPanel">
+        <div style="font-family:var(--mono);font-size:0.6rem;color:rgba(255,255,255,0.28);text-align:center;padding:10px 0;">Start a tier below to generate its unique share code.</div>
+      </div>
+    </div>
+
+    <!-- TIERS -->
+    <div class="card">
+      <div class="card-title">Sharing Tier</div>
+      <div class="tiers-grid">
+
+        <!-- STARTER -->
+        <div class="tier-card tier-bronze" id="tierCard_starter" onclick="confirmTierStart('starter')">
+          <div class="tier-check">✓</div>
+          <div class="tier-row">
+            <div class="tier-left">
+              <div class="tier-icon">🥉</div>
+              <div>
+                <div class="tier-name" style="color:var(--tier1);">STARTER</div>
+                <div class="tier-desc">Share to <strong style="color:#fff;">1 person</strong></div>
+              </div>
+            </div>
+            <div class="tier-right">
+              <div class="tier-reward" style="color:var(--tier1);">2 days</div>
+              <div class="tier-sub">reward window</div>
+            </div>
+          </div>
+          <div style="margin-top:9px;display:grid;grid-template-columns:1fr 1fr;gap:4px;">
+            <div style="background:rgba(201,123,58,0.07);border:1px solid rgba(201,123,58,0.16);border-radius:7px;padding:5px 8px;font-size:0.58rem;color:rgba(255,255,255,0.65);">🎟️ +1 Pass</div>
+            <div style="background:rgba(201,123,58,0.07);border:1px solid rgba(201,123,58,0.16);border-radius:7px;padding:5px 8px;font-size:0.58rem;color:rgba(255,255,255,0.65);">💡 +1 Hint</div>
+            <div style="background:rgba(201,123,58,0.07);border:1px solid rgba(201,123,58,0.16);border-radius:7px;padding:5px 8px;font-size:0.58rem;color:rgba(255,255,255,0.65);">🪙 +50 Coins</div>
+            <div style="background:rgba(201,123,58,0.07);border:1px solid rgba(201,123,58,0.16);border-radius:7px;padding:5px 8px;font-size:0.58rem;color:rgba(255,255,255,0.65);">⚡ +50 XP</div>
+          </div>
+          <div style="margin-top:8px;display:flex;align-items:center;justify-content:space-between;">
+            <div class="tier-progress" style="margin-top:0;flex:1;margin-right:10px;">
+              <div class="tier-progress-lbl">Progress: <span id="tierProg_starter">0</span> / 1</div>
+              <div class="tier-progress-bar"><div class="tier-progress-fill" id="tierFill_starter" style="width:0%;background:var(--tier1);"></div></div>
+            </div>
+            <span id="tierDone_starter" style="display:none;font-family:var(--mono);font-size:0.55rem;color:var(--tier1);letter-spacing:1px;">DONE ✓</span><button id="tierReset_starter" onclick="event.stopPropagation();resetSingleTier('starter')" style="display:none;margin-left:6px;background:rgba(255,255,255,0.06);border:1px solid var(--tier1);color:var(--tier1);border-radius:6px;padding:3px 8px;font-family:var(--mono);font-size:0.5rem;letter-spacing:0.5px;cursor:pointer;">↻ RESTART</button>
+          </div>
+          <div style="margin-top:6px;font-family:var(--mono);font-size:0.5rem;color:rgba(201,123,58,0.6);display:flex;align-items:center;gap:4px;">
+            <span style="width:5px;height:5px;border-radius:50%;background:rgba(201,123,58,0.8);display:inline-block;animation:pulse-dot 1.5s ease-in-out infinite;"></span>
+            <span id="tierLiveCount_starter">— users completed</span>
+          </div>
+        </div>
+
+        <!-- BRONZE -->
+        <div class="tier-card tier-silver" id="tierCard_bronze" onclick="confirmTierStart('bronze')">
+          <div class="tier-check">✓</div>
+          <div class="tier-row">
+            <div class="tier-left">
+              <div class="tier-icon">🥈</div>
+              <div>
+                <div class="tier-name" style="color:var(--tier2);">BRONZE</div>
+                <div class="tier-desc">Share to <strong style="color:#fff;">3 people</strong></div>
+              </div>
+            </div>
+            <div class="tier-right">
+              <div class="tier-reward" style="color:var(--tier2);">4 days</div>
+              <div class="tier-sub">reward window</div>
+            </div>
+          </div>
+          <div style="margin-top:9px;display:grid;grid-template-columns:1fr 1fr;gap:4px;">
+            <div style="background:rgba(168,168,168,0.06);border:1px solid rgba(168,168,168,0.14);border-radius:7px;padding:5px 8px;font-size:0.58rem;color:rgba(255,255,255,0.65);">🚫📺 Ad-Free 24h</div>
+            <div style="background:rgba(168,168,168,0.06);border:1px solid rgba(168,168,168,0.14);border-radius:7px;padding:5px 8px;font-size:0.58rem;color:rgba(255,255,255,0.65);">🎟️ +3 Passes</div>
+            <div style="background:rgba(168,168,168,0.06);border:1px solid rgba(168,168,168,0.14);border-radius:7px;padding:5px 8px;font-size:0.58rem;color:rgba(255,255,255,0.65);">💡 +3 Hints</div>
+            <div style="background:rgba(168,168,168,0.06);border:1px solid rgba(168,168,168,0.14);border-radius:7px;padding:5px 8px;font-size:0.58rem;color:rgba(255,255,255,0.65);">🪙 +250 Coins</div>
+          </div>
+          <div style="margin-top:8px;display:flex;align-items:center;justify-content:space-between;">
+            <div class="tier-progress" style="margin-top:0;flex:1;margin-right:10px;">
+              <div class="tier-progress-lbl">Progress: <span id="tierProg_bronze">0</span> / 3</div>
+              <div class="tier-progress-bar"><div class="tier-progress-fill" id="tierFill_bronze" style="width:0%;background:var(--tier2);"></div></div>
+            </div>
+            <span id="tierDone_bronze" style="display:none;font-family:var(--mono);font-size:0.55rem;color:var(--tier2);letter-spacing:1px;">DONE ✓</span><button id="tierReset_bronze" onclick="event.stopPropagation();resetSingleTier('bronze')" style="display:none;margin-left:6px;background:rgba(255,255,255,0.06);border:1px solid var(--tier2);color:var(--tier2);border-radius:6px;padding:3px 8px;font-family:var(--mono);font-size:0.5rem;letter-spacing:0.5px;cursor:pointer;">↻ RESTART</button>
+          </div>
+          <div style="margin-top:6px;font-family:var(--mono);font-size:0.5rem;color:rgba(168,168,168,0.6);display:flex;align-items:center;gap:4px;">
+            <span style="width:5px;height:5px;border-radius:50%;background:rgba(168,168,168,0.8);display:inline-block;animation:pulse-dot 1.5s ease-in-out infinite;animation-delay:.3s;"></span>
+            <span id="tierLiveCount_bronze">— users completed</span>
+          </div>
+        </div>
+
+        <!-- SILVER -->
+        <div class="tier-card tier-gold" id="tierCard_silver" onclick="confirmTierStart('silver')">
+          <div class="tier-check">✓</div>
+          <div class="tier-row">
+            <div class="tier-left">
+              <div class="tier-icon">🥇</div>
+              <div>
+                <div class="tier-name" style="color:var(--tier3);">SILVER</div>
+                <div class="tier-desc">Share to <strong style="color:#fff;">5 people</strong></div>
+              </div>
+            </div>
+            <div class="tier-right">
+              <div class="tier-reward" style="color:var(--tier3);">7 days</div>
+              <div class="tier-sub">reward window</div>
+            </div>
+          </div>
+          <div style="margin-top:9px;display:grid;grid-template-columns:1fr 1fr;gap:4px;">
+            <div style="background:rgba(255,215,0,0.05);border:1px solid rgba(255,215,0,0.14);border-radius:7px;padding:5px 8px;font-size:0.58rem;color:rgba(255,255,255,0.65);">🎨 Exclusive Theme</div>
+            <div style="background:rgba(255,215,0,0.05);border:1px solid rgba(255,215,0,0.14);border-radius:7px;padding:5px 8px;font-size:0.58rem;color:rgba(255,255,255,0.65);">🚫 Ad-Free 3 Days</div>
+            <div style="background:rgba(255,215,0,0.05);border:1px solid rgba(255,215,0,0.14);border-radius:7px;padding:5px 8px;font-size:0.58rem;color:rgba(255,255,255,0.65);">🎟️ +10 Passes</div>
+            <div style="background:rgba(255,215,0,0.05);border:1px solid rgba(255,215,0,0.14);border-radius:7px;padding:5px 8px;font-size:0.58rem;color:rgba(255,255,255,0.65);">🪙 +500 Coins</div>
+          </div>
+          <div style="margin-top:8px;display:flex;align-items:center;justify-content:space-between;">
+            <div class="tier-progress" style="margin-top:0;flex:1;margin-right:10px;">
+              <div class="tier-progress-lbl">Progress: <span id="tierProg_silver">0</span> / 5</div>
+              <div class="tier-progress-bar"><div class="tier-progress-fill" id="tierFill_silver" style="width:0%;background:var(--tier3);"></div></div>
+            </div>
+            <span id="tierDone_silver" style="display:none;font-family:var(--mono);font-size:0.55rem;color:var(--tier3);letter-spacing:1px;">DONE ✓</span><button id="tierReset_silver" onclick="event.stopPropagation();resetSingleTier('silver')" style="display:none;margin-left:6px;background:rgba(255,255,255,0.06);border:1px solid var(--tier3);color:var(--tier3);border-radius:6px;padding:3px 8px;font-family:var(--mono);font-size:0.5rem;letter-spacing:0.5px;cursor:pointer;">↻ RESTART</button>
+          </div>
+          <div style="margin-top:6px;font-family:var(--mono);font-size:0.5rem;color:rgba(255,215,0,0.6);display:flex;align-items:center;gap:4px;">
+            <span style="width:5px;height:5px;border-radius:50%;background:rgba(255,215,0,0.8);display:inline-block;animation:pulse-dot 1.5s ease-in-out infinite;animation-delay:.6s;"></span>
+            <span id="tierLiveCount_silver">— users completed</span>
+          </div>
+        </div>
+
+        <!-- GOLD -->
+        <div class="tier-card tier-diamond" id="tierCard_gold" onclick="confirmTierStart('gold')">
+          <div class="tier-check">✓</div>
+          <div class="tier-row">
+            <div class="tier-left">
+              <div class="tier-icon">💎</div>
+              <div>
+                <div class="tier-name" style="color:var(--tier4);">GOLD</div>
+                <div class="tier-desc">Share to <strong style="color:#fff;">10 people</strong></div>
+              </div>
+            </div>
+            <div class="tier-right">
+              <div class="tier-reward" style="color:var(--tier4);">14 days</div>
+              <div class="tier-sub">reward window</div>
+            </div>
+          </div>
+          <div style="margin-top:9px;display:grid;grid-template-columns:1fr 1fr;gap:4px;">
+            <div style="background:rgba(126,244,255,0.04);border:1px solid rgba(126,244,255,0.12);border-radius:7px;padding:5px 8px;font-size:0.58rem;color:rgba(255,255,255,0.65);">⚡️ 2× XP 14 Days</div>
+            <div style="background:rgba(126,244,255,0.04);border:1px solid rgba(126,244,255,0.12);border-radius:7px;padding:5px 8px;font-size:0.58rem;color:rgba(255,255,255,0.65);">🎨 2 Premium Themes</div>
+            <div style="background:rgba(126,244,255,0.04);border:1px solid rgba(126,244,255,0.12);border-radius:7px;padding:5px 8px;font-size:0.58rem;color:rgba(255,255,255,0.65);">🚫 Ad-Free 7 Days</div>
+            <div style="background:rgba(126,244,255,0.04);border:1px solid rgba(126,244,255,0.12);border-radius:7px;padding:5px 8px;font-size:0.58rem;color:rgba(255,255,255,0.65);">🪙 +1000 Coins</div>
+          </div>
+          <div style="margin-top:8px;display:flex;align-items:center;justify-content:space-between;">
+            <div class="tier-progress" style="margin-top:0;flex:1;margin-right:10px;">
+              <div class="tier-progress-lbl">Progress: <span id="tierProg_gold">0</span> / 10</div>
+              <div class="tier-progress-bar"><div class="tier-progress-fill" id="tierFill_gold" style="width:0%;background:var(--tier4);"></div></div>
+            </div>
+            <span id="tierDone_gold" style="display:none;font-family:var(--mono);font-size:0.55rem;color:var(--tier4);letter-spacing:1px;">DONE ✓</span><button id="tierReset_gold" onclick="event.stopPropagation();resetSingleTier('gold')" style="display:none;margin-left:6px;background:rgba(255,255,255,0.06);border:1px solid var(--tier4);color:var(--tier4);border-radius:6px;padding:3px 8px;font-family:var(--mono);font-size:0.5rem;letter-spacing:0.5px;cursor:pointer;">↻ RESTART</button>
+          </div>
+          <div style="margin-top:6px;font-family:var(--mono);font-size:0.5rem;color:rgba(126,244,255,0.6);display:flex;align-items:center;gap:4px;">
+            <span style="width:5px;height:5px;border-radius:50%;background:rgba(126,244,255,0.8);display:inline-block;animation:pulse-dot 1.5s ease-in-out infinite;animation-delay:.9s;"></span>
+            <span id="tierLiveCount_gold">— users completed</span>
+          </div>
+        </div>
+
+        <!-- ELITE -->
+        <div class="tier-card tier-elite" id="tierCard_elite" onclick="confirmTierStart('elite')">
+          <div class="tier-check">✓</div>
+          <div class="tier-row">
+            <div class="tier-left">
+              <div class="tier-icon">👑</div>
+              <div>
+                <div class="tier-name" style="color:var(--tier5);">ELITE</div>
+                <div class="tier-desc">Share to <strong style="color:#fff;">20 people</strong></div>
+              </div>
+            </div>
+            <div class="tier-right">
+              <div class="tier-reward" style="color:var(--tier5);">30 days</div>
+              <div class="tier-sub">reward window</div>
+            </div>
+          </div>
+          <div style="margin-top:9px;display:grid;grid-template-columns:1fr 1fr;gap:4px;">
+            <div style="background:rgba(255,121,198,0.05);border:1px solid rgba(255,121,198,0.13);border-radius:7px;padding:5px 8px;font-size:0.58rem;color:rgba(255,255,255,0.65);">⚡️ 2× XP 30 Days</div>
+            <div style="background:rgba(255,121,198,0.05);border:1px solid rgba(255,121,198,0.13);border-radius:7px;padding:5px 8px;font-size:0.58rem;color:rgba(255,255,255,0.65);">🎨 All Themes</div>
+            <div style="background:rgba(255,121,198,0.05);border:1px solid rgba(255,121,198,0.13);border-radius:7px;padding:5px 8px;font-size:0.58rem;color:rgba(255,255,255,0.65);">🎟️ +50 Passes</div>
+            <div style="background:rgba(255,121,198,0.05);border:1px solid rgba(255,121,198,0.13);border-radius:7px;padding:5px 8px;font-size:0.58rem;color:rgba(255,255,255,0.65);">🪙+2500 🎰+5 Spins</div>
+          </div>
+          <div style="margin-top:8px;display:flex;align-items:center;justify-content:space-between;">
+            <div class="tier-progress" style="margin-top:0;flex:1;margin-right:10px;">
+              <div class="tier-progress-lbl">Progress: <span id="tierProg_elite">0</span> / 20</div>
+              <div class="tier-progress-bar"><div class="tier-progress-fill" id="tierFill_elite" style="width:0%;background:var(--tier5);"></div></div>
+            </div>
+            <span id="tierDone_elite" style="display:none;font-family:var(--mono);font-size:0.55rem;color:var(--tier5);letter-spacing:1px;">DONE ✓</span><button id="tierReset_elite" onclick="event.stopPropagation();resetSingleTier('elite')" style="display:none;margin-left:6px;background:rgba(255,255,255,0.06);border:1px solid var(--tier5);color:var(--tier5);border-radius:6px;padding:3px 8px;font-family:var(--mono);font-size:0.5rem;letter-spacing:0.5px;cursor:pointer;">↻ RESTART</button>
+          </div>
+          <div style="margin-top:6px;font-family:var(--mono);font-size:0.5rem;color:rgba(255,121,198,0.6);display:flex;align-items:center;gap:4px;">
+            <span style="width:5px;height:5px;border-radius:50%;background:rgba(255,121,198,0.8);display:inline-block;animation:pulse-dot 1.5s ease-in-out infinite;animation-delay:1.2s;"></span>
+            <span id="tierLiveCount_elite">— users completed</span>
+          </div>
+        </div>
+
+      </div>
+      <div id="activeTierBox"><span id="activeTierText"></span></div>
+    </div>
+
+    <!-- SHARE OPTIONS -->
+    <div class="card">
+      <div class="card-title">Share Via</div>
+      <div class="share-options">
+        <div class="share-opt" onclick="shareVia('whatsapp')"><div class="s-icon">💬</div><div class="s-name">WhatsApp</div><div class="s-desc">Send to contacts</div></div>
+        <div class="share-opt" onclick="shareVia('sms')"><div class="s-icon">📱</div><div class="s-name">SMS</div><div class="s-desc">Text message</div></div>
+        <div class="share-opt" onclick="shareVia('twitter')"><div class="s-icon">🐦</div><div class="s-name">X / Twitter</div><div class="s-desc">Post publicly</div></div>
+        <div class="share-opt" onclick="shareVia('facebook')"><div class="s-icon">📘</div><div class="s-name">Facebook</div><div class="s-desc">Share with friends</div></div>
+        <div class="share-opt" onclick="shareVia('telegram')"><div class="s-icon">✈️</div><div class="s-name">Telegram</div><div class="s-desc">Send to groups</div></div>
+        <div class="share-opt" onclick="shareVia('copy')"><div class="s-icon">📋</div><div class="s-name">Copy Link</div><div class="s-desc">Paste anywhere</div></div>
+      </div>
+      <button class="btn btn-green" onclick="shareNative()">📤 SHARE NOW</button>
+    </div>
+
+    <!-- Stats -->
+    <div class="card">
+      <div class="card-title">Your Stats</div>
+      <div class="stats-bar">
+        <div class="stat"><div class="stat-val" id="statTotal">0</div><div class="stat-lbl">Referrals</div></div>
+        <div class="stat"><div class="stat-val" id="statPending">0</div><div class="stat-lbl">Pending</div></div>
+        <div class="stat"><div class="stat-val" id="statRewards">0</div><div class="stat-lbl">Rewards</div></div>
+      </div>
+      <div class="card-title">Recent Referrals</div>
+      <div id="refList" class="ref-list">
+        <div style="font-family:var(--mono);font-size:0.62rem;color:var(--muted);text-align:center;padding:12px 0;">NO REFERRALS YET — SHARE YOUR LINK</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── TAB: IN PROGRESS ─── -->
+  <div id="tabProgressPanel" class="tab-panel">
+    <div class="card">
+      <div class="card-title">Tiers In Progress</div>
+      <div id="inProgressList">
+        <div style="font-family:var(--mono);font-size:0.62rem;color:var(--muted);text-align:center;padding:16px 0;">NO TIERS STARTED YET — TAP A TIER AND CONFIRM TO BEGIN</div>
+      </div>
+    </div>
+    <div class="card" id="tierHistoryCard" style="display:none;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+        <div class="card-title" style="margin-bottom:0;">Tier History</div>
+        <button onclick="clearTierHistory()" style="background:transparent;border:1px solid rgba(255,80,80,0.25);color:rgba(255,100,100,0.6);border-radius:8px;padding:4px 10px;font-family:var(--mono);font-size:0.5rem;letter-spacing:0.5px;cursor:pointer;transition:all .15s;" onmouseover="this.style.borderColor='rgba(255,80,80,0.5)';this.style.color='rgba(255,100,100,0.9)'" onmouseout="this.style.borderColor='rgba(255,80,80,0.25)';this.style.color='rgba(255,100,100,0.6)'">CLEAR HISTORY</button>
+      </div>
+      <div id="tierHistoryList"></div>
+    </div>
+    <div class="card" style="border-color:rgba(255,80,80,0.12);background:rgba(255,40,40,0.02);">
+      <div class="card-title" style="color:rgba(255,100,100,0.8);">Danger Zone</div>
+      <div style="font-family:var(--mono);font-size:0.62rem;color:rgba(255,255,255,0.45);line-height:1.8;margin-bottom:14px;">
+        Reset all tier progress, referral counts and pending rewards back to zero. Your account, name and share code are kept. Only use this once all your active tiers are fully completed and rewards have been saved.
+      </div>
+      <button onclick="promptResetAll()" style="width:100%;padding:12px;background:transparent;border:1px solid rgba(255,80,80,0.3);border-radius:12px;color:rgba(255,100,100,0.85);font-family:'Orbitron',sans-serif;font-size:0.65rem;font-weight:700;letter-spacing:2px;cursor:pointer;transition:all .15s;position:relative;overflow:hidden;" onmouseover="this.style.background='rgba(255,80,80,0.07)';this.style.borderColor='rgba(255,80,80,0.5)'" onmouseout="this.style.background='transparent';this.style.borderColor='rgba(255,80,80,0.3)'">
+        🔄 REFRESH / RESET ALL PROGRESS
+      </button>
+    </div>
+  </div>
+
+  <!-- ─── TAB: DAVID 2.0 TEASER ─── -->
+  <div id="tabConfirmPanel" class="tab-panel">
+    <div class="card d2-teaser">
+
+      <!-- Floating particles -->
+      <div class="d2-dot"></div><div class="d2-dot"></div><div class="d2-dot"></div>
+      <div class="d2-dot"></div><div class="d2-dot"></div><div class="d2-dot"></div>
+
+      <!-- Orbit rig -->
+      <div class="d2-orbit">
+        <div class="d2-ring d2-ring-1"></div>
+        <div class="d2-ring d2-ring-2"></div>
+        <div class="d2-ring d2-ring-3"></div>
+        <div class="d2-ring d2-ring-4"></div>
+        <div class="d2-core">🧩</div>
+        <div class="d2-spark d2-spark-a">✨</div>
+        <div class="d2-spark d2-spark-b">⚡</div>
+        <div class="d2-spark d2-spark-c">🚀</div>
+        <div class="d2-spark d2-spark-d">🌟</div>
+      </div>
+
+      <!-- Title -->
+      <div class="d2-title">DAVID&nbsp;2.0</div>
+
+      <!-- Sub -->
+      <div class="d2-sub">Something big is coming.<br><span style="font-size:0.58rem;color:rgba(255,184,0,0.45);">Play Store release included.</span></div>
+
+      <!-- Badge -->
+      <div class="d2-badge">COMING SOON</div>
+
+
+
+      <div class="d2-install-note">
+        <span class="d2-install-icon">📲</span>
+        <span>Android will show <strong>"Install anyway"</strong> when you download — this is normal for all apps outside the Play Store. PUZZLR is safe.</span>
+      </div>
+
+      <div class="d2-footnote">Your current account and progress carry over automatically.</div>
+    </div>
+  </div>
+
+  <!-- ─── TAB: REWARDS ─── -->
+  <div id="tabRewardsPanel" class="tab-panel">
+    <div id="rewardCountdownCard" class="card" style="display:none;">
+      <div class="card-title">Active Reward Window</div>
+      <div style="display:flex;align-items:center;justify-content:space-between;">
+        <div>
+          <div style="font-size:0.75rem;color:rgba(255,255,255,0.8);">Your reward link is active</div>
+          <div id="rewardExpiry" class="countdown">—</div>
+        </div>
+        <span id="rewardTierBadge" class="badge badge-gold">—</span>
+      </div>
+    </div>
+    <div id="rewardWaiting" class="card" style="display:none;">
+      <div style="text-align:center;padding:16px 10px 8px;">
+        <div class="spinner" style="margin:0 auto 12px;width:24px;height:24px;"></div>
+        <div style="font-family:var(--display);font-size:0.7rem;letter-spacing:2px;color:var(--g);margin-bottom:6px;">COLLECTING CONFIRMATIONS</div>
+        <div style="font-family:var(--mono);font-size:0.6rem;color:var(--muted);line-height:1.7;margin-bottom:14px;">Your progress is tracked below. <strong style="color:#fff;">Rewards are only unlocked when a tier is fully complete.</strong></div>
+      </div>
+      <!-- Live in-progress tiers shown here in Rewards tab too -->
+      <div id="rewardTabProgress" style="margin-top:4px;"></div>
+    </div>
+    <div id="rewardReady" style="display:none;" class="fade-in">
+      <div class="reward-box">
+        <div style="font-size:2rem;margin-bottom:8px;animation:float 2s ease-in-out infinite">🎁</div>
+        <div style="font-family:var(--display);font-size:1rem;font-weight:900;color:var(--gold);letter-spacing:3px;margin-bottom:6px;">REWARD UNLOCKED!</div>
+        <div style="font-family:var(--mono);font-size:0.62rem;color:var(--muted);line-height:1.7;">You hit your tier! Your exclusive reward is below.<br>Tap to confirm and save it permanently.</div>
+      </div>
+      <div class="card">
+        <div class="card-title">Your Tier Reward</div>
+        <div id="benefitGrid" class="benefit-grid"></div>
+        <button class="btn btn-gold" id="claimBtn" onclick="claimReward()" disabled>SAVE REWARD →</button>
+        <div style="margin-top:10px;font-family:var(--mono);font-size:0.56rem;color:var(--muted);text-align:center;line-height:1.7;">Saved permanently — copy your code any time from Reward History below:</div>
+        <div class="reward-code-box" id="rewardCodeBox" style="margin-top:8px;">
+          <span class="reward-code-val" id="rewardCodeVal">—</span>
+          <button class="copy-btn" onclick="copyRewardCode()">COPY</button>
+        </div>
+      </div>
+    </div>
+    <div class="card" id="rewardsHistory">
+      <div class="card-title">Reward History</div>
+      <div id="rewardHistoryList"><div style="font-family:var(--mono);font-size:0.62rem;color:var(--muted);text-align:center;padding:12px 0;">NO REWARDS YET</div></div>
+    </div>
+  </div>
+
+</div><!-- end panelDash -->
+</div><!-- end wrap -->
+
+<!-- PARTICLE BACKGROUND -->
+<script>
+(function(){
+  const canvas = document.getElementById('bg-canvas');
+  const ctx = canvas.getContext('2d');
+  let W,H,particles=[];
+  function resize(){ W=canvas.width=window.innerWidth; H=canvas.height=window.innerHeight; }
+  resize(); window.addEventListener('resize',resize);
+  function Particle(){
+    this.x=Math.random()*W; this.y=Math.random()*H;
+    this.vx=(Math.random()-.5)*.3; this.vy=(Math.random()-.5)*.3;
+    this.r=Math.random()*1.2+.2; this.a=Math.random()*.5+.1;
+    this.col=Math.random()<.7?'0,255,225':'0,170,255';
+  }
+  for(let i=0;i<80;i++) particles.push(new Particle());
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+    particles.forEach(p=>{
+      p.x+=p.vx; p.y+=p.vy;
+      if(p.x<0)p.x=W; if(p.x>W)p.x=0;
+      if(p.y<0)p.y=H; if(p.y>H)p.y=0;
+      ctx.beginPath(); ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+      ctx.fillStyle=`rgba(${p.col},${p.a})`; ctx.fill();
+    });
+    // Connect nearby particles
+    for(let i=0;i<particles.length;i++){
+      for(let j=i+1;j<particles.length;j++){
+        const dx=particles[i].x-particles[j].x, dy=particles[i].y-particles[j].y;
+        const d=Math.sqrt(dx*dx+dy*dy);
+        if(d<100){
+          ctx.beginPath();
+          ctx.strokeStyle=`rgba(255,184,0,${.08*(1-d/100)})`;
+          ctx.lineWidth=.5;
+          ctx.moveTo(particles[i].x,particles[i].y);
+          ctx.lineTo(particles[j].x,particles[j].y);
+          ctx.stroke();
+        }
+      }
+    }
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+</script>
+
+<!-- DOWNLOAD AUTO-TRIGGER -->
+<script>
+const APK_URL = "https://github.com/mandlaxolani140-create/DavidAi/releases/download/v2.0.0/DAVID.PUZZLR.apk";
+const _FB_REST_BASE = "https://david-connection-default-rtdb.firebaseio.com";
+
+// Stable per-browser device ID. This is just a LABEL — not the lock itself.
+// The lock state lives only in Firebase (device_registrations/$deviceId).
+// Clearing this ID just means a "new" device as far as Firebase is concerned,
+// which is correct behavior for a wiped browser/site-data.
+function _cookieGet(key){
+  const m = document.cookie.match('(^|; )'+key+'=([^;]*)');
+  return m ? decodeURIComponent(m[2]) : null;
+}
+function _cookieSet(key,val){
+  document.cookie = key+'='+encodeURIComponent(val)+'; max-age=63072000; path=/; SameSite=Lax';
+}
+// Reads from localStorage first, falls back to a long-lived cookie if localStorage
+// was cleared (e.g. Chrome "clear browsing data" or some Android WebView contexts
+// drop localStorage but keep cookies). Re-seeds localStorage from the cookie hit.
+function persistGet(key){
+  let v = localStorage.getItem(key);
+  if(!v){
+    v = _cookieGet(key);
+    if(v) localStorage.setItem(key, v);
+  }
+  return v;
+}
+function persistSet(key,val){
+  localStorage.setItem(key, val);
+  _cookieSet(key, val);
+}
+function persistRemove(key){
+  localStorage.removeItem(key);
+  document.cookie = key+'=; max-age=0; path=/';
+}
+function getDeviceId(){
+  let id = persistGet('puzzlr_device_id');
+  if(!id){
+    id = 'dev_' + Date.now() + '_' + Math.random().toString(36).slice(2,10);
+    persistSet('puzzlr_device_id', id);
+  }
+  return id;
+}
+
+// Write the device lock to Firebase with retries + backoff. If every attempt
+// fails (e.g. offline at the exact moment of download), the attempt is NOT
+// dropped — it's flagged in localStorage and retried again on next page load,
+// until Firebase confirms the write actually landed.
+function _writeDeviceRegistration(deviceId, attempt){
+  attempt = attempt || 1;
+  const MAX_ATTEMPTS = 5;
+  fetch(_FB_REST_BASE + '/device_registrations/' + encodeURIComponent(deviceId) + '.json', {
+    method: 'PUT',
+    body: JSON.stringify({ installedAt: {'.sv':'timestamp'} }),
+    headers: { 'Content-Type': 'application/json' }
+  }).then(r=>{
+    if(!r.ok) throw new Error('http '+r.status);
+    // Confirmed written — clear the pending flag so we don't retry on next load.
+    localStorage.removeItem('puzzlr_devreg_pending');
+  }).catch(()=>{
+    if(attempt < MAX_ATTEMPTS){
+      setTimeout(()=>_writeDeviceRegistration(deviceId, attempt+1), 1500*attempt);
+    }else{
+      // Out of immediate retries — mark pending so the next page load resumes trying.
+      localStorage.setItem('puzzlr_devreg_pending','1');
+    }
+  });
+}
+
+function triggerDownload(){
+  const deviceId = getDeviceId();
+  // Firebase is the ONLY source of truth for the lock. Write-once (rules enforce !data.exists()).
+  _writeDeviceRegistration(deviceId);
+  const a = document.createElement('a');
+  a.href = APK_URL;
+  a.download = 'DAVID.PUZZLR.apk';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+}
+
+// On every page load, if a previous write never got confirmed, resume trying.
+(function _resumePendingDeviceRegistration(){
+  if(localStorage.getItem('puzzlr_devreg_pending')){
+    _writeDeviceRegistration(getDeviceId());
+  }
+})();
+
+// Auto-trigger APK download on ?ref= OR ?tier= links
+(function checkAutoDownload(){
+  const p = new URLSearchParams(window.location.search);
+  const refParam = p.get('ref');
+  const tierParam = p.get('tier');
+  if(!refParam && !tierParam) return;
+
+  // For ?ref= links only — show download hero bar
+  if(refParam){
+    document.getElementById('downloadHero').style.display='block';
+  }
+
+
+  // Animate the percentage counter (only if hero is visible)
+  const dlPct = document.getElementById('dlPercent');
+  if(dlPct){
+    let pct = 0;
+    const interval = setInterval(()=>{
+      pct += Math.floor(Math.random()*8)+3;
+      if(pct>=100){ pct=100; clearInterval(interval); dlPct.textContent='100%'; }
+      else dlPct.textContent=pct+'%';
+    }, 120);
+  }
+
+  // Auto-trigger download after short delay — ONLY for ?ref= links, not ?tier=
+  // Tier links have their own explicit download button; auto-triggering there is
+  // jarring and downloads an APK the user didn't ask for yet.
+  if(refParam){
+    setTimeout(()=>{ triggerDownload(); }, 1200);
+  }
+
+})();
+</script>
+
+<script type="module">
+import { initializeApp }   from "https://www.gstatic.com/firebasejs/12.14.0/firebase-app.js";
+import { getDatabase, ref, set, get, update, onValue, push, serverTimestamp }
+                           from "https://www.gstatic.com/firebasejs/12.14.0/firebase-database.js";
+import { getAnalytics }    from "https://www.gstatic.com/firebasejs/12.14.0/firebase-analytics.js";
+
+const firebaseConfig = {
+  apiKey:"AIzaSyBFBJSyWKd_GGoQ5IhUZQ9w8j4-HaOeD1s",authDomain:"david-connection.firebaseapp.com",
+  databaseURL:"https://david-connection-default-rtdb.firebaseio.com",projectId:"david-connection",
+  storageBucket:"david-connection.firebasestorage.app",messagingSenderId:"214764400544",
+  appId:"1:214764400544:web:0d2d9b3ab52f44e3033ec5",measurementId:"G-8WYBQN3T1J"
+};
+const fbApp = initializeApp(firebaseConfig);
+const db    = getDatabase(fbApp);
+getAnalytics(fbApp);
+
+const APP_INSTALL_BASE = "https://github.com/mandlaxolani140-create/DavidAi/releases/download/v2.0.0/DAVID.PUZZLR.apk";
+const SITE_URL = window.location.origin + window.location.pathname.replace(/\/$/,'');
+
+// ── TIER CONFIG ────────────────────────────────────────────────
+const TIERS = {
+  starter:{ name:'Starter', icon:'🥉', need:1,  days:2,  color:'var(--tier1)', bgRgb:'201,123,58'  },
+  bronze: { name:'Bronze',  icon:'🥈', need:3,  days:4,  color:'var(--tier2)', bgRgb:'168,168,168' },
+  silver: { name:'Silver',  icon:'🥇', need:5,  days:7,  color:'var(--tier3)', bgRgb:'255,215,0'   },
+  gold:   { name:'Gold',    icon:'💎', need:10, days:14, color:'var(--tier4)', bgRgb:'126,244,255'  },
+  elite:  { name:'Elite',   icon:'👑', need:20, days:30, color:'var(--tier5)', bgRgb:'255,121,198'  }
+};
+
+// ── BENEFITS ── (4 choices per tier, updated to include coins/xp/spin)
+const TIER_BENEFITS = {
+  starter:[
+    {key:'passes1',   icon:'🎟️', name:'+1 Free Pass',    desc:'One offline puzzle pass'},
+    {key:'hint1',     icon:'💡', name:'+1 Hint Token',   desc:'Reveal a hint on any puzzle'},
+    {key:'coins50',   icon:'🪙', name:'+50 Coins',       desc:'Spend on hints & unlocks'},
+    {key:'xp50',      icon:'⚡', name:'+50 XP',          desc:'Boost your player level'}
+  ],
+  bronze:[
+    {key:'adfree24',  icon:'🚫', name:'Ad-Free 24h',     desc:'Zero ads for a full day'},
+    {key:'passes3',   icon:'🎟️', name:'+3 Free Passes',  desc:'Three offline puzzle passes'},
+    {key:'hint3',     icon:'💡', name:'+3 Hint Tokens',  desc:'Stack hints for hard levels'},
+    {key:'coins250',  icon:'🪙', name:'+250 Coins',      desc:'Coin boost to your wallet'}
+  ],
+  silver:[
+    {key:'theme',     icon:'🎨', name:'Exclusive Theme', desc:'Unlock a premium puzzle skin'},
+    {key:'adfree3d',  icon:'🚫', name:'Ad-Free 3 Days',  desc:'Three full days, zero ads'},
+    {key:'passes10',  icon:'🎟️', name:'+10 Free Passes', desc:'Ten offline puzzle passes'},
+    {key:'coins500',  icon:'🪙', name:'+500 Coins',      desc:'Big coin drop to your wallet'}
+  ],
+  gold:[
+    {key:'doublexp14',icon:'⚡️',name:'2× XP — 14 Days', desc:'Double XP for two weeks'},
+    {key:'theme2',    icon:'🎨', name:'2 Premium Themes',desc:'Two exclusive puzzle skins'},
+    {key:'adfree7d',  icon:'🚫', name:'Ad-Free 7 Days',  desc:'A full week with no ads'},
+    {key:'coins1000', icon:'🪙', name:'+1000 Coins',     desc:'Huge coin reward'}
+  ],
+  elite:[
+    {key:'doublexp30',icon:'⚡️',name:'2× XP — 30 Days', desc:'Double XP for a full month'},
+    {key:'allthemes', icon:'🎨', name:'All Premium Themes',desc:'Unlock every premium skin'},
+    {key:'passes50',  icon:'🎟️', name:'+50 Free Passes', desc:'Fifty offline puzzle passes'},
+    {key:'elite_pack',icon:'👑', name:'Elite Pack',      desc:'+2500 Coins + 5 Spin Tickets + 30d Ad-Free'}
+  ]
+};
+
+// ── CODE GENERATORS ────────────────────────────────────────────
+// Main code = name-XXXXX e.g. john-wghgw  — acts as login password
+function generateMainCode(name){
+  const slug = name.toLowerCase().replace(/[^a-z0-9]/g,'').slice(0,10) || 'player';
+  const chars = 'abcdefghjklmnpqrstuvwxyz23456789';
+  let s=''; for(let i=0;i<5;i++) s+=chars[Math.floor(Math.random()*chars.length)];
+  return slug+'-'+s;
+}
+// Tier code = tiername-XXXX e.g. starter-3732
+function generateTierCode(tierKey){
+  const chars = 'abcdefghjklmnpqrstuvwxyz23456789';
+  let s=''; for(let i=0;i<4;i++) s+=chars[Math.floor(Math.random()*chars.length)];
+  return tierKey+'-'+s;
+}
+function generateRewardCode(tier){
+  const pre={starter:'STR',bronze:'BRZ',silver:'SLV',gold:'GLD',elite:'ELT'};
+  const c='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  let s=(pre[tier]||'RWD')+'-'; for(let i=0;i<6;i++) s+=c[Math.floor(Math.random()*c.length)]; return s;
+}
+
+let currentUser=null, selectedTier=null, selectedBenefitVal=null, rewardListener=null, pendingTierKey=null;
+
+function $(id){ return document.getElementById(id); }
+function escH(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
+function toast(msg,type='',dur=3000){
+  const t=$('toast'); t.textContent=msg; t.className='show '+type;
+  clearTimeout(t._t); t._t=setTimeout(()=>{ t.className=''; },dur);
+}
+function timeAgo(ts){
+  if(!ts) return '';
+  const d=Date.now()-ts;
+  if(d<60000) return 'just now'; if(d<3600000) return Math.floor(d/60000)+'m ago';
+  if(d<86400000) return Math.floor(d/3600000)+'h ago'; return Math.floor(d/86400000)+'d ago';
+}
+window.goToMainPage = async function(){
+  // Leave the locked tier-confirm view. One account per device, permanently —
+  // Firebase device_accounts is the real source of truth, so re-check it here
+  // rather than trusting the local cache blindly. This guarantees "go back"
+  // always lands on the one true original account, never a stale/illegal one.
+  // (tier confirm page removed in v28)
+  const deviceId=getDeviceId();
+  let existingCode=null;
+  try{
+    const devSnap=await get(ref(db,'device_accounts/'+deviceId));
+    if(devSnap.exists()) existingCode=devSnap.val().code;
+  }catch(e){}
+  if(!existingCode) existingCode=persistGet('puzzlr_share_code');
+  if(existingCode){
+    persistSet('puzzlr_share_code',existingCode);
+    loadUser(existingCode);
+  }else{
+    $('panelLanding').classList.add('active');
+    renderLandingPanel();
+  }
+}
+
+function showPanel(id){
+  ['panelLanding','panelDash'].forEach(p=>{ const el=$(p); el.classList.toggle('active',el.id===id); });
+}
+// fallbackCopy: execCommand textarea trick — also exposed on window for module-script access
+window.fallbackCopy = function fallbackCopy(text){
+  const ta=document.createElement('textarea'); ta.value=text; ta.style.cssText='position:fixed;top:0;left:0;opacity:0;';
+  document.body.appendChild(ta); ta.focus(); ta.select();
+  try{ document.execCommand('copy'); }catch(e){} document.body.removeChild(ta);
+}
+// saferCopy: tries clipboard API, silently falls back — never shows red errors
+function saferCopy(text, btn, defaultLabel, doneLabel){
+  fallbackCopy(text); // always do fallback first so it works even if clipboard API denied
+  if(navigator.clipboard && window.isSecureContext){
+    navigator.clipboard.writeText(text).catch(()=>{}); // catch silently
+  }
+  if(btn){ const orig=btn.textContent; btn.textContent=doneLabel||'✓ COPIED'; setTimeout(()=>{ btn.textContent=defaultLabel||orig; }, 2000); }
+  toast('Copied! 📋','green');
+}
+
+// ── TIER CODES PANEL ───────────────────────────────────────────
+function renderTierCodesPanel(){
+  const el=$('tierCodesPanel');
+  if(!currentUser){ el.innerHTML='<div style="font-family:var(--mono);font-size:0.6rem;color:rgba(255,255,255,0.28);text-align:center;padding:10px 0;">Start a tier below to generate its unique share code.</div>'; return; }
+  const completedTiers=currentUser.completedTiers||{};
+  const allCodes=currentUser.tierCodes||{};
+  const order=['starter','bronze','silver','gold','elite'];
+  const shown=order.filter(k=>allCodes[k]);
+  if(!shown.length){
+    el.innerHTML='<div style="font-family:var(--mono);font-size:0.6rem;color:rgba(255,255,255,0.28);text-align:center;padding:10px 0;">Start a tier below to generate its unique share code.</div>';
+    return;
+  }
+  el.innerHTML=shown.map(key=>{
+    const t=TIERS[key]; const code=allCodes[key];
+    const done=!!completedTiers[key];
+    const link=SITE_URL+'?tier='+encodeURIComponent(code);
+    const rgba=`rgba(${t.bgRgb},0.07)`; const border=`rgba(${t.bgRgb},0.2)`;
+    return `
+    <div style="background:${rgba};border:1px solid ${border};border-radius:12px;padding:12px 14px;margin-bottom:10px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:9px;">
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span style="font-size:1.25rem;">${t.icon}</span>
+          <div>
+            <div style="font-family:'Orbitron',sans-serif;font-size:0.62rem;font-weight:700;color:${t.color};">${t.name.toUpperCase()} CODE</div>
+            <div style="font-family:'Share Tech Mono',monospace;font-size:0.52rem;color:rgba(255,255,255,0.32);margin-top:1px;">${t.need} confirm${t.need>1?'s':''} · ${t.days}d reward</div>
+          </div>
+        </div>
+        ${done ? '<span style="font-family:var(--mono);font-size:0.5rem;color:#FFB800;background:rgba(255,184,0,0.1);border:1px solid rgba(255,184,0,0.25);border-radius:20px;padding:3px 9px;">✓ DONE</span>' :
+                 '<span style="font-family:var(--mono);font-size:0.5rem;color:rgba(255,255,255,0.3);background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:20px;padding:3px 9px;">ACTIVE</span>'}
+      </div>
+      <div onclick="copyTierCodeStr('${code}',this)" style="display:flex;align-items:center;justify-content:space-between;background:rgba(0,0,0,0.18);border:1px solid ${border};border-radius:10px;padding:11px 14px;cursor:pointer;margin-bottom:8px;transition:background .15s;" onmouseover="this.style.background='rgba(255,184,0,0.07)'" onmouseout="this.style.background='rgba(0,0,0,0.18)'">
+        <span style="font-family:'Share Tech Mono',monospace;font-size:1.05rem;color:${t.color};letter-spacing:3px;text-shadow:0 0 10px rgba(255,184,0,0.25);">${code}</span>
+        <span class="tc-copy-hint" style="font-family:'Orbitron',sans-serif;font-size:0.5rem;color:rgba(255,184,0,0.5);letter-spacing:1px;flex-shrink:0;">TAP TO COPY</span>
+      </div>
+      <div style="display:flex;gap:6px;">
+        <button onclick="shareTierVia('whatsapp','${key}')" style="flex:1;padding:8px 2px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.07);border-radius:8px;color:rgba(255,255,255,0.6);font-family:'Orbitron',sans-serif;font-size:0.48rem;font-weight:700;letter-spacing:1px;cursor:pointer;transition:all .15s;" onmouseover="this.style.borderColor='${border}'" onmouseout="this.style.borderColor='rgba(255,255,255,0.07)'">💬 WA</button>
+        <button onclick="shareTierVia('sms','${key}')" style="flex:1;padding:8px 2px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.07);border-radius:8px;color:rgba(255,255,255,0.6);font-family:'Orbitron',sans-serif;font-size:0.48rem;font-weight:700;letter-spacing:1px;cursor:pointer;transition:all .15s;" onmouseover="this.style.borderColor='${border}'" onmouseout="this.style.borderColor='rgba(255,255,255,0.07)'">📱 SMS</button>
+        <button onclick="shareTierVia('telegram','${key}')" style="flex:1;padding:8px 2px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.07);border-radius:8px;color:rgba(255,255,255,0.6);font-family:'Orbitron',sans-serif;font-size:0.48rem;font-weight:700;letter-spacing:1px;cursor:pointer;transition:all .15s;" onmouseover="this.style.borderColor='${border}'" onmouseout="this.style.borderColor='rgba(255,255,255,0.07)'">✈️ TG</button>
+        <button onclick="shareTierVia('copy','${key}')" style="flex:1;padding:8px 2px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.07);border-radius:8px;color:rgba(255,255,255,0.6);font-family:'Orbitron',sans-serif;font-size:0.48rem;font-weight:700;letter-spacing:1px;cursor:pointer;transition:all .15s;" onmouseover="this.style.borderColor='${border}'" onmouseout="this.style.borderColor='rgba(255,255,255,0.07)'">📋 COPY</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+window.copyTierCodeStr = function(code, el){
+  saferCopy(code, null);
+  toast('Tier code copied: '+code, 'green');
+  const hint = el ? el.querySelector('.tc-copy-hint') : null;
+  if(hint){ hint.textContent='COPIED ✓'; setTimeout(()=>{ hint.textContent='TAP TO COPY'; }, 2000); }
+};
+
+// ── TIER-SPECIFIC SHARE MESSAGES ──────────────────────────────
+function getTierShareMsg(tierKey){
+  if(!currentUser) return '';
+  const t=TIERS[tierKey];
+  const code=(currentUser.tierCodes||{})[tierKey]||'';
+  const link=SITE_URL+'?tier='+encodeURIComponent(code);
+  const msgs={
+    starter:`🥉 Hey! I just started sharing PUZZLR — I only need 1 person to confirm my code!\n\n📲 Download & install: ${link}\n\nThen enter my code: *${code}*\n\nHelp me unlock my Starter reward! 🎮`,
+    bronze: `🥈 I'm going for Bronze tier on PUZZLR! Need 3 people to confirm my code.\n\n📲 Download & install: ${link}\n\nThen enter my code: *${code}*\n\nHelp me unlock Ad-Free + Hints + 250 Coins! 🎮`,
+    silver: `🥇 Going for Silver tier on PUZZLR! Need 5 people to confirm.\n\n📲 Download & install: ${link}\n\nThen enter my code: *${code}*\n\nHelp me unlock Exclusive Theme + Ad-Free 3 Days + 500 Coins! 🎮`,
+    gold:   `💎 Going for GOLD tier on PUZZLR! Need 10 people to confirm.\n\n📲 Download & install: ${link}\n\nThen enter my code: *${code}*\n\nHelp me unlock 2× XP + Premium Themes + Ad-Free 7 Days + 1000 Coins! 🏆`,
+    elite:  `👑 Going for ELITE tier on PUZZLR! Need 20 people to confirm.\n\n📲 Download & install: ${link}\n\nThen enter my code: *${code}*\n\nHelp me unlock 2× XP 30 Days + ALL Themes + 2500 Coins + 5 Spin Tickets! 🔥`
+  };
+  return msgs[tierKey]||msgs.starter;
+}
+
+window.shareTierVia=function(platform,tierKey){
+  if(!currentUser){toast('Register first','red');return;}
+  const code=(currentUser.tierCodes||{})[tierKey];
+  if(!code){toast('Start the '+TIERS[tierKey].name+' tier first to get a code','red');return;}
+  const msg=getTierShareMsg(tierKey);
+  const enc=encodeURIComponent(msg);
+  const link=SITE_URL+'?tier='+encodeURIComponent(code);
+  if(platform==='whatsapp') window.open('https://wa.me/?text='+enc,'_blank');
+  else if(platform==='sms') window.open('sms:?body='+enc,'_blank');
+  else if(platform==='telegram') window.open('https://t.me/share/url?url='+encodeURIComponent(link)+'&text='+enc,'_blank');
+  else if(platform==='copy'){
+    saferCopy(msg, null);
+    toast('Message copied! Paste anywhere 📋','green');
+  }
+};
+
+window.shareVia=function(platform){
+  if(!currentUser){toast('Register first','red');return;}
+  const activeTiers=currentUser.activeTiers||{};
+  const order=['elite','gold','silver','bronze','starter'];
+  const activeTierKey=order.find(k=>activeTiers[k])||'starter';
+  const code=(currentUser.tierCodes||{})[activeTierKey]||currentUser.code;
+  const link=SITE_URL+'?tier='+encodeURIComponent(code);
+  const msg=getTierShareMsg(activeTierKey);
+  const enc=encodeURIComponent(msg);
+  const urls={
+    whatsapp:'https://wa.me/?text='+enc,
+    sms:'sms:?body='+enc,
+    twitter:'https://twitter.com/intent/tweet?text='+encodeURIComponent('🧩 Play Puzzlr! Get it here: '+link+' — use my code: '+code),
+    facebook:'https://www.facebook.com/sharer/sharer.php?u='+encodeURIComponent(link),
+    telegram:'https://t.me/share/url?url='+encodeURIComponent(link)+'&text='+enc,
+    copy:null
+  };
+  if(platform==='copy'){
+    saferCopy(msg, null);
+    toast('Message copied! Paste anywhere 📋','green'); return;
+  }
+  if(urls[platform]) window.open(urls[platform],'_blank');
+};
+
+window.shareNative=function(){
+  if(!currentUser){toast('Register first','red');return;}
+  const activeTiers=currentUser.activeTiers||{};
+  const order=['elite','gold','silver','bronze','starter'];
+  const key=order.find(k=>activeTiers[k])||'starter';
+  const code=(currentUser.tierCodes||{})[key]||currentUser.code;
+  const link=SITE_URL+'?tier='+encodeURIComponent(code);
+  const msg=getTierShareMsg(key);
+  if(navigator.share) navigator.share({title:'Join me on Puzzlr!',text:msg,url:link}).catch(()=>{});
+  else{ saferCopy(msg, null); toast('Share message copied!','green'); }
+};
+
+// ── REGISTER ────────────────────────────────────────────────────
+window.onRegAckChange=function(checked){ /* no-op: login form has no checkbox */ };
+
+// LOGIN WITH EMAIL
+// Uses a two-step 2FA flow:
+//   Step 1 — email submitted → account found → main-code block revealed, login blocked.
+//   Step 2 — main code submitted → compared against Firebase record → login granted.
+// State is tracked via data-tfa-ready on the block element (not .style.display,
+// which is unreliable to read back in Android WebView / some browsers).
+window.loginWithEmail=async function(){
+  const errEl=$('regError'); errEl.style.display='none'; errEl.style.color='';
+  const email=$('regEmail').value.trim().toLowerCase();
+  if(!email||!email.includes('@')){ errEl.textContent='Please enter the email you used in the Puzzlr APK.'; errEl.style.display='block'; return; }
+
+  const tfaBlock = document.getElementById('login2faBlock');
+  const tfaInput = document.getElementById('login2faCodeInput');
+  const tfaErr   = document.getElementById('login2faError');
+  const btn=$('regBtn'); btn.disabled=true; btn.textContent='CHECKING…';
+
+  // ── Step 2: 2FA block already revealed — verify the main code ──────────
+  if(tfaBlock && tfaBlock.getAttribute('data-tfa-ready')==='1'){
+    const enteredCode=(tfaInput?tfaInput.value.trim().toLowerCase():'');
+    if(!enteredCode||!enteredCode.includes('-')){
+      if(tfaErr){ tfaErr.textContent='Enter your main code (e.g. yourname-xxxxx) to verify your identity.'; tfaErr.style.display='block'; }
+      btn.disabled=false; btn.textContent='VERIFY & LOGIN →'; return;
+    }
+    // Re-fetch the code for this email (simple, no extra state to pass)
+    try{
+      const emailKey=email.replace(/\./g,'_');
+      const snap=await get(ref(db,'users_by_email/'+emailKey));
+      if(!snap.exists()){
+        errEl.textContent='Account no longer found. Please try again.';
+        errEl.style.color='#ff6b6b'; errEl.style.display='block';
+        btn.disabled=false; btn.textContent='VERIFY & LOGIN →'; return;
+      }
+      const code=snap.val().code;
+      if(enteredCode!==code){
+        if(tfaErr){ tfaErr.textContent='❌ Incorrect main code. Open the Puzzlr APK — your code is on the Rewards screen.'; tfaErr.style.display='block'; }
+        btn.disabled=false; btn.textContent='VERIFY & LOGIN →'; return;
+      }
+      // ── 2FA passed ──────────────────────────────────────────────────────
+      persistSet('puzzlr_share_code',code);
+      await loadUser(code);
+      btn.disabled=false; btn.textContent='LOGIN WITH EMAIL →';
+    }catch(e){
+      const isNet=e&&(e.message||'').toLowerCase().match(/network|failed to fetch|offline|timeout|unavailable/);
+      errEl.textContent=isNet?'Network error. Please check your connection and try again.':'Something went wrong. Please try again.';
+      errEl.style.display='block';
+      btn.disabled=false; btn.textContent='VERIFY & LOGIN →';
+    }
+    return;
+  }
+
+  // ── Step 1: look up email — if found, reveal main-code 2FA block ───────
+  try{
+    const emailKey=email.replace(/\./g,'_');
+    const snap=await get(ref(db,'users_by_email/'+emailKey));
+    if(!snap.exists()){
+      errEl.textContent='No account found for that email. Create your account inside the Puzzlr APK first.';
+      errEl.style.color='#ff6b6b'; errEl.style.display='block';
+      btn.disabled=false; btn.textContent='LOGIN WITH EMAIL →';
+      return;
+    }
+    // Account found — show 2FA block, block login until code is verified
+    if(tfaBlock){
+      tfaBlock.style.display='block';
+      tfaBlock.setAttribute('data-tfa-ready','1');
+    }
+    if(tfaInput) tfaInput.focus();
+    const emailEl=$('regEmail');
+    if(emailEl){ emailEl.style.opacity='0.5'; emailEl.style.pointerEvents='none'; }
+    btn.disabled=false; btn.textContent='VERIFY & LOGIN →';
+  }catch(e){
+    const isNet=e&&(e.message||'').toLowerCase().match(/network|failed to fetch|offline|timeout|unavailable/);
+    errEl.textContent=isNet?'Network error. Please check your connection and try again.':'Something went wrong. Please try again.';
+    errEl.style.color=''; errEl.style.display='block';
+    btn.disabled=false; btn.textContent='LOGIN WITH EMAIL →';
+  }
+};
+
+// REGISTER (disabled on website -- accounts created in APK only)
+window.register=async function(){
+  // Website is login-only. Block any registration attempt.
+  const errEl=$('regError');
+  errEl.textContent='Registration is not available on the website. Please create your account inside the Puzzlr APK.';
+  errEl.style.color='#ff6b6b'; errEl.style.display='block';
+  return;
+  if(!$('regAck').checked){ errEl.textContent='Please confirm you understand this account is permanent.'; errEl.style.display='block'; return; }
+  const name=$('regName').value.trim();
+  const email=$('regEmail').value.trim().toLowerCase();
+  if(!name){ errEl.textContent='Please enter your name.'; errEl.style.display='block'; return; }
+  if(!email||!email.includes('@')){ errEl.textContent='Please enter a valid email.'; errEl.style.display='block'; return; }
+  const btn=$('regBtn'); btn.disabled=true; btn.textContent='CREATING…';
+  errEl.textContent='⏳ Creating your account… this can take 10–20 seconds, please wait.'; errEl.style.display='block'; errEl.style.color='rgba(255,184,0,0.75)';
+  try{
+    // Firebase is the ONLY source of truth for whether this device already has an account.
+    // localStorage is just a cache and is never trusted on its own to block registration.
+    const deviceId=getDeviceId();
+    const devSnap=await get(ref(db,'device_accounts/'+deviceId));
+    if(devSnap.exists()){
+      const boundCode=devSnap.val().code;
+      const userSnap=await get(ref(db,'users/'+boundCode));
+      if(userSnap.exists()){
+        persistSet('puzzlr_share_code',boundCode);
+        errEl.textContent='This device already has an account ('+boundCode+'). Loading it now…';
+        errEl.style.display='block'; errEl.style.color='rgba(255,184,0,0.75)';
+        await loadUser(boundCode);
+        return;
+      }
+      // The binding still exists in Firebase but its account doesn't — an orphaned
+      // record from a partial wipe. Can't be silently overwritten (write-once rule),
+      // so tell you exactly what to delete instead of getting stuck.
+      persistRemove('puzzlr_share_code');
+      errEl.textContent='This device is still bound to a deleted account. In the Firebase console, delete device_accounts/'+deviceId+' (or wipe the whole device_accounts node), then try again.';
+      errEl.style.display='block'; errEl.style.color='#ff6b6b';
+      btn.disabled=false; btn.textContent='GET MY SHARE CODE →';
+      return;
+    }
+    persistRemove('puzzlr_share_code');
+    const snap=await get(ref(db,'users_by_email/'+email.replace(/\./g,'_')));
+    if(snap.exists()){
+      // That email already has an account elsewhere — never auto-load someone else's
+      // account just because their email was typed in. No proof of ownership, no access.
+      errEl.textContent='This email already has an account on another device. Accounts can\'t be shared or moved — please use a different email.';
+      errEl.style.display='block'; errEl.style.color='#ff6b6b';
+      btn.disabled=false; btn.textContent='GET MY SHARE CODE →';
+      return;
+    }
+    let code,exists;
+    do{ code=generateMainCode(name); const cs=await get(ref(db,'users/'+code)); exists=cs.exists(); }while(exists);
+    const userData={ code,name,email,createdAt:Date.now(),referralCount:0,pendingRewards:0,totalRewards:0 };
+    // Firebase can throw a spurious permission-denied on the set() even when the write
+    // succeeds. Swallow it and verify the write landed before deciding to fail.
+    try{ await set(ref(db,'users/'+code),userData); }catch(e1){
+      if(!(e1&&(e1.code||e1.message||'').toString().toLowerCase().includes('permission'))) throw e1;
+    }
+    try{ await set(ref(db,'users_by_email/'+email.replace(/\./g,'_')),{code}); }catch(e2){
+      if(!(e2&&(e2.code||e2.message||'').toString().toLowerCase().includes('permission'))) throw e2;
+    }
+    try{ await set(ref(db,'registrations/'+code),{name,email,registeredAt:Date.now(),source:'register'}); }catch(e3){
+      if(!(e3&&(e3.code||e3.message||'').toString().toLowerCase().includes('permission'))) throw e3;
+    }
+    // Permanently bind this device to this account. Write-once at the rules level —
+    // if it fails because the device got bound a split second ago, fall back to that account.
+    try{ await set(ref(db,'device_accounts/'+deviceId),{code,boundAt:serverTimestamp()}); }catch(e4){
+      if(!(e4&&(e4.code||e4.message||'').toString().toLowerCase().includes('permission'))) throw e4;
+      const raceSnap=await get(ref(db,'device_accounts/'+deviceId));
+      if(raceSnap.exists() && raceSnap.val().code!==code){
+        persistSet('puzzlr_share_code',raceSnap.val().code);
+        await loadUser(raceSnap.val().code);
+        return;
+      }
+    }
+    persistSet('puzzlr_share_code',code);
+    currentUser=Object.assign({},userData);
+    $('dashGreeting').textContent='AGENT '+name.toUpperCase();
+    $('myCode').textContent=code;
+    showPanel('panelDash');
+    switchTab('share');
+    loadStats(code);
+    listenForRewards(code);
+    startLiveActivityFeed(code);
+    checkRefParam();
+    renderInProgressTiers();
+    renderTierCodesPanel();
+    loadLiveTierCounts();
+    errEl.style.display='none'; errEl.style.color='';
+    toast('Welcome, '+name+'! Your code is ready 🎉','green');
+    btn.disabled=false; btn.textContent='GET MY SHARE CODE →';
+  }catch(e){ const isNet=e&&(e.message||'').toLowerCase().match(/network|failed to fetch|offline|timeout|unavailable/); if(isNet){errEl.textContent='Something is wrong with your internet. Please check your connection and try again.';errEl.style.color='';errEl.style.display='block';} btn.disabled=false; btn.textContent='GET MY SHARE CODE →'; }
+};
+
+// ── SIGN BACK IN (device already bound — no code typing, one tap) ─────────
+window.signBackIn=async function(){
+  const code=window._welcomeBackCode||persistGet('puzzlr_share_code');
+  if(!code){ toast('Nothing to sign back into','red'); return; }
+  const btn=$('welcomeBackBtn'); if(btn){ btn.disabled=true; btn.textContent='LOADING…'; }
+  try{
+    const r=await fetch('https://david-connection-default-rtdb.firebaseio.com/users/'+encodeURIComponent(code)+'.json');
+    const u=await r.json();
+    if(u&&u.emperorCode&&u.stagesComplete){
+      persistSet('puzzlr_share_code',code);
+      _showEmperorRedirectBanner(u.emperorName||code,u.emperorCode);
+      return;
+    }
+  }catch(e){}
+  await loadUser(code);
+  if(btn){ btn.disabled=false; btn.textContent='▶ CONTINUE TO MY ACCOUNT'; }
+};
+
+// ── LANDING RENDER (decides: registration form vs. welcome-back) ─────────
+async function renderLandingPanel(){
+  const deviceId=getDeviceId();
+  let boundCode=null;
+  try{
+    const snap=await get(ref(db,'device_accounts/'+deviceId));
+    if(snap.exists()) boundCode=snap.val().code;
+  }catch(e){}
+  if(boundCode){
+    persistSet('puzzlr_share_code',boundCode);
+    window._welcomeBackCode=boundCode;
+    $('regFormBox').style.display='none';
+    $('welcomeBackBox').style.display='none';
+    // Show permanent locked identity card — registration is permanently disabled on this device
+    try{
+      const us=await get(ref(db,'users/'+boundCode));
+      const uData=us.exists()?us.val():{};
+      const uName=(uData.name||'AGENT').toUpperCase();
+      const uEmail=uData.email||'—';
+      const regAt=uData.createdAt?new Date(uData.createdAt).toLocaleString(undefined,{year:'numeric',month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'}):'—';
+      const lockCard=document.createElement('div');
+      lockCard.id='deviceLockCard';
+      lockCard.innerHTML=`
+        <div style="background:rgba(255,184,0,0.04);border:1px solid rgba(255,184,0,0.22);border-radius:14px;padding:18px 16px;margin-bottom:14px;">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">
+            <span style="font-size:1.4rem;">🔒</span>
+            <div style="font-family:'Orbitron',sans-serif;font-size:0.65rem;font-weight:700;color:#FFB800;letter-spacing:2px;">DEVICE REGISTERED</div>
+          </div>
+          <div style="font-family:'Share Tech Mono',monospace;font-size:0.6rem;color:rgba(255,255,255,0.55);line-height:2;margin-bottom:14px;">
+            <span style="color:rgba(255,184,0,0.6);">Account:</span> <strong style="color:#fff;">${uName}</strong><br>
+            <span style="color:rgba(255,184,0,0.6);">Email:</span> <strong style="color:#fff;">${uEmail}</strong><br>
+            <span style="color:rgba(255,184,0,0.6);">Registered:</span> <strong style="color:#fff;">${regAt}</strong><br>
+            <span style="color:rgba(255,255,255,0.3);font-size:0.54rem;">This device is permanently bound to this account.<br>Registration is disabled — this cannot be changed.</span>
+          </div>
+          <button class="btn btn-green" onclick="signBackIn()">▶ CONTINUE TO MY ACCOUNT</button>
+        </div>`;
+      // Insert before regFormBox, replacing it visually
+      const regBox=$('regFormBox');
+      if(!$('deviceLockCard')) regBox.parentNode.insertBefore(lockCard, regBox);
+    }catch(e){
+      // Network error — fall back to welcome-back box so user isn't stranded
+      window._welcomeBackCode=boundCode;
+      $('welcomeBackBox').style.display='block';
+      try{
+        const us=await get(ref(db,'users/'+boundCode));
+        $('welcomeBackName').textContent=us.exists()?(us.val().name||'AGENT').toUpperCase():'AGENT';
+      }catch(_){}
+    }
+  }else{
+    $('welcomeBackBox').style.display='none';
+    $('regFormBox').style.display='block';
+  }
+}
+
+async function loadUser(code, silent=false){
+  try{
+    const snap=await get(ref(db,'users/'+code));
+    if(!snap.exists()){
+      // Stale local cache — Firebase no longer has this account (e.g. it was wiped).
+      // Firebase is the only source of truth, so clear the cache and reset to a fresh state.
+      persistRemove('puzzlr_share_code');
+      if(!silent){ toast('That account no longer exists — starting fresh','red'); }
+      $('regBtn').disabled=false; $('regBtn').textContent='GET MY SHARE CODE →';
+      showPanel('panelLanding');
+      await renderLandingPanel();
+      return;
+    }
+    currentUser=snap.val(); currentUser.code=code;
+    persistSet('puzzlr_share_code',code);
+    const isEmperor = !!(currentUser.stagesComplete && currentUser.emperorName);
+    const displayName = isEmperor ? 'EMPEROR ('+currentUser.name.toUpperCase()+')' : 'AGENT '+currentUser.name.toUpperCase();
+    $('dashGreeting').textContent=displayName;
+    $('myCode').textContent=code;
+    // Populate permanent email display
+    if(currentUser.email){
+      const emailEl=$('dashEmailDisplay'); if(emailEl) emailEl.textContent='📧 '+currentUser.email;
+      const emailInline=$('dashEmailInline'); if(emailInline) emailInline.textContent=currentUser.email;
+    }
+    showPanel('panelDash');
+    switchTab('share');
+    loadStats(code);
+    listenForRewards(code);
+    startLiveActivityFeed(code);
+    checkRefParam();
+    const activeTiers=currentUser.activeTiers||{};
+    Object.keys(activeTiers).forEach(tier=>{ const card=$('tierCard_'+tier); if(card) card.classList.add('selected'); });
+    renderInProgressTiers();
+    renderTierCodesPanel();
+    loadLiveTierCounts();
+    if(isEmperor){
+      // Apply emperor mode to dash header
+      const dh=document.querySelector('.dash-header');
+      if(dh) dh.classList.add('emperor-mode');
+      const dsub=document.querySelector('.dash-sub');
+      if(dsub){ dsub.innerHTML='<span class="live-dot"></span>EMPEROR COMMAND CENTER ACTIVE'; }
+      // Show emperor popup once ever — showEmperorPopup itself guards with localStorage
+      // If already dismissed, just show a welcome back toast instead
+      const code = currentUser.code || '';
+      if(code && localStorage.getItem('emp_popup_dismissed_'+code)){
+        setTimeout(()=>toast('👑 Welcome back, EMPEROR ('+currentUser.name.toUpperCase()+')!','gold',5000), 600);
+      } else {
+        setTimeout(()=>showEmperorPopup(currentUser.name, currentUser.emperorName||currentUser.name), 600);
+      }
+    } else {
+      toast('Welcome back, '+currentUser.name+'!','green');
+    }
+    $('regBtn').disabled=false; $('regBtn').textContent='GET MY SHARE CODE →';
+  }catch(e){ const isNet=e&&(e.message||'').toLowerCase().match(/network|failed to fetch|offline|timeout|unavailable/); if(isNet) toast('Something is wrong with your internet. Please check your connection.','red'); $('regBtn').disabled=false; $('regBtn').textContent='GET MY SHARE CODE →'; }
+}
+
+// ── LIVE ACTIVITY FEED ──────────────────────────────────────────
+function startLiveActivityFeed(code){
+  onValue(ref(db,'referrals/'+code), snap=>{
+    const bar=document.getElementById('liveActivityBar');
+    const list=document.getElementById('liveActivityList');
+    if(!bar||!list) return;
+    if(!snap.exists()){ bar.style.display='none'; return; }
+    const items=Object.values(snap.val()).sort((a,b)=>(b.confirmedAt||0)-(a.confirmedAt||0)).slice(0,3);
+    bar.style.display='block';
+    const tierIcons={starter:'🥉',bronze:'🥈',silver:'🥇',gold:'💎',elite:'👑'};
+    list.innerHTML=items.map(r=>`
+      <div style="display:flex;align-items:center;gap:8px;font-family:'Share Tech Mono',monospace;font-size:0.58rem;color:rgba(255,255,255,0.65);animation:fadeIn .4s ease;">
+        <span style="color:#00ff88;font-size:0.7rem;">✓</span>
+        <span><strong style="color:#fff;">${r.name||'Someone'}</strong> confirmed your ${tierIcons[r.tier]||''} ${(r.tier||'starter')} code</span>
+        <span style="margin-left:auto;color:rgba(255,255,255,0.25);flex-shrink:0;">${timeAgo(r.confirmedAt)}</span>
+      </div>`).join('');
+  },()=>{});
+}
+
+window.renameAccount=async function(){
+  if(!currentUser){ toast('No account loaded','red'); return; }
+  const newName=(window.prompt('Enter your new nickname:', currentUser.name||'')||'').trim();
+  if(!newName) return;
+  if(newName===currentUser.name){ return; }
+  if(newName.length>24){ toast('Nickname too long (max 24 characters)','red'); return; }
+  try{
+    function swallowPerm(p){ return p.catch(e=>{ if(!(e&&(e.code||e.message||'').toString().toLowerCase().includes('permission'))) throw e; }); }
+    await swallowPerm(update(ref(db,'users/'+currentUser.code),{name:newName}));
+    await swallowPerm(update(ref(db,'registrations/'+currentUser.code),{name:newName}));
+    currentUser.name=newName;
+    const isEmperor = !!(currentUser.stagesComplete && currentUser.emperorName);
+    $('dashGreeting').textContent = isEmperor ? 'EMPEROR ('+newName.toUpperCase()+')' : 'AGENT '+newName.toUpperCase();
+    toast('Nickname updated to '+newName+' ✓','green');
+  }catch(e){
+    toast('Could not update nickname — check your connection','red');
+  }
+};
+
+window.copyCode=function(){
+  const text=$('myCode').textContent.trim();
+  const hint=$('codeCopyHint');
+  saferCopy(text, null, null, null);
+  if(hint){hint.textContent='COPIED ✓';hint.style.color='#FFB800'; setTimeout(()=>{hint.textContent='TAP TO COPY';hint.style.color='rgba(255,184,0,0.6)';},2000);}
+  toast('Main code copied!','green');
+};
+window.copyLink=function(el){ saferCopy(el.textContent, null); toast('Link copied!','green'); };
+window.copyRewardCode=function(){ saferCopy($('rewardCodeVal').textContent, null); toast('Reward code copied!','gold'); };
+
+// ── START TIER ──────────────────────────────────────────────────
+window.confirmTierStart=function(tier){
+  if(!currentUser){toast('Register first','red');return;}
+  const t=TIERS[tier];
+  const activeTiers=currentUser.activeTiers||{};
+  const completedTiers=currentUser.completedTiers||{};
+  if(completedTiers[tier]){toast(t.icon+' '+t.name+' already completed!','gold');return;}
+  if(activeTiers[tier]){toast(t.icon+' '+t.name+' already in progress!','gold');return;}
+  pendingTierKey=tier;
+  $('tcmIcon').textContent=t.icon;
+  $('tcmTitle').textContent='START '+t.name.toUpperCase()+' TIER?';
+  $('tcmBody').innerHTML=
+    'You need <strong style="color:#FFB800">'+t.need+' person'+(t.need>1?'s':'')+
+    '</strong> to confirm your unique tier code.<br><br>'+
+    'A <strong style="color:#FFB800">'+tier+'-XXXX</strong> code is generated just for this tier.<br><br>'+
+    'Reward window: <strong style="color:#FFB800">'+t.days+' days</strong><br><br>'+
+    '<span style="color:rgba(255,255,255,0.45);">You can run multiple tiers simultaneously.</span>';
+  $('tierConfirmModal').style.display='flex';
+};
+window.dismissTierModal=function(){ $('tierConfirmModal').style.display='none'; pendingTierKey=null; };
+
+window.doStartTier=async function(){
+  if(!pendingTierKey||!currentUser) return;
+  const tier=pendingTierKey; const t=TIERS[tier];
+  $('tcmConfirmBtn').textContent='STARTING…'; $('tcmConfirmBtn').disabled=true;
+  try{
+    // Reuse existing tier code if already generated
+    let tierCode=(currentUser.tierCodes||{})[tier];
+    if(!tierCode){
+      let exists=true;
+      while(exists){ tierCode=generateTierCode(tier); const cs=await get(ref(db,'tier_codes/'+tierCode)); exists=cs.exists(); }
+    }
+    await update(ref(db,'users/'+currentUser.code),{
+      ['activeTiers/'+tier]:{ startedAt:Date.now(), progress:0 },
+      ['tierCodes/'+tier]: tierCode,
+      activeTier: tier
+    });
+    // Register code globally so it can be looked up at the in-app confirmation gate
+    await set(ref(db,'tier_codes/'+tierCode),{ ownerCode:currentUser.code, tier });
+    const snap=await get(ref(db,'users/'+currentUser.code));
+    currentUser=snap.val(); currentUser.code=snap.key||currentUser.code||persistGet('puzzlr_share_code');
+    dismissTierModal();
+    document.querySelectorAll('.tier-card').forEach(c=>c.classList.remove('selected'));
+    const card=$('tierCard_'+tier); if(card) card.classList.add('selected');
+    $('activeTierBox').style.display='block';
+    $('activeTierText').innerHTML=
+      `<strong style="color:${t.color}">${t.icon} ${t.name} Tier started!</strong> Your tier code is <strong style="color:${t.color};font-family:'Share Tech Mono',monospace;">${tierCode}</strong> — share it to collect ${t.need} confirmation${t.need>1?'s':''}.`;
+    toast(t.icon+' '+t.name+' tier started! Code: '+tierCode,'green',5000);
+    renderTierCodesPanel();
+    renderInProgressTiers();
+    switchTab('share');
+  }catch(e){ const isNet=e&&(e.message||'').toLowerCase().match(/network|failed to fetch|offline|timeout|unavailable/); if(isNet) toast('Something is wrong with your internet. Please check your connection.','red'); }
+  finally{ $('tcmConfirmBtn').textContent='YES, START TIER'; $('tcmConfirmBtn').disabled=false; }
+};
+
+// ── CONFIRM TIER VIA WEBSITE — REMOVED (confirmation now happens in-app at the APK gate) ──
+
+
+
+// ── BENEFITS ────────────────────────────────────────────────────
+function renderBenefitForTier(tierKey){
+  const opts=TIER_BENEFITS[tierKey]||TIER_BENEFITS.starter;
+  const grid=$('benefitGrid');
+  grid.innerHTML=`<div style="font-family:var(--mono);font-size:0.6rem;color:rgba(255,255,255,0.45);letter-spacing:1px;margin-bottom:10px;grid-column:1/-1;text-align:center;">CHOOSE YOUR REWARD — PICK ONE</div>`+
+    opts.map(b=>`<div class="benefit-btn" onclick="selectBenefit(this,'${b.key}')"><div class="b-icon">${b.icon}</div><span class="b-name">${b.name}</span><span class="b-desc">${b.desc}</span></div>`).join('');
+  selectedBenefitVal=null; $('claimBtn').disabled=true; $('claimBtn').textContent='PICK A REWARD →';
+}
+window.selectBenefit=function(el,benefit){
+  document.querySelectorAll('.benefit-btn').forEach(b=>b.classList.remove('selected'));
+  el.classList.add('selected'); selectedBenefitVal=benefit;
+  $('claimBtn').disabled=false; $('claimBtn').textContent='SAVE REWARD →';
+};
+window.claimReward=async function(){
+  if(!selectedBenefitVal||!currentUser) return;
+  const rCode=$('rewardCodeVal').textContent;
+  const tier=currentUser.rewardTier||currentUser.activeTier||'starter';
+  const btn=$('claimBtn'); btn.disabled=true; btn.textContent='Saving…';
+  try{
+    // Write to rewardHistory
+    await push(ref(db,'rewardHistory/'+currentUser.code),{benefit:selectedBenefitVal,code:rCode,claimedAt:Date.now(),tier});
+    // Set rewardReady:true + specific benefit key so game auto-applies on next launch
+    // rewardBenefit must be the specific key (e.g. 'hint1'), NOT the tier key
+    await update(ref(db,'users/'+currentUser.code),{
+      rewardBenefit:selectedBenefitVal,
+      rewardCode:rCode,
+      currentRewardCode:rCode,
+      rewardClaimedAt:Date.now(),
+      rewardReady:true,
+      rewardTier:tier,
+      pendingRewards:0
+    });
+    toast('🎁 Reward saved! Open Puzzlr — it will auto-apply on launch.','gold',6000);
+    btn.textContent='✓ OPEN PUZZLR TO APPLY';
+    // Show confirmation message inline
+    const grid=$('benefitGrid');
+    if(grid){
+      const chosen=document.querySelector('.benefit-btn.selected');
+      const benefitName=chosen?chosen.querySelector('.b-name').textContent:selectedBenefitVal;
+      grid.innerHTML=`<div style="grid-column:1/-1;text-align:center;padding:14px 10px;background:rgba(255,184,0,0.05);border:1px solid rgba(255,184,0,0.2);border-radius:12px;">
+        <div style="font-size:1.8rem;margin-bottom:8px;">✅</div>
+        <div style="font-family:'Orbitron',sans-serif;font-size:0.75rem;font-weight:700;color:#FFB800;letter-spacing:2px;margin-bottom:6px;">REWARD SAVED</div>
+        <div style="font-family:'Share Tech Mono',monospace;font-size:0.65rem;color:rgba(255,255,255,0.6);line-height:1.8;"><strong style="color:#fff;">${benefitName}</strong> will auto-apply<br>the next time you open Puzzlr.</div>
+      </div>`;
+    }
+    loadRewardHistory(currentUser.code);
+    // Update local state
+    currentUser.rewardBenefit=selectedBenefitVal;
+    currentUser.rewardReady=true;
+    currentUser.pendingRewards=0;
+    selectedBenefitVal=null;
+  }catch(e){ btn.disabled=false; btn.textContent='SAVE REWARD →'; const isNet=e&&(e.message||'').toLowerCase().match(/network|failed to fetch|offline|timeout|unavailable/); if(isNet) toast('Something is wrong with your internet. Please check your connection.','red'); }
+};
+
+const BENEFIT_LABELS={
+  passes1:'🎟️ +1 Pass',hint1:'💡 +1 Hint',coins50:'🪙 +50 Coins',xp50:'⚡ +50 XP',
+  adfree24:'🚫 Ad-Free 24h',passes3:'🎟️ +3 Passes',hint3:'💡 +3 Hints',coins250:'🪙 +250 Coins',
+  theme:'🎨 Exclusive Theme',adfree3d:'🚫 Ad-Free 3 Days',passes10:'🎟️ +10 Passes',coins500:'🪙 +500 Coins',
+  doublexp14:'⚡ 2× XP 14 Days',theme2:'🎨 2 Premium Themes',adfree7d:'🚫 Ad-Free 7 Days',coins1000:'🪙 +1000 Coins',
+  doublexp30:'⚡ 2× XP 30 Days',allthemes:'🎨 All Themes',passes50:'🎟️ +50 Passes',elite_pack:'👑 Elite Pack',
+  // legacy
+  adfree:'🚫 Ad-Free 24h',doublexp:'⚡ 2× XP 7d',passes:'🎟️ +5 Passes',unlock:'🔓 Theme Unlock',vip:'👑 VIP (Legacy)'
+};
+
+function loadRewardHistory(code){
+  onValue(ref(db,'rewardHistory/'+code),snap=>{
+    const listEl=$('rewardHistoryList');
+    if(!snap.exists()){listEl.innerHTML='<div style="font-family:var(--mono);font-size:0.62rem;color:var(--muted);text-align:center;padding:12px 0;">NO REWARDS YET</div>';return;}
+    const tierIcons={starter:'🥉',bronze:'🥈',silver:'🥇',gold:'💎',elite:'👑'};
+    const items=Object.values(snap.val()).sort((a,b)=>(b.claimedAt||0)-(a.claimedAt||0));
+    listEl.innerHTML=items.map(r=>`
+      <div style="background:rgba(255,255,255,0.02);border:1px solid rgba(255,184,0,0.12);border-radius:12px;padding:12px 14px;margin-bottom:8px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+          <div>
+            <div style="font-size:0.78rem;font-weight:600;">${BENEFIT_LABELS[r.benefit]||r.benefit} ${tierIcons[r.tier]||''}</div>
+            <div style="font-family:var(--mono);font-size:0.54rem;color:var(--muted);margin-top:2px;">${timeAgo(r.claimedAt)}</div>
+          </div>
+          <span class="badge badge-gold">Claimed</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <input value="${r.code}" readonly style="flex:1;background:rgba(255,184,0,0.05);border:1px solid rgba(255,184,0,0.2);border-radius:8px;padding:7px 10px;color:var(--gold);font-family:var(--mono);font-size:0.78rem;letter-spacing:2px;outline:none;">
+          <button onclick="saferCopy('${r.code}',this,'COPY','✓')" style="background:rgba(255,184,0,0.1);border:1px solid rgba(255,184,0,0.25);color:var(--gold);border-radius:8px;padding:7px 12px;font-family:var(--display);font-size:0.58rem;font-weight:600;cursor:pointer;flex-shrink:0;">COPY</button>
+        </div>
+      </div>`).join('');
+  },()=>{});
+}
+
+// ── STATS & LISTENERS ───────────────────────────────────────────
+function loadStats(code){
+  onValue(ref(db,'users/'+code),snap=>{
+    if(!snap.exists()) return;
+    const u=snap.val();
+    if(currentUser&&currentUser.code===code){ Object.assign(currentUser,u); currentUser.code=code; }
+    $('statTotal').textContent=u.referralCount||0;
+    $('statPending').textContent=u.pendingRewards||0;
+    $('statRewards').textContent=u.totalRewards||0;
+    const tierProgress=u.tierProgress||{};const completedTiers=u.completedTiers||{};const activeTiers=u.activeTiers||{};
+    Object.entries(TIERS).forEach(([key,t])=>{
+      const prog=tierProgress[key]||0;const pct=Math.round((Math.min(prog,t.need)/t.need)*100);
+      const el=$('tierProg_'+key);const fill=$('tierFill_'+key);const doneEl=$('tierDone_'+key);const resetBtn=$('tierReset_'+key);
+      if(el) el.textContent=prog; if(fill) fill.style.width=pct+'%';
+      if(doneEl) doneEl.style.display=completedTiers[key]?'inline':'none';
+      if(resetBtn) resetBtn.style.display=completedTiers[key]?'inline-block':'none';
+      const card=$('tierCard_'+key); if(card) card.classList.toggle('selected',!!activeTiers[key]&&!completedTiers[key]);
+    });
+    renderInProgressTiers();
+    renderTierCodesPanel();
+  },()=>{});
+  onValue(ref(db,'referrals/'+code),snap=>{
+    const list=$('refList');
+    if(!snap.exists()){list.innerHTML='<div style="font-family:var(--mono);font-size:0.62rem;color:var(--muted);text-align:center;padding:12px 0;">NO REFERRALS YET — SHARE YOUR TIER LINK</div>';return;}
+    const tierIcons={starter:'🥉',bronze:'🥈',silver:'🥇',gold:'💎',elite:'👑'};
+    const items=Object.values(snap.val()).sort((a,b)=>(b.confirmedAt||0)-(a.confirmedAt||0));
+    list.innerHTML=items.map(r=>`<div class="ref-item"><div><div class="ref-name">${r.name||'Anonymous'} ${tierIcons[r.tier]||''}</div><div class="ref-time">${timeAgo(r.confirmedAt)}</div></div><span class="badge badge-green">✓ CONFIRMED</span></div>`).join('');
+  },()=>{});
+}
+
+function listenForRewards(code){
+  if(rewardListener) rewardListener();
+  // Listen on full user node so we catch both pendingRewards and rewardReady changes
+  rewardListener=onValue(ref(db,'users/'+code),snap=>{
+    if(!snap.exists()) return;
+    const u=snap.val();
+    if(currentUser&&currentUser.code===code){ Object.assign(currentUser,u); currentUser.code=code; }
+
+    const pending=u.pendingRewards||0;
+    const rReady=u.rewardReady;
+    const rBenefit=u.rewardBenefit;
+
+    // If rewards tab is open, refresh it
+    const rewardsTabActive=$('tabRewards')&&$('tabRewards').classList.contains('active');
+    if(rewardsTabActive){ refreshRewardsTab(); return; }
+
+    // Notify badge on Rewards tab when something is claimable
+    const tabEl=$('tabRewards');
+    if(tabEl){
+      if(pending>0&&!rReady){ tabEl.textContent='🎁 REWARDS 🔴'; }
+      else if(rReady&&rBenefit){ tabEl.textContent='🎁 REWARDS ✅'; }
+      else { tabEl.textContent='🎁 REWARDS'; }
+    }
+
+    // Countdown card
+    const exp=u.rewardExpiresAt;
+    const box=$('rewardCountdownCard'),lbl=$('rewardExpiry'),badge=$('rewardTierBadge');
+    if(exp&&exp>Date.now()&&!rReady){
+      if(box) box.style.display='block';
+      const tierKey=u.rewardTier||u.activeTier||'starter';const t=TIERS[tierKey];
+      if(badge) badge.textContent=t?t.icon+' '+t.name:'';
+      function updateCountdown(){ const diff=exp-Date.now(); if(diff<=0){if(lbl)lbl.textContent='EXPIRED';return;} const d=Math.floor(diff/86400000),h=Math.floor((diff%86400000)/3600000),m=Math.floor((diff%3600000)/60000); if(lbl)lbl.textContent=(d>0?d+'d ':'')+h+'h '+m+'m REMAINING'; }
+      updateCountdown(); clearInterval(window._countdownInterval); window._countdownInterval=setInterval(updateCountdown,60000);
+    } else if(box){ box.style.display='none'; }
+  },()=>{});
+}
+
+async function loadOrCreateRewardCode(code){
+  const snap=await get(ref(db,'users/'+code+'/currentRewardCode'));
+  let rCode=snap.exists()?snap.val():generateRewardCode(currentUser?.rewardTier||currentUser?.activeTier||'starter');
+  if(!snap.exists()) await update(ref(db,'users/'+code),{currentRewardCode:rCode});
+  $('rewardCodeVal').textContent=rCode;
+}
+
+// ── IN PROGRESS RENDER ─────────────────────────────────────────
+function renderInProgressTiers(){
+  const el=$('inProgressList'); if(!currentUser){el.innerHTML='<div style="font-family:var(--mono);font-size:0.62rem;color:var(--muted);text-align:center;padding:16px 0;">NOT LOGGED IN</div>';return;}
+  const activeTiers=currentUser.activeTiers||{};const completedTiers=currentUser.completedTiers||{};
+  const tierProgress=currentUser.tierProgress||{};const tierCodes=currentUser.tierCodes||{};
+  const allShownKeys=[...new Set([...Object.keys(activeTiers),...Object.keys(completedTiers)])];
+  if(!allShownKeys.length){el.innerHTML='<div style="font-family:var(--mono);font-size:0.62rem;color:var(--muted);text-align:center;padding:16px 0;">NO TIERS STARTED YET<br><br>Tap a tier on the MY CODES tab then press YES, START TIER.</div>';return;}
+  const tierOrder=['starter','bronze','silver','gold','elite'];
+  allShownKeys.sort((a,b)=>{ const ad=!!completedTiers[a];const bd=!!completedTiers[b]; if(ad!==bd) return ad?1:-1; return tierOrder.indexOf(a)-tierOrder.indexOf(b); });
+  el.innerHTML=allShownKeys.map(key=>{
+    const t=TIERS[key]; if(!t) return '';
+    const prog=tierProgress[key]||0;const progCapped=Math.min(prog,t.need);const pct=Math.min(100,Math.round((progCapped/t.need)*100));
+    const done=!!completedTiers[key];const tierCode=tierCodes[key]||'';
+
+    // Build segmented dots — one dot per slot
+    const maxDots=Math.min(t.need,20); // cap display at 20 dots for elite
+    const scale=t.need>20?t.need/20:1;
+    const filledDots=Math.round(progCapped/scale);
+    const dots=Array.from({length:maxDots},(_,i)=>{
+      const filled=i<filledDots;
+      return `<div style="flex:1;height:7px;border-radius:99px;background:${filled?t.color:'rgba(255,255,255,0.07)'};transition:background .4s ${i*0.04}s;${filled?'box-shadow:0 0 4px '+t.color+';':''}"></div>`;
+    }).join('');
+
+    return `
+    <div style="background:${done?'rgba(255,184,0,0.04)':'rgba(255,255,255,0.02)'};border:1px solid ${done?'rgba(255,184,0,0.3)':'rgba(255,255,255,0.07)'};border-radius:14px;padding:14px 16px;margin-bottom:10px;position:relative;overflow:hidden;">
+      <div style="position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,${t.color},transparent);opacity:${done?1:0.5};"></div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <span style="font-size:1.7rem;">${t.icon}</span>
+          <div>
+            <div style="font-family:'Orbitron',sans-serif;font-size:0.75rem;font-weight:700;color:${t.color};">${t.name.toUpperCase()} TIER</div>
+            ${tierCode?`<div style="font-family:'Share Tech Mono',monospace;font-size:0.6rem;color:${t.color};opacity:.8;margin-top:2px;">Code: ${tierCode}</div>`:''}
+          </div>
+        </div>
+        ${done
+          ? `<div style="display:flex;align-items:center;gap:7px;">
+               <span style="font-family:'Share Tech Mono',monospace;font-size:0.55rem;color:#FFB800;background:rgba(255,184,0,0.1);border:1px solid rgba(255,184,0,0.3);border-radius:20px;padding:4px 12px;">✓ DONE</span>
+               <button onclick="event.stopPropagation();resetSingleTier('${key}')" style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.55);border-radius:20px;padding:4px 11px;font-family:'Share Tech Mono',monospace;font-size:0.5rem;letter-spacing:0.5px;cursor:pointer;transition:all .15s;" onmouseover="this.style.borderColor='${t.color}';this.style.color='${t.color}'" onmouseout="this.style.borderColor='rgba(255,255,255,0.15)';this.style.color='rgba(255,255,255,0.55)'">↻ RESET</button>
+             </div>`
+          : '<span style="font-family:'Share Tech Mono',monospace;font-size:0.52rem;color:rgba(255,255,255,0.35);background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:20px;padding:4px 10px;">IN PROGRESS</span>'
+        }
+      </div>
+      <div style="font-family:'Share Tech Mono',monospace;font-size:0.6rem;color:rgba(255,255,255,0.5);margin-bottom:9px;display:flex;justify-content:space-between;">
+        <span><strong style="color:${t.color};font-size:0.72rem;">${progCapped}</strong><span style="color:rgba(255,255,255,0.3);"> / ${t.need}</span> confirmations</span>
+        <span style="color:rgba(255,255,255,0.3);">${t.days}d reward</span>
+      </div>
+      <div style="display:flex;gap:3px;margin-bottom:5px;">${dots}</div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:4px;">
+        <span style="font-family:'Share Tech Mono',monospace;font-size:0.5rem;color:rgba(255,255,255,0.22);">${pct}% complete</span>
+        ${done?'<span style="font-family:'Share Tech Mono',monospace;font-size:0.5rem;color:#FFB800;">🎁 Check Rewards tab</span>':''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ── TIER HISTORY ────────────────────────────────────────────────
+async function renderTierHistory(){
+  if(!currentUser) return;
+  const card=$('tierHistoryCard'); const list=$('tierHistoryList');
+  if(!card||!list) return;
+  try{
+    const snap=await get(ref(db,'tier_history/'+currentUser.code));
+    if(!snap.exists()){ card.style.display='none'; return; }
+    const entries=Object.values(snap.val()).sort((a,b)=>(b.completedAt||0)-(a.completedAt||0));
+    card.style.display='block';
+    list.innerHTML=entries.map(e=>{
+      const d=new Date(e.completedAt||0);
+      const dateStr=d.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'});
+      const timeStr=d.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
+      const t=TIERS[e.tier]||{color:'#FFB800',icon:'🏆',name:e.tier||'Unknown'};
+      return `<div style="display:flex;align-items:center;justify-content:space-between;padding:9px 0;border-bottom:1px solid rgba(255,255,255,0.05);">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <span style="font-size:1.25rem;">${t.icon}</span>
+          <div>
+            <div style="font-family:'Orbitron',sans-serif;font-size:0.62rem;font-weight:700;color:${t.color};">${(e.name||e.tier||'').toUpperCase()} TIER</div>
+            <div style="font-family:'Share Tech Mono',monospace;font-size:0.52rem;color:rgba(255,255,255,0.3);margin-top:2px;">Completed ${dateStr} · ${timeStr}</div>
+          </div>
+        </div>
+        <span style="font-family:'Share Tech Mono',monospace;font-size:0.5rem;color:rgba(255,184,0,0.55);background:rgba(255,184,0,0.06);border:1px solid rgba(255,184,0,0.15);border-radius:20px;padding:3px 9px;">✓ DONE</span>
+      </div>`;
+    }).join('');
+  }catch(e){ card.style.display='none'; }
+}
+
+window.clearTierHistory=async function(){
+  if(!currentUser) return;
+  const btn=event.target;
+  btn.disabled=true; btn.textContent='…';
+  try{
+    await set(ref(db,'tier_history/'+currentUser.code),null);
+    $('tierHistoryCard').style.display='none';
+    toast('Tier history cleared.','green');
+  }catch(e){ toast('Could not clear history — check your connection.','red'); }
+  finally{ btn.disabled=false; btn.textContent='CLEAR HISTORY'; }
+};
+
+function renderRewardTabProgress(){
+  const el=$('rewardTabProgress'); if(!el||!currentUser) return;
+  const activeTiers=currentUser.activeTiers||{};const completedTiers=currentUser.completedTiers||{};const tierProgress=currentUser.tierProgress||{};
+  const inProgress=Object.keys(activeTiers).filter(k=>!completedTiers[k]);
+  if(!inProgress.length){el.innerHTML='<div style="font-family:var(--mono);font-size:0.58rem;color:var(--muted);text-align:center;padding:8px 0 2px;">Start a tier on MY CODES tab to begin tracking.</div>';return;}
+  const tierOrder=['starter','bronze','silver','gold','elite']; inProgress.sort((a,b)=>tierOrder.indexOf(a)-tierOrder.indexOf(b));
+  el.innerHTML=inProgress.map(key=>{
+    const t=TIERS[key];if(!t) return '';
+    const prog=tierProgress[key]||0;const progCapped=Math.min(prog,t.need);const pct=Math.min(100,Math.round((progCapped/t.need)*100));const rem=t.need-progCapped;
+    return `<div style="background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.07);border-radius:12px;padding:12px 14px;margin-bottom:8px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;"><div style="display:flex;align-items:center;gap:8px;"><span style="font-size:1.3rem;">${t.icon}</span>
+        <div><div style="font-family:'Orbitron',sans-serif;font-size:0.68rem;font-weight:700;color:${t.color};">${t.name.toUpperCase()}</div>
+        <div style="font-family:'Share Tech Mono',monospace;font-size:0.52rem;color:rgba(255,255,255,0.35);margin-top:1px;">${progCapped} / ${t.need} confirmations</div></div></div>
+        <span style="font-family:'Share Tech Mono',monospace;font-size:0.52rem;color:rgba(255,255,255,0.35);background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:20px;padding:3px 9px;">IN PROGRESS</span></div>
+      <div style="height:5px;border-radius:99px;background:rgba(255,255,255,0.06);overflow:hidden;margin-bottom:5px;"><div style="height:100%;width:${pct}%;background:${t.color};border-radius:99px;"></div></div>
+      <div style="font-family:'Share Tech Mono',monospace;font-size:0.5rem;color:rgba(255,255,255,0.3);">${pct}% · ${rem} more confirmation${rem===1?'':'s'} needed to unlock reward</div>
+    </div>`;
+  }).join('');
+}
+
+function loadLiveTierCounts(){
+  onValue(ref(db,'tierCompletions'),snap=>{
+    const counts=snap.exists()?snap.val():{};
+    Object.keys(TIERS).forEach(key=>{
+      const el=$('tierLiveCount_'+key);
+      if(el){ const n=counts[key]||0; el.textContent=n+' user'+(n===1?'':'s')+' completed'; }
+    });
+  },()=>{});
+}
+
+// ── TABS ────────────────────────────────────────────────────────
+window.switchTab=function(tab){
+  ['share','progress','confirm','rewards'].forEach(t=>{
+    const T=t.charAt(0).toUpperCase()+t.slice(1);
+    $('tab'+T).classList.toggle('active',t===tab);
+    $('tab'+T+'Panel').style.display=t===tab?'block':'none';
+  });
+  if(tab==='progress'){ renderInProgressTiers(); renderTierHistory(); }
+  if(tab==='rewards'&&currentUser){
+    refreshRewardsTab();
+    loadRewardHistory(currentUser.code);
+  }
+};
+
+
+
+
+
+// ── Refresh rewards tab against live Firebase data ──────────────
+async function refreshRewardsTab(){
+  if(!currentUser) return;
+  $('rewardWaiting').style.display='none';
+  $('rewardReady').style.display='none';
+  $('rewardCountdownCard').style.display='none';
+  try{
+    const snap=await get(ref(db,'users/'+currentUser.code));
+    if(!snap.exists()){ $('rewardWaiting').style.display='block'; renderRewardTabProgress(); return; }
+    const u=snap.val();
+    Object.assign(currentUser,u); currentUser.code=snap.key||currentUser.code;
+    const pending=u.pendingRewards||0;
+    const rewardReady=u.rewardReady;
+    const rewardBenefit=u.rewardBenefit;
+
+    // ── Tier completed + benefit already picked on share site + not yet applied in game ──
+    if(rewardReady && rewardBenefit){
+      $('rewardReady').style.display='block';
+      // Show which benefit was chosen and code
+      await loadOrCreateRewardCode(currentUser.code);
+      const tierKey=u.rewardTier||u.activeTier||'starter';
+      renderBenefitForTier(tierKey);
+      // Highlight the already-chosen benefit and disable re-pick
+      setTimeout(()=>{
+        document.querySelectorAll('.benefit-btn').forEach(btn=>{
+          if(btn.getAttribute('onclick')&&btn.getAttribute('onclick').includes("'"+rewardBenefit+"'")){
+            btn.classList.add('selected');
+          }
+        });
+        const claimBtn=$('claimBtn');
+        if(claimBtn){ claimBtn.textContent='✓ REWARD SAVED — OPEN PUZZLR TO APPLY'; claimBtn.disabled=true; }
+      },50);
+      return;
+    }
+
+    // ── Tier completed — user must pick benefit ──
+    if(pending>0){
+      $('rewardReady').style.display='block';
+      await loadOrCreateRewardCode(currentUser.code);
+      const tierKey=u.rewardTier||u.activeTier||'starter';
+      renderBenefitForTier(tierKey);
+      return;
+    }
+
+    // ── Active countdown ──
+    if(u.rewardExpiresAt && u.rewardExpiresAt>Date.now()){
+      $('rewardCountdownCard').style.display='block';
+      const lbl=$('rewardExpiry'),badge=$('rewardTierBadge');
+      const tierKey=u.rewardTier||u.activeTier||'starter';
+      const t=TIERS[tierKey];
+      if(badge) badge.textContent=(t?t.icon+' '+t.name:'');
+      function tick(){ const diff=u.rewardExpiresAt-Date.now(); if(diff<=0){$('rewardCountdownCard').style.display='none';return;} const d=Math.floor(diff/86400000),h=Math.floor((diff%86400000)/3600000),m=Math.floor((diff%3600000)/60000); if(lbl) lbl.textContent=(d>0?d+'d ':'')+h+'h '+m+'m REMAINING'; } tick();
+      clearInterval(window._countdownInterval); window._countdownInterval=setInterval(tick,60000);
+      $('rewardWaiting').style.display='block'; renderRewardTabProgress();
+      return;
+    }
+
+    // ── Nothing ready yet ──
+    $('rewardWaiting').style.display='block'; renderRewardTabProgress();
+  }catch(e){ $('rewardWaiting').style.display='block'; renderRewardTabProgress(); }
+}
+
+function checkRefParam(){
+  // Tier-code confirmation via the website was removed — confirmation now
+  // happens in-app at the APK gate. This is intentionally a no-op kept so
+  // existing calls elsewhere don't need to change.
+}
+
+// ── RESET ──────────────────────────────────────────────────────
+window.promptResetAll=function(){ if(!currentUser) return; $('resetModal').style.display='flex'; };
+window.dismissResetModal=function(){ $('resetModal').style.display='none'; };
+window.doResetAll=async function(){
+  if(!currentUser) return;
+  const btn=$('resetConfirmBtn'); btn.disabled=true; btn.textContent='RESETTING…';
+  try{
+    const resetData={referralCount:0,pendingRewards:0,totalRewards:0,activeTiers:null,completedTiers:null,tierProgress:null,tierCodes:null,activeTier:null,currentRewardCode:null,rewardExpiresAt:null,rewardTier:null,rewardBenefit:null,rewardCode:null,rewardClaimedAt:null,rewardReady:null,hasConfirmed:null};
+    await update(ref(db,'users/'+currentUser.code),resetData);
+    await set(ref(db,'referrals/'+currentUser.code),null);
+    const snap=await get(ref(db,'users/'+currentUser.code));
+    currentUser=snap.val(); currentUser.code=snap.key||persistGet('puzzlr_share_code');
+    dismissResetModal();
+    document.querySelectorAll('.tier-card').forEach(c=>c.classList.remove('selected'));
+    Object.keys(TIERS).forEach(key=>{
+      const el=$('tierProg_'+key);const fill=$('tierFill_'+key);const done=$('tierDone_'+key);const resetBtn=$('tierReset_'+key);
+      if(el) el.textContent='0'; if(fill) fill.style.width='0%'; if(done) done.style.display='none'; if(resetBtn) resetBtn.style.display='none';
+    });
+    $('statTotal').textContent='0'; $('statPending').textContent='0'; $('statRewards').textContent='0';
+    $('activeTierBox').style.display='none';
+    renderInProgressTiers(); renderTierCodesPanel();
+    toast('✅ All progress reset. Start fresh!','green',4000);
+  }catch(e){ const isNet=e&&(e.message||'').toLowerCase().match(/network|failed to fetch|offline|timeout|unavailable/); if(isNet) toast('Something is wrong with your internet. Please check your connection.','red'); }
+  finally{ btn.disabled=false; btn.textContent='YES, RESET EVERYTHING'; }
+};
+
+// ── RESET SINGLE TIER (restart a completed tier) ────────────────
+window.resetSingleTier=async function(tier){
+  if(!currentUser) return;
+  const t=TIERS[tier]; if(!t) return;
+  const completedTiers=currentUser.completedTiers||{};
+  if(!completedTiers[tier]){ toast('This tier is not completed yet.','gold'); return; }
+  const btn=$('tierReset_'+tier);
+  if(btn){ btn.disabled=true; btn.textContent='…'; }
+  try{
+    // Record this completion in history before wiping
+    await push(ref(db,'tier_history/'+currentUser.code),{
+      tier, completedAt: Date.now(), icon: t.icon, name: t.name
+    });
+    const updates={};
+    updates['activeTiers/'+tier]=null;
+    updates['completedTiers/'+tier]=null;
+    updates['tierProgress/'+tier]=0;
+    updates['tierCodes/'+tier]=null;
+    await update(ref(db,'users/'+currentUser.code),updates);
+    const snap=await get(ref(db,'users/'+currentUser.code));
+    currentUser=snap.val(); currentUser.code=snap.key||persistGet('puzzlr_share_code');
+    const el=$('tierProg_'+tier);const fill=$('tierFill_'+tier);const done=$('tierDone_'+tier);
+    if(el) el.textContent='0'; if(fill) fill.style.width='0%'; if(done) done.style.display='none';
+    if(btn) btn.style.display='none';
+    document.querySelectorAll('.tier-card').forEach(c=>c.classList.remove('selected'));
+    renderInProgressTiers(); renderTierCodesPanel();
+    toast(t.icon+' '+t.name+' tier reset — share again to restart!','green',4000);
+  }catch(e){ const isNet=e&&(e.message||'').toLowerCase().match(/network|failed to fetch|offline|timeout|unavailable/); if(isNet) toast('Something is wrong with your internet. Please check your connection.','red'); }
+  finally{ if(btn){ btn.disabled=false; btn.textContent='↻ RESTART'; } }
+};
+// Only runs for ?ref= links (download hero).
+(async function loadInviterName(){
+  const p=new URLSearchParams(window.location.search);
+  const r=p.get('ref');
+  if(!r) return;
+  const lbl=$('inviterLabel'); if(!lbl) return;
+  try{ const s=await get(ref(db,'users/'+r)); if(s.exists()) lbl.textContent='Invited by '+s.val().name; }catch(e){}
+})();
+
+// ── INIT ────────────────────────────────────────────────────────
+(async function init(){
+  const p=new URLSearchParams(window.location.search);
+  const saved=persistGet('puzzlr_share_code');
+  if(saved){
+    // Check if emperor before loading — redirect immediately
+    try{
+      const r=await fetch('https://david-connection-default-rtdb.firebaseio.com/users/'+encodeURIComponent(saved)+'.json');
+      const u=await r.json();
+      if(u&&u.emperorCode&&u.stagesComplete){
+        _showEmperorRedirectBanner(u.emperorName||saved,u.emperorCode);
+        return;
+      }
+    }catch(e){}
+    await loadUser(saved, true);
+    return;
+  }
+  // No local cache — fall back to the real source of truth (Firebase device binding)
+  // in case this is the same device with cleared site data but a surviving device id.
+  await renderLandingPanel();
+  checkRefParam();
+})();
+
+// ── EMPEROR REDIRECT ─────────────────────────────────────────────
+// Shows an overlay that blocks the normal UI and redirects the emperor
+// to emperor.html. Also called when emperor code is entered on this page.
+function _showEmperorRedirectBanner(emperorName, emperorCode){
+  // Hide all normal panels
+  document.querySelectorAll('.panel').forEach(p=>p.style.display='none');
+  const banner=document.getElementById('emperorRedirectBanner');
+  if(banner){ banner.style.display='flex'; return; }
+  const div=document.createElement('div');
+  div.id='emperorRedirectBanner';
+  div.style.cssText='position:fixed;inset:0;z-index:99990;background:radial-gradient(ellipse at 50% 30%,rgba(251,191,36,0.13),rgba(7,6,10,0.98));display:flex;align-items:center;justify-content:center;padding:24px;';
+  const name=(emperorName||'EMPEROR').toUpperCase();
+  div.innerHTML=`
+    <div style="max-width:340px;width:100%;text-align:center;font-family:inherit;">
+      <div style="font-size:2.5rem;margin-bottom:8px;">👑</div>
+      <div style="font-size:0.6rem;letter-spacing:4px;color:#F59E0B;font-weight:900;margin-bottom:6px;">EMPEROR DETECTED</div>
+      <div style="font-size:1.1rem;font-weight:900;color:#FBBF24;margin-bottom:14px;letter-spacing:2px;">EMPEROR (${escH(name)})</div>
+      <div style="font-size:0.68rem;color:rgba(255,255,255,0.65);line-height:1.6;margin-bottom:22px;">
+        This portal is no longer your domain.<br>
+        You have been elevated beyond it.<br>
+        Your Emperor Site awaits.
+      </div>
+      <button onclick="_goToEmperorSite()" style="background:linear-gradient(135deg,#D97706,#92400E);border:none;border-radius:12px;padding:14px 28px;font-size:0.85rem;font-weight:900;letter-spacing:2px;color:#fff;cursor:pointer;width:100%;box-shadow:0 0 40px rgba(217,119,6,0.5);margin-bottom:10px;">
+        👑 ENTER THE EMPEROR SITE →
+      </button>
+      <div style="font-size:0.5rem;color:rgba(255,255,255,0.25);">You will be asked for your Emperor Code there</div>
+    </div>`;
+  document.body.appendChild(div);
+}
+function _goToEmperorSite(){
+  window.location.href='emperor.html';
+}
+
+// Emperor-on-this-device detection now lives inside signBackIn() and init() —
+// both fetch the user record and redirect to emperor.html before loading the dashboard.
+
+
+// ── EMPEROR POPUP ───────────────────────────────────────────────
+// Stored in localStorage so this popup fires AT MOST ONCE EVER per user account.
+function _empDismissedKey(code){ return 'emp_popup_dismissed_'+(code||''); }
+
+window.showEmperorPopup=async function(userName, emperorName){
+  // Guard: never show again for this user (localStorage persists forever)
+  const code = (currentUser&&currentUser.code) || persistGet('puzzlr_share_code') || '';
+  if(localStorage.getItem(_empDismissedKey(code))) return;
+
+  const name=(emperorName||userName||'EMPEROR').toUpperCase();
+  const el=document.getElementById('emperorPopup');
+  if(!el) return;
+  document.getElementById('empPopName').textContent='EMPEROR ('+name+')';
+
+  // Show loading speech while David AI generates
+  const fallbackSpeech=
+    'You have conquered every stage.<br>'+
+    'All 50 puzzles have fallen before you.<br>'+
+    'The puzzle universe recognises you now —<br>'+
+    'not merely as a player,<br>'+
+    'but as its <strong style="color:#FBBF24;">Emperor</strong>.<br>'+
+    '<span style="font-size:0.62rem;color:rgba(251,191,36,0.55);">Your reign is permanent. Your legacy is real.</span>';
+
+  const speechEl=document.getElementById('empPopSpeech');
+  speechEl.innerHTML='<span style="opacity:0.45;font-size:0.62rem;">✨ David AI is composing your imperial address…</span>';
+  el.style.display='flex';
+
+  // Request personalised speech from David AI
+  try{
+    const resp=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-20250514',
+        max_tokens:1000,
+        system:'You are David AI — the ancient, mystical intelligence at the heart of the DAVID PUZZLR universe. You speak in a ceremonial, poetic, epic tone: wise, warm, and unforgettable. You are addressing a newly crowned Emperor of the puzzle realm. Keep your address to 5–6 sentences maximum. No markdown, no asterisks. Speak directly to the Emperor by name. Make it personal, powerful, and specific to their achievement.',
+        messages:[{role:'user',content:'The player '+name+' has just collected all 50 medals in DAVID PUZZLR — every single puzzle stage has fallen before them. They are being crowned EMPEROR ('+name+'). Write a personalised congratulatory address from David AI to this Emperor. Address them directly as EMPEROR ('+name+'). Make it ceremonial and moving.'}]
+      })
+    });
+    const data=await resp.json();
+    const text=data&&data.content&&data.content[0]&&data.content[0].text;
+    if(text){
+      const formatted=text.trim().replace(/\n\n/g,'<br><br>').replace(/\n/g,'<br>').replace(/\. ([A-Z])/g,'.<br>$1');
+      speechEl.innerHTML=formatted+'<br><span style="font-size:0.6rem;color:rgba(251,191,36,0.5);margin-top:8px;display:block;">— David AI, Keeper of the Puzzle Realm</span>';
+    }else{
+      speechEl.innerHTML=fallbackSpeech;
+    }
+  }catch(e){
+    speechEl.innerHTML=fallbackSpeech;
+  }
+};
+
+window.dismissEmperorPopup=function(){
+  const el=document.getElementById('emperorPopup');
+  if(!el) return;
+  // Mark as permanently dismissed for this user — never show again
+  const code=(currentUser&&currentUser.code)||persistGet('puzzlr_share_code')||'';
+  if(code) localStorage.setItem(_empDismissedKey(code),'1');
+  el.style.transition='opacity 0.38s';
+  el.style.opacity='0';
+  setTimeout(()=>{ el.style.display='none'; el.style.opacity=''; el.style.transition=''; },400);
+  // Announce emperor in the live sub line after dismissal
+  const dsub=document.querySelector('.dash-sub');
+  if(dsub && currentUser){
+    const name=(currentUser.emperorName||currentUser.name||'EMPEROR').toUpperCase();
+    dsub.innerHTML='<span class="live-dot" style="background:#FBBF24;box-shadow:0 0 6px #FBBF24;"></span>EMPEROR ('+name+') — ALL 50 MEDALS CONQUERED';
+  }
+  toast('👑 The Empire rises, EMPEROR ('+(currentUser?currentUser.name:'')+')!','gold',5000);
+};
+</script>
+<!-- TIER CONFIRM MODAL -->
+<div id="tierConfirmModal" style="display:none;position:fixed;inset:0;z-index:9998;background:rgba(0,0,0,0.75);backdrop-filter:blur(6px);align-items:center;justify-content:center;padding:20px;">
+  <div style="background:#0F0D14;border:1px solid rgba(255,184,0,0.3);border-radius:20px;padding:28px 22px;max-width:360px;width:100%;text-align:center;position:relative;box-shadow:0 0 60px rgba(255,184,0,0.1);">
+    <div id="tcmIcon" style="font-size:2.5rem;margin-bottom:10px;"></div>
+    <div id="tcmTitle" style="font-family:'Orbitron',sans-serif;font-size:0.9rem;font-weight:900;letter-spacing:2px;color:#FFB800;margin-bottom:8px;"></div>
+    <div id="tcmBody" style="font-family:'Share Tech Mono',monospace;font-size:0.65rem;color:rgba(255,255,255,0.65);line-height:1.8;margin-bottom:20px;"></div>
+    <div style="display:flex;gap:10px;">
+      <button onclick="dismissTierModal()" style="flex:1;padding:12px;background:transparent;border:1px solid rgba(255,255,255,0.12);border-radius:12px;color:rgba(255,255,255,0.6);font-family:'Orbitron',sans-serif;font-size:0.62rem;font-weight:700;letter-spacing:1.5px;cursor:pointer;">CANCEL</button>
+      <button id="tcmConfirmBtn" onclick="doStartTier()" style="flex:1;padding:12px;background:linear-gradient(135deg,#FF8C00,#FFB800);border:none;border-radius:12px;color:#000;font-family:'Orbitron',sans-serif;font-size:0.62rem;font-weight:900;letter-spacing:1.5px;cursor:pointer;">YES, START TIER</button>
+    </div>
+  </div>
+</div>
+<!-- RESET / REFRESH MODAL -->
+<div id="resetModal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.82);backdrop-filter:blur(8px);align-items:center;justify-content:center;padding:20px;">
+  <div style="background:#0F0D14;border:1px solid rgba(255,80,80,0.35);border-radius:20px;padding:28px 22px;max-width:360px;width:100%;text-align:center;position:relative;box-shadow:0 0 60px rgba(255,60,60,0.1);">
+    <div style="font-size:2.5rem;margin-bottom:10px;">⚠️</div>
+    <div style="font-family:'Orbitron',sans-serif;font-size:0.9rem;font-weight:900;letter-spacing:2px;color:#ff6b6b;margin-bottom:12px;">RESET ALL PROGRESS?</div>
+    <div id="resetWarnMsg" style="display:none;background:rgba(255,80,80,0.07);border:1px solid rgba(255,80,80,0.2);border-radius:10px;padding:10px 14px;font-family:'Share Tech Mono',monospace;font-size:0.6rem;color:rgba(255,255,255,0.7);line-height:1.8;margin-bottom:12px;text-align:left;"></div>
+    <div style="font-family:'Share Tech Mono',monospace;font-size:0.63rem;color:rgba(255,255,255,0.55);line-height:1.9;margin-bottom:8px;text-align:left;">
+      This will permanently wipe:<br>
+      <span style="color:rgba(255,100,100,0.8);">✗ All tier progress &amp; confirmations</span><br>
+      <span style="color:rgba(255,100,100,0.8);">✗ Active &amp; completed tier records</span><br>
+      <span style="color:rgba(255,100,100,0.8);">✗ Referral count &amp; pending rewards</span><br>
+      <span style="color:rgba(255,255,255,0.35);">✓ Your name, email &amp; share code are kept</span><br>
+      <span style="color:rgba(255,255,255,0.35);">✓ Previously saved reward codes are kept</span>
+    </div>
+    <div style="font-family:'Share Tech Mono',monospace;font-size:0.58rem;color:rgba(255,184,0,0.7);background:rgba(255,184,0,0.05);border:1px solid rgba(255,184,0,0.15);border-radius:8px;padding:8px 12px;margin-bottom:20px;">
+      💡 Only reset after all in-progress tiers are fully completed and rewards are saved.
+    </div>
+    <div style="display:flex;gap:10px;">
+      <button onclick="dismissResetModal()" style="flex:1;padding:12px;background:transparent;border:1px solid rgba(255,255,255,0.12);border-radius:12px;color:rgba(255,255,255,0.6);font-family:'Orbitron',sans-serif;font-size:0.6rem;font-weight:700;letter-spacing:1px;cursor:pointer;">CANCEL</button>
+      <button id="resetConfirmBtn" onclick="doResetAll()" style="flex:1;padding:12px;background:linear-gradient(135deg,#c0005a,#ff3030);border:none;border-radius:12px;color:#fff;font-family:'Orbitron',sans-serif;font-size:0.58rem;font-weight:900;letter-spacing:1px;cursor:pointer;">YES, RESET EVERYTHING</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     EMPEROR CONGRATULATION POPUP
+══════════════════════════════════════ -->
+<div id="emperorPopup" style="display:none;position:fixed;inset:0;z-index:99999;background:radial-gradient(ellipse at 50% 40%,rgba(251,191,36,0.16) 0%,rgba(7,6,10,0.97) 65%);align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(4px);">
+  <div id="emperorPopupInner" style="background:#0F0D14;border:1px solid rgba(251,191,36,0.45);border-radius:26px;padding:36px 24px 28px;max-width:360px;width:100%;text-align:center;position:relative;overflow:hidden;box-shadow:0 0 80px rgba(251,191,36,0.18),0 20px 60px rgba(0,0,0,0.7);">
+    <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,#FBBF24,#FDE68A,#FBBF24,transparent);"></div>
+    <div id="empPopCrown" style="font-size:3.8rem;display:block;margin-bottom:6px;animation:empCrownFloat 2.4s ease-in-out infinite;">👑</div>
+    <div style="font-family:'Orbitron',sans-serif;font-size:0.58rem;font-weight:700;letter-spacing:5px;color:#FBBF24;margin-bottom:8px;text-transform:uppercase;">The Puzzle Universe Bows</div>
+    <div id="empPopHeadline" style="font-family:'Orbitron',sans-serif;font-size:1.4rem;font-weight:900;letter-spacing:3px;background:linear-gradient(135deg,#FDE68A,#FBBF24,#F59E0B);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1.15;margin-bottom:8px;animation:empGlow 2.8s ease-in-out infinite;">ALL 50 MEDALS<br>CONQUERED</div>
+    <div id="empPopName" style="font-family:'Orbitron',sans-serif;font-size:1.1rem;font-weight:900;letter-spacing:4px;color:#FBBF24;margin:10px 0 6px;"></div>
+    <div id="empPopSpeech" style="font-family:'Share Tech Mono',monospace;font-size:0.72rem;color:rgba(255,248,231,0.82);line-height:1.85;margin:10px 0 22px;"></div>
+    <button onclick="dismissEmperorPopup()" style="width:100%;padding:15px;background:linear-gradient(135deg,#FBBF24,#F59E0B);border:none;border-radius:14px;font-family:'Orbitron',sans-serif;font-size:0.82rem;font-weight:900;letter-spacing:3px;color:#0A0800;cursor:pointer;transition:transform .15s;box-shadow:0 0 30px rgba(251,191,36,0.3);" onmouseover="this.style.transform='translateY(-1px)'" onmouseout="this.style.transform='none'" ontouchstart="">THANK YOU 👑</button>
+  </div>
+</div>
+<style>
+@keyframes empCrownFloat{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-8px) scale(1.07)}}
+@keyframes empGlow{0%,100%{filter:brightness(1)}50%{filter:brightness(1.25) drop-shadow(0 0 12px rgba(251,191,36,0.6))}}
+/* Emperor mode — dash header upgrade */
+.dash-header.emperor-mode{background:linear-gradient(135deg,rgba(251,191,36,0.09),rgba(245,158,11,0.04));border-color:rgba(251,191,36,0.28);}
+.emperor-crown-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(251,191,36,0.1);border:1px solid rgba(251,191,36,0.3);border-radius:99px;padding:3px 11px;font-family:'Share Tech Mono',monospace;font-size:0.56rem;color:#FBBF24;letter-spacing:1.5px;margin-top:5px;}
+</style>
+
+</body>
+</html>
