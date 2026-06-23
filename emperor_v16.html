@@ -1,0 +1,1623 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PUZZLR — EMPEROR PORTAL 👑</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Rajdhani:wght@300;400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<style>
+:root{
+  --g:#FFB800;--gold:#FFB800;
+  --emp:#D97706;--emp2:#FBBF24;--emp3:#F59E0B;--emp4:#FDE68A;
+  --bg:#04030A;--card:#0D0A10;--card2:#130E16;--card3:#1A1020;
+  --border:rgba(217,119,6,0.2);--muted:rgba(255,255,255,0.38);
+  --font:'Rajdhani',sans-serif;--display:'Orbitron',sans-serif;--mono:'Share Tech Mono',monospace;
+  --tier1:#c97b3a;--tier2:#a8a8a8;--tier3:#ffd700;--tier4:#7ef4ff;--tier5:#ff79c6;
+  --glow:0 0 40px rgba(217,119,6,0.18);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:#fff;font-family:var(--font);height:100dvh;overflow:hidden;font-size:16px}
+canvas#empBg{position:fixed;inset:0;z-index:0;pointer-events:none}
+.noise{position:fixed;inset:0;z-index:0;opacity:.018;pointer-events:none;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")}
+.wrap{position:relative;z-index:1;max-width:480px;margin:0 auto;padding:0 16px;height:100dvh;overflow-y:auto;overflow-x:hidden;padding-bottom:80px}
+
+/* ── HEADER ── */
+header{text-align:center;padding:20px 0 16px;position:relative}
+.emp-crown-aura{position:absolute;top:-20px;left:50%;transform:translateX(-50%);width:360px;height:360px;pointer-events:none;background:radial-gradient(circle,rgba(217,119,6,0.16) 0%,rgba(251,191,36,0.06) 40%,transparent 70%);animation:breathe 4s ease-in-out infinite}
+.emp-crown-aura2{position:absolute;top:20px;left:50%;transform:translateX(-50%);width:220px;height:220px;pointer-events:none;background:radial-gradient(circle,rgba(251,191,36,0.1) 0%,transparent 70%);animation:breathe 2.8s ease-in-out infinite reverse}
+.logo-row{display:inline-flex;align-items:center;gap:14px;position:relative}
+.logo-icon-emp{width:46px;height:46px;display:grid;grid-template-columns:1fr 1fr;gap:4px;padding:8px;background:linear-gradient(135deg,rgba(217,119,6,0.18),rgba(251,191,36,0.1));border:1px solid rgba(217,119,6,0.45);border-radius:13px;position:relative;overflow:hidden}
+.logo-icon-emp::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,transparent 40%,rgba(251,191,36,0.12));animation:shimmer-logo 2.2s ease-in-out infinite}
+.logo-icon-emp span{background:var(--emp2);border-radius:3px;display:block;animation:pulse-block 2s ease-in-out infinite}
+.logo-icon-emp span:nth-child(2){animation-delay:.3s}.logo-icon-emp span:nth-child(3){animation-delay:.6s}.logo-icon-emp span:nth-child(4){animation-delay:.9s}
+.logo-text{font-family:var(--display);font-size:2rem;font-weight:900;letter-spacing:6px;background:linear-gradient(135deg,#fff 0%,var(--emp2) 55%,var(--emp) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.emp-logo-crown{font-size:1.8rem;display:block;animation:crownFloat 3s ease-in-out infinite;filter:drop-shadow(0 0 22px rgba(251,191,36,0.9));margin-bottom:4px}
+.emp-subtitle{font-family:var(--mono);font-size:0.58rem;color:var(--emp2);letter-spacing:4px;margin-top:6px;opacity:.8;animation:blink 1.6s step-end infinite}
+.emp-name-tag{display:inline-flex;align-items:center;gap:8px;margin-top:8px;background:linear-gradient(135deg,rgba(217,119,6,0.18),rgba(251,191,36,0.1));border:1px solid rgba(217,119,6,0.55);border-radius:50px;padding:9px 24px;font-family:var(--display);font-size:0.72rem;font-weight:700;color:var(--emp2);letter-spacing:3px;box-shadow:0 0 40px rgba(217,119,6,0.28),0 0 80px rgba(217,119,6,0.1);animation:empTagPulse 2.5s ease-in-out infinite}
+.emp-servant-line{font-size:0.55rem;color:rgba(255,255,255,0.28);letter-spacing:2px;margin-top:8px;font-family:var(--mono)}
+
+/* ── CARDS ── */
+.card{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:14px 16px;margin-bottom:12px;box-shadow:var(--glow);position:relative;overflow:hidden;backdrop-filter:blur(8px)}
+.card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,rgba(217,119,6,0.7),rgba(251,191,36,0.5),rgba(217,119,6,0.7),transparent);animation:shimmer 3.5s ease-in-out infinite}
+.card::after{content:'';position:absolute;top:0;left:0;bottom:0;width:1px;background:linear-gradient(180deg,rgba(217,119,6,0.5),transparent);opacity:.4}
+.card-title{font-family:var(--display);font-size:0.55rem;font-weight:700;letter-spacing:3px;color:var(--emp2);margin-bottom:14px;text-transform:uppercase;display:flex;align-items:center;gap:8px}
+.card-title::before{content:'//';opacity:.45;font-family:var(--mono);color:var(--emp)}
+
+/* ── FORM ── */
+.field{margin-bottom:12px}
+.field label{display:block;font-family:var(--mono);font-size:0.6rem;color:var(--emp2);text-transform:uppercase;letter-spacing:2px;margin-bottom:5px;opacity:.8}
+.field input{width:100%;background:rgba(217,119,6,0.04);border:1px solid rgba(217,119,6,0.2);border-radius:10px;padding:11px 14px;color:#fff;font-family:var(--mono);font-size:0.85rem;outline:none;transition:all .2s;-webkit-appearance:none;letter-spacing:1px}
+.field input:focus{border-color:rgba(217,119,6,0.6);background:rgba(217,119,6,0.06);box-shadow:0 0 0 3px rgba(217,119,6,0.1)}
+.field input::placeholder{color:rgba(255,255,255,0.18)}
+.error-msg{color:#f87171;font-size:0.6rem;font-family:var(--mono);margin-top:4px;min-height:16px;letter-spacing:1px}
+
+/* ── BUTTONS ── */
+.btn{display:block;width:100%;padding:13px 20px;border:none;border-radius:12px;cursor:pointer;font-family:var(--display);font-size:0.72rem;font-weight:700;letter-spacing:2px;transition:all .2s;position:relative;overflow:hidden}
+.btn::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,transparent 40%,rgba(255,255,255,0.07));pointer-events:none}
+.btn:active{transform:scale(0.98)}.btn:disabled{opacity:.35;cursor:not-allowed;transform:none}
+.btn-emp{background:linear-gradient(135deg,#D97706,#92400E);color:#fff;box-shadow:0 4px 24px rgba(217,119,6,0.4)}
+.btn-emp:hover:not(:disabled){box-shadow:0 4px 50px rgba(217,119,6,0.65);transform:translateY(-1px)}
+.btn-emp-gold{background:linear-gradient(135deg,#FBBF24,#F59E0B);color:#000;box-shadow:0 4px 24px rgba(251,191,36,0.35)}
+.btn-emp-gold:hover:not(:disabled){box-shadow:0 4px 50px rgba(251,191,36,0.55);transform:translateY(-1px)}
+.btn-outline{background:transparent;border:1px solid rgba(217,119,6,0.2);color:rgba(255,255,255,0.65)}
+.btn-outline:hover:not(:disabled){border-color:rgba(217,119,6,0.5);color:var(--emp2);background:rgba(217,119,6,0.05)}
+.btn-sm{padding:7px 14px;font-size:0.58rem;width:auto;border-radius:8px}
+
+/* ── PANELS ── */
+.panel{display:none}.panel.active{display:block}
+
+/* ── STAT CARDS ── */
+.stat-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.stat-card{background:var(--card2);border:1px solid var(--border);border-radius:16px;padding:16px 14px;text-align:center;position:relative;overflow:hidden;transition:all .25s}
+.stat-card:hover{border-color:rgba(217,119,6,0.4);transform:translateY(-2px);box-shadow:0 8px 24px rgba(217,119,6,0.12)}
+.stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(217,119,6,0.5),transparent)}
+.stat-num{font-family:var(--display);font-size:1.6rem;font-weight:900;color:var(--emp2);text-shadow:0 0 16px rgba(251,191,36,0.35)}
+.stat-label{font-family:var(--mono);font-size:0.48rem;color:var(--muted);letter-spacing:2px;margin-top:4px;text-transform:uppercase}
+
+/* ── TIER BLOCKS (Throne) ── */
+.tier-block{background:var(--card2);border:1px solid var(--border);border-radius:14px;padding:14px 16px;margin-bottom:10px;position:relative;overflow:hidden;transition:border-color .2s}
+.tier-block::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(217,119,6,0.4),transparent)}
+.tier-name{font-family:var(--display);font-size:0.65rem;font-weight:700;letter-spacing:2px;margin-bottom:10px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.tier-prog-bar{height:4px;border-radius:99px;background:rgba(255,255,255,0.06);overflow:hidden;margin-bottom:12px}
+.tier-prog-fill{height:100%;border-radius:99px;transition:width .8s cubic-bezier(.4,0,.2,1)}
+.tier-code-wrap{display:flex;gap:6px;align-items:center;margin-bottom:8px}
+.tier-code-wrap input{flex:1;background:rgba(0,0,0,0.22);border:1px solid rgba(217,119,6,0.2);border-radius:9px;padding:9px 13px;color:var(--emp2);font-family:var(--mono);font-size:0.82rem;letter-spacing:3px;outline:none;cursor:pointer;transition:border-color .15s}
+.tier-code-wrap input:hover{border-color:rgba(217,119,6,0.45)}
+.copy-btn{background:rgba(217,119,6,0.1);border:1px solid rgba(217,119,6,0.3);border-radius:8px;padding:8px 13px;color:var(--emp2);font-family:var(--display);font-size:0.5rem;font-weight:700;letter-spacing:1px;cursor:pointer;flex-shrink:0;transition:all .15s;white-space:nowrap}
+.copy-btn:hover{background:rgba(217,119,6,0.2);border-color:rgba(217,119,6,0.6)}
+.copy-btn.copied{background:rgba(134,239,172,0.12);border-color:rgba(134,239,172,0.4);color:#86efac}
+.share-row{display:flex;gap:5px}
+.share-btn-mini{flex:1;padding:8px 2px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.07);border-radius:8px;color:rgba(255,255,255,0.6);font-family:var(--display);font-size:0.44rem;font-weight:700;letter-spacing:1px;cursor:pointer;transition:all .15s;display:flex;align-items:center;justify-content:center;gap:3px}
+.share-btn-mini:hover{border-color:rgba(217,119,6,0.4);color:var(--emp2)}
+.sb-icon{font-size:0.7rem}
+
+/* ── HISTORY ITEMS ── */
+.hist-item{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.05)}
+.hist-item:last-child{border-bottom:none}
+.hist-icon{width:34px;height:34px;border-radius:50%;background:rgba(217,119,6,0.1);border:1px solid rgba(217,119,6,0.2);display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0}
+.hist-info{flex:1}
+.hist-title{font-size:0.72rem;font-weight:700;color:rgba(255,255,255,0.85)}
+.hist-date{font-family:var(--mono);font-size:0.52rem;color:var(--muted);margin-top:2px}
+.hist-tier{font-size:0.52rem;font-family:var(--mono);padding:3px 8px;border-radius:6px;background:rgba(217,119,6,0.15);color:var(--emp2);margin-left:auto;border:1px solid rgba(217,119,6,0.2);white-space:nowrap}
+
+/* ── LIVE BAR ── */
+.live-dot{width:6px;height:6px;border-radius:50%;background:#00ff88;display:inline-block;box-shadow:0 0 8px #00ff88;animation:pulse-dot 1.5s ease-in-out infinite;margin-right:5px}
+.live-dot-gold{width:6px;height:6px;border-radius:50%;background:var(--emp2);display:inline-block;box-shadow:0 0 6px var(--emp2);animation:pulse-dot 1.5s ease-in-out infinite}
+#liveActivityBar{background:rgba(0,255,136,0.04);border:1px solid rgba(0,255,136,0.15);border-radius:12px;padding:10px 14px;margin-bottom:14px;display:none;overflow:hidden;position:relative}
+
+/* ── CODE BOX ── */
+.code-box-big{display:flex;align-items:center;justify-content:space-between;background:rgba(0,0,0,0.25);border:1px solid rgba(217,119,6,0.28);border-radius:13px;padding:14px 18px;cursor:pointer;transition:all .15s;margin-bottom:0}
+.code-box-big:hover{background:rgba(217,119,6,0.07);border-color:rgba(217,119,6,0.5)}
+.code-val{font-family:var(--mono);font-size:1.05rem;color:var(--emp2);letter-spacing:3px;text-shadow:0 0 10px rgba(217,119,6,0.3)}
+.copy-hint{font-family:var(--display);font-size:0.5rem;color:rgba(217,119,6,0.55);letter-spacing:1px;flex-shrink:0}
+
+/* ── EMPEROR SCROLL ── */
+.emp-scroll{background:linear-gradient(135deg,rgba(217,119,6,0.08),rgba(251,191,36,0.04));border:1px solid rgba(217,119,6,0.4);border-radius:16px;padding:14px 16px;text-align:center;margin-bottom:12px;position:relative;overflow:hidden}
+.emp-scroll::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(251,191,36,0.6),transparent)}
+.emp-scroll-title{font-family:var(--display);font-size:0.5rem;letter-spacing:3px;color:rgba(217,119,6,0.75);margin-bottom:10px;text-transform:uppercase}
+.emp-scroll-text{font-family:var(--mono);font-size:0.62rem;color:rgba(255,255,255,0.75);line-height:1.65}
+
+/* ── DASH HEADER ── */
+.dash-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;background:linear-gradient(135deg,rgba(217,119,6,0.07),rgba(251,191,36,0.03));border:1px solid rgba(217,119,6,0.25);border-radius:16px;padding:14px 18px;position:relative;overflow:hidden}
+.dash-header::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(217,119,6,0.5),transparent)}
+.dash-greeting{font-family:var(--display);font-size:0.9rem;font-weight:700;letter-spacing:1px;color:#fff}
+.dash-sub{font-family:var(--mono);font-size:0.52rem;color:var(--muted);margin-top:4px;display:flex;align-items:center;gap:5px}
+
+/* ── TABS ── */
+.tabs{display:flex;gap:5px;margin-bottom:16px;position:relative}
+.tab{
+  flex:1;padding:10px 2px 9px;border-radius:12px;
+  background:rgba(255,255,255,0.015);
+  border:1px solid rgba(255,255,255,0.05);
+  color:rgba(255,255,255,0.3);
+  font-family:var(--display);font-size:0.42rem;font-weight:700;letter-spacing:1.5px;
+  cursor:pointer;text-align:center;transition:all .22s;
+  position:relative;overflow:hidden;
+  text-transform:uppercase
+}
+.tab::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:1px;
+  background:transparent;transition:background .22s
+}
+.tab.active{
+  background:linear-gradient(160deg,rgba(217,119,6,0.18) 0%,rgba(251,191,36,0.07) 100%);
+  border-color:rgba(217,119,6,0.5);
+  color:var(--emp2);
+  box-shadow:0 0 22px rgba(217,119,6,0.18),inset 0 1px 0 rgba(251,191,36,0.12);
+  text-shadow:0 0 12px rgba(251,191,36,0.5)
+}
+.tab.active::before{
+  background:linear-gradient(90deg,transparent,rgba(251,191,36,0.7),transparent);
+  animation:shimmer 2.5s ease-in-out infinite
+}
+.tab:not(.active):hover{
+  background:rgba(217,119,6,0.05);
+  border-color:rgba(217,119,6,0.2);
+  color:rgba(255,255,255,0.55)
+}
+.tab-crown{
+  display:block;font-size:0.6rem;margin-bottom:2px;
+  opacity:0;transform:translateY(3px);
+  transition:all .22s
+}
+.tab.active .tab-crown{opacity:1;transform:translateY(0)}
+.tab-panel{display:none}.tab-panel.active{display:block}
+
+/* ── IN-PROGRESS TIER CARDS ── */
+.prog-card{border-radius:12px;padding:12px 14px;margin-bottom:10px;position:relative;overflow:hidden}
+.prog-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px}
+
+/* ── IMPERIAL NOTIFICATION (toast) ── */
+#toast{
+  position:fixed;top:50%;left:50%;
+  transform:translate(-50%,-50%) scale(0.85);
+  background:linear-gradient(135deg,rgba(4,3,10,0.98),rgba(13,10,16,0.98));
+  border:1px solid rgba(217,119,6,0.45);
+  border-radius:16px;padding:14px 30px;
+  font-family:var(--display);font-size:0.65rem;font-weight:700;letter-spacing:2px;
+  color:var(--emp2);z-index:9999;opacity:0;pointer-events:none;
+  backdrop-filter:blur(20px);max-width:88vw;text-align:center;
+  transition:opacity .22s ease,transform .22s ease;
+  box-shadow:0 0 60px rgba(217,119,6,0.25),0 8px 40px rgba(0,0,0,0.7);
+  text-transform:uppercase;text-shadow:0 0 12px rgba(251,191,36,0.4)
+}
+#toast.show{opacity:1;transform:translate(-50%,-50%) scale(1);animation:impNotify .32s ease}
+#toast.green{border-color:rgba(134,239,172,0.4);color:#86efac;box-shadow:0 0 40px rgba(134,239,172,0.12),0 8px 40px rgba(0,0,0,0.7);text-shadow:0 0 10px rgba(134,239,172,0.4)}
+#toast.gold{border-color:rgba(251,191,36,0.55);color:var(--emp2);box-shadow:0 0 50px rgba(251,191,36,0.2),0 8px 40px rgba(0,0,0,0.7)}
+#toast.red{border-color:rgba(255,80,80,0.45);color:#ff6b6b;box-shadow:0 0 40px rgba(255,80,80,0.12),0 8px 40px rgba(0,0,0,0.7);text-shadow:0 0 10px rgba(255,100,100,0.4)}
+
+/* ── NAV ── */
+nav{position:fixed;bottom:0;left:0;right:0;z-index:100;background:rgba(4,3,10,0.97);backdrop-filter:blur(20px);border-top:1px solid rgba(217,119,6,0.22);display:flex;justify-content:space-around;padding:10px 0 max(10px,env(safe-area-inset-bottom))}
+.nav-btn{background:none;border:none;color:var(--muted);cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;padding:4px 8px;font-family:var(--mono);font-size:0.42rem;letter-spacing:1px;text-transform:uppercase;transition:.2s}
+.nav-btn.active{color:var(--emp2)}
+.nav-btn svg{width:20px;height:20px;transition:.2s}
+.nav-btn.active svg{filter:drop-shadow(0 0 8px rgba(251,191,36,0.8));animation:navActivePulse 2.4s ease-in-out infinite}
+.nav-indicator{width:4px;height:4px;border-radius:50%;background:var(--emp2);margin:0 auto;opacity:0;transition:opacity .2s}
+.nav-btn.active .nav-indicator{opacity:1;box-shadow:0 0 8px var(--emp2);animation:pulse-dot 1.8s ease-in-out infinite}
+.nav-icon-label{font-size:0.56rem;line-height:1;margin-bottom:1px}
+
+/* ── IMPERIAL GREETING ── */
+#imperialGreetingCard{background:linear-gradient(135deg,rgba(217,119,6,0.1),rgba(251,191,36,0.05));border:1px solid rgba(251,191,36,0.3);border-radius:18px;padding:16px 18px;margin-bottom:14px;text-align:center;position:relative;overflow:hidden;animation:greetingFade .7s ease}
+#imperialGreetingCard::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(251,191,36,0.7),transparent)}
+#imperialGreeting{font-family:var(--display);font-size:0.72rem;font-weight:700;color:var(--emp2);letter-spacing:2px;line-height:1.7;text-shadow:0 0 18px rgba(251,191,36,0.35)}
+
+/* ── EMPIRE POWER METER ── */
+.empire-meter{background:linear-gradient(135deg,rgba(217,119,6,0.08),rgba(251,191,36,0.03));border:1px solid rgba(217,119,6,0.28);border-radius:16px;padding:14px 16px;margin-bottom:14px;position:relative;overflow:hidden;animation:powerGlow 3s ease-in-out infinite}
+.empire-meter::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(217,119,6,0.6),transparent)}
+.meter-title{font-family:var(--display);font-size:0.5rem;font-weight:700;letter-spacing:3px;color:rgba(217,119,6,0.8);margin-bottom:10px;text-transform:uppercase}
+.meter-bar-wrap{height:8px;background:rgba(255,255,255,0.06);border-radius:99px;overflow:hidden;margin-bottom:8px;position:relative}
+.meter-bar-fill{height:100%;border-radius:99px;background:linear-gradient(90deg,var(--emp),var(--emp2));transition:width 1.2s cubic-bezier(.4,0,.2,1);position:relative}
+.meter-bar-fill::after{content:'';position:absolute;top:0;right:0;bottom:0;width:30px;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.35));animation:shimmer-logo 1.8s ease-in-out infinite}
+.meter-footer{display:flex;align-items:center;justify-content:space-between;font-family:var(--mono);font-size:0.52rem}
+.meter-pct{color:var(--emp2);font-weight:700;font-family:var(--display)}
+.meter-status{color:rgba(255,165,0,0.75);letter-spacing:1px}
+
+/* ── LIVE IMPERIAL ACTIVITY (top rotating bar) ── */
+#imperialActivityBar{background:rgba(217,119,6,0.05);border:1px solid rgba(217,119,6,0.2);border-radius:12px;padding:9px 14px;margin-bottom:14px;display:flex;align-items:center;gap:10px;overflow:hidden}
+#imperialActivityText{font-family:var(--mono);font-size:0.56rem;color:rgba(255,255,255,0.6);animation:activitySlide .4s ease;flex:1}
+
+/* ── CODE BOX PULSE ── */
+.code-box-big{animation:codePulse 3.5s ease-in-out infinite}
+.code-box-big:hover{animation:none;background:rgba(217,119,6,0.09);border-color:rgba(251,191,36,0.6);box-shadow:0 0 30px rgba(251,191,36,0.2)}
+/* code shine on hover */
+.code-box-big::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,transparent 40%,rgba(251,191,36,0.07));opacity:0;transition:opacity .2s;pointer-events:none;border-radius:13px}
+.code-box-big:hover::before{opacity:1}
+
+/* ── TIER THRONE BLOCKS ── */
+.tier-block{transition:transform .25s,box-shadow .25s,border-color .2s}
+.tier-block:hover{transform:translateY(-3px)}
+.tier-block.tier-starter{border-color:rgba(201,123,58,0.28)!important}.tier-block.tier-starter:hover{box-shadow:0 8px 28px rgba(201,123,58,0.18)}
+.tier-block.tier-bronze{border-color:rgba(168,168,168,0.28)!important}.tier-block.tier-bronze:hover{box-shadow:0 8px 28px rgba(168,168,168,0.16)}
+.tier-block.tier-silver{border-color:rgba(255,215,0,0.28)!important}.tier-block.tier-silver:hover{box-shadow:0 8px 28px rgba(255,215,0,0.18)}
+.tier-block.tier-gold{border-color:rgba(126,244,255,0.28)!important}.tier-block.tier-gold:hover{box-shadow:0 8px 28px rgba(126,244,255,0.18)}
+.tier-block.tier-elite{border-color:rgba(255,121,198,0.28)!important}.tier-block.tier-elite:hover{box-shadow:0 8px 28px rgba(255,121,198,0.22)}
+/* animated tier border */
+.tier-block::after{content:'';position:absolute;inset:0;border-radius:14px;pointer-events:none;opacity:0;transition:opacity .3s;box-shadow:inset 0 0 0 1px rgba(251,191,36,0.1)}
+.tier-block:hover::after{opacity:1}
+
+/* ── STAT CARDS — THRONE DASHBOARD ── */
+.stat-card .stat-icon{font-size:1.1rem;display:block;margin-bottom:4px}
+.stat-card .stat-label{color:var(--emp2);opacity:.7}
+
+/* ── CHRONICLES LIST ── */
+.chron-item{display:flex;align-items:flex-start;gap:12px;padding:11px 0;border-bottom:1px solid rgba(217,119,6,0.08);animation:slideUp .35s ease}
+.chron-item:last-child{border-bottom:none}
+.chron-icon{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,rgba(217,119,6,0.15),rgba(251,191,36,0.08));border:1px solid rgba(217,119,6,0.3);display:flex;align-items:center;justify-content:center;font-size:0.95rem;flex-shrink:0;box-shadow:0 0 10px rgba(217,119,6,0.1)}
+.chron-info{flex:1}
+.chron-title{font-size:0.7rem;font-weight:700;color:rgba(255,255,255,0.88);font-family:var(--display);letter-spacing:1px}
+.chron-date{font-family:var(--mono);font-size:0.5rem;color:var(--muted);margin-top:2px}
+.chron-badge{font-size:0.5rem;font-family:var(--mono);padding:3px 9px;border-radius:6px;background:rgba(217,119,6,0.15);color:var(--emp2);margin-left:auto;border:1px solid rgba(217,119,6,0.25);white-space:nowrap;align-self:flex-start;margin-top:2px}
+
+/* ── STEPS ── */
+.step{display:flex;align-items:flex-start;gap:12px;margin-bottom:12px}
+.step-num{width:26px;height:26px;border-radius:50%;flex-shrink:0;background:rgba(217,119,6,0.1);border:1px solid rgba(217,119,6,0.35);color:var(--emp2);font-family:var(--mono);font-size:0.62rem;font-weight:700;display:flex;align-items:center;justify-content:center;box-shadow:0 0 10px rgba(217,119,6,0.1)}
+.step-text{font-size:0.72rem;color:rgba(255,255,255,0.65);line-height:1.7;padding-top:3px}
+.step-text strong{color:#fff}
+
+/* ── DIVIDER ── */
+.divider{text-align:center;font-size:0.52rem;color:var(--muted);letter-spacing:2px;margin:14px 0;display:flex;align-items:center;gap:10px;font-family:var(--mono)}
+.divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--border)}
+
+/* ── KEYFRAMES ── */
+@keyframes breathe{0%,100%{opacity:.7;transform:translateX(-50%) scale(1)}50%{opacity:1;transform:translateX(-50%) scale(1.1)}}
+@keyframes crownFloat{0%,100%{transform:translateY(0) rotate(-2deg)}50%{transform:translateY(-10px) rotate(2deg)}}
+@keyframes blink{0%,100%{opacity:.8}50%{opacity:.25}}
+@keyframes empTagPulse{0%,100%{box-shadow:0 0 20px rgba(217,119,6,0.2),0 0 60px rgba(217,119,6,0.06)}50%{box-shadow:0 0 50px rgba(217,119,6,0.55),0 0 100px rgba(217,119,6,0.15)}}
+@keyframes pulse-dot{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.5);opacity:.5}}
+@keyframes fadeInUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes shimmer{0%{background-position:-200% center}100%{background-position:200% center}}
+@keyframes shimmer-logo{0%,100%{opacity:0;transform:translateX(-100%)}50%{opacity:1;transform:translateX(100%)}}
+@keyframes pulse-block{0%,100%{opacity:1}50%{opacity:.35}}
+@keyframes codePulse{0%,100%{box-shadow:0 0 18px rgba(217,119,6,0.2),0 0 0 1px rgba(217,119,6,0.2)}50%{box-shadow:0 0 40px rgba(251,191,36,0.45),0 0 0 1px rgba(251,191,36,0.55)}}
+@keyframes navActivePulse{0%,100%{filter:drop-shadow(0 0 6px rgba(251,191,36,0.6))}50%{filter:drop-shadow(0 0 14px rgba(251,191,36,1))}}
+@keyframes tierHover{from{transform:translateY(0)}to{transform:translateY(-3px)}}
+@keyframes countUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+@keyframes greetingFade{0%{opacity:0;transform:translateY(-8px)}100%{opacity:1;transform:translateY(0)}}
+@keyframes slideUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+@keyframes powerGlow{0%,100%{box-shadow:0 0 10px rgba(217,119,6,0.15)}50%{box-shadow:0 0 28px rgba(251,191,36,0.45)}}
+@keyframes activitySlide{0%{opacity:0;transform:translateX(8px)}100%{opacity:1;transform:translateX(0)}}
+@keyframes impNotify{0%{opacity:0;transform:translate(-50%,-50%) scale(0.88)}60%{transform:translate(-50%,-50%) scale(1.04)}100%{opacity:1;transform:translate(-50%,-50%) scale(1)}}
+@keyframes impNotifyOut{0%{opacity:1;transform:translate(-50%,-50%) scale(1)}100%{opacity:0;transform:translate(-50%,-50%) scale(0.9)}}
+</style>
+</head>
+<body>
+<canvas id="empBg"></canvas>
+<div class="noise"></div>
+<div id="toast"></div>
+
+<div class="wrap">
+  <header>
+    <div class="emp-crown-aura"></div>
+    <div class="emp-crown-aura2"></div>
+    <span class="emp-logo-crown">👑</span>
+    <div class="logo-row">
+      <div class="logo-icon-emp"><span></span><span></span><span></span><span></span></div>
+      <div class="logo-text">PUZZLR</div>
+    </div>
+    <div class="emp-subtitle">EMPEROR'S PORTAL · CLASSIFIED</div>
+    <div class="emp-name-tag" id="empNameTag">
+      <span class="live-dot-gold"></span>EMPEROR — LOADING...
+    </div>
+    <div class="emp-servant-line">Your servant awaits your command, Your Majesty</div>
+  </header>
+
+  <!-- ══ GATE ══ -->
+  <div id="gatePanel" class="panel active">
+    <div style="width:100%;animation:fadeInUp 0.5s ease">
+      <div class="emp-scroll">
+        <div class="emp-scroll-title">🛡 IMPERIAL ACCESS REQUIRED 🛡</div>
+        <div class="emp-scroll-text">This command center is sealed to all but the Emperor of PUZZLR.<br>Present your Emperor Code to claim your throne.</div>
+      </div>
+      <div class="card">
+        <div class="card-title">👑 Imperial Authentication</div>
+        <div class="field">
+          <label>Emperor Code</label>
+          <input type="text" id="empCodeInput" placeholder="EMP-XXX-XXXX" maxlength="12" autocomplete="off"
+            style="letter-spacing:3px;text-transform:uppercase"
+            oninput="this.value=this.value.toUpperCase().replace(/[^A-Z0-9-]/g,'')"
+            onkeydown="if(event.key==='Enter')empLogin()">
+        </div>
+        <div id="gateError" class="error-msg"></div>
+        <button class="btn btn-emp" onclick="empLogin()" style="margin-top:8px;">👑 CLAIM YOUR THRONE →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ THRONE (Dashboard) ══ -->
+  <div id="panelThrone" class="panel" style="display:none">
+
+    <!-- Imperial Greeting -->
+    <div id="imperialGreetingCard">
+      <div id="imperialGreeting">⚡ Initialising the imperial command center…</div>
+    </div>
+
+    <div class="dash-header fade-in">
+      <div>
+        <div class="dash-greeting" id="dashGreeting">EMPEROR —</div>
+        <div class="dash-sub"><span class="live-dot"></span>COMMAND CENTER ONLINE</div>
+      </div>
+    </div>
+
+    <!-- Imperial Live Activity Rotator -->
+    <div id="imperialActivityBar">
+      <span class="live-dot-gold"></span>
+      <span id="imperialActivityText" style="font-family:var(--mono);font-size:0.55rem;color:rgba(255,255,255,0.55)">⚡ Empire monitoring active…</span>
+    </div>
+
+    <div id="liveActivityBar">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+        <span class="live-dot"></span>
+        <span style="font-family:var(--display);font-size:0.45rem;font-weight:700;letter-spacing:2px;color:rgba(0,255,136,0.7)">LIVE SYNC ACTIVE</span>
+        <span style="margin-left:auto;font-family:var(--mono);font-size:0.5rem;color:rgba(255,255,255,0.25)" id="lastSync">--</span>
+      </div>
+      <div id="liveActivityText" style="font-family:var(--mono);font-size:0.58rem;color:rgba(255,255,255,0.5);line-height:1.6"></div>
+    </div>
+
+    <!-- David AI -->
+    <div class="emp-scroll" id="davidSpeech" style="display:none">
+      <div class="emp-scroll-title">✨ DAVID AI ADDRESSES THE EMPEROR</div>
+      <div class="emp-scroll-text" id="davidSpeechText">
+        <span style="opacity:.4;font-size:0.62rem">Composing imperial address…</span>
+      </div>
+    </div>
+
+    <!-- Empire Power Meter -->
+    <div class="empire-meter" id="empireMeter">
+      <div class="meter-title">// EMPIRE DOMINANCE</div>
+      <div class="meter-bar-wrap"><div class="meter-bar-fill" id="meterFill" style="width:0%"></div></div>
+      <div class="meter-footer">
+        <span class="meter-pct" id="meterPct">0%</span>
+        <span class="meter-status" id="meterStatus">🔥 ASCENDING</span>
+      </div>
+    </div>
+
+    <!-- Stats — Throne Dashboard -->
+    <div class="stat-row">
+      <div class="stat-card">
+        <span class="stat-icon">⚡</span>
+        <div class="stat-num" id="statTotalRefs">—</div>
+        <div class="stat-label">SERVANTS</div>
+      </div>
+      <div class="stat-card">
+        <span class="stat-icon">🏛</span>
+        <div class="stat-num" id="statActiveTiers">—</div>
+        <div class="stat-label">KINGDOMS</div>
+      </div>
+    </div>
+    <div class="stat-row">
+      <div class="stat-card">
+        <span class="stat-icon">💰</span>
+        <div class="stat-num" id="statRewards">—</div>
+        <div class="stat-label">TREASURY</div>
+      </div>
+      <div class="stat-card">
+        <span class="stat-icon">🔥</span>
+        <div class="stat-num" id="statDaysSince">—</div>
+        <div class="stat-label">POWER DAYS</div>
+      </div>
+    </div>
+
+    <!-- Main Code — Imperial Decree Box -->
+    <div class="card">
+      <div class="card-title">⚡ Imperial Decree Code</div>
+      <div style="font-family:var(--mono);font-size:0.58rem;color:rgba(255,255,255,0.35);margin-bottom:10px;line-height:1.7">
+        🔑 Your permanent command key. Use it in the game or share site to reclaim your throne.
+      </div>
+      <div class="code-box-big" id="mainCodeBox" onclick="copyMainCode()" style="position:relative">
+        <span class="code-val" id="mainCodeDisplay">—</span>
+        <span class="copy-hint" id="mainCodeHint">⚡ TAP TO DECREE</span>
+      </div>
+    </div>
+
+    <!-- Throne Tabs -->
+    <div class="tabs">
+      <div class="tab active" id="throneTab0" onclick="switchThroneTab(0)">
+        <span class="tab-crown">👑</span>⚔️ THRONES
+      </div>
+      <div class="tab" id="throneTab1" onclick="switchThroneTab(1)">
+        <span class="tab-crown">👑</span>📜 CONQUESTS
+      </div>
+      <div class="tab" id="throneTab2" onclick="switchThroneTab(2)">
+        <span class="tab-crown">👑</span>🏆 TREASURY
+      </div>
+      <div class="tab" id="throneTab3" onclick="switchThroneTab(3)">
+        <span class="tab-crown">👑</span>ℹ️ GUIDE
+      </div>
+    </div>
+
+    <!-- Tab 0: Tier Thrones -->
+    <div class="tab-panel active" id="throneTabPanel0">
+      <div class="card">
+        <div class="card-title">⚔️ Tier Thrones</div>
+        <div id="tiersList">
+          <div style="text-align:center;padding:14px;color:var(--muted);font-size:0.65rem;font-family:var(--mono)">Summoning imperial records…</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab 1: Conquests + Chronicles -->
+    <div class="tab-panel" id="throneTabPanel1">
+      <div class="card">
+        <div class="card-title">📜 Active Conquests</div>
+        <div id="inProgressList">
+          <div style="font-family:var(--mono);font-size:0.62rem;color:var(--muted);text-align:center;padding:16px 0">NO CONQUESTS UNDERWAY</div>
+        </div>
+      </div>
+
+      <div class="card" id="tierHistoryCard" style="display:none">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+          <div class="card-title" style="margin-bottom:0">📜 Imperial Chronicles</div>
+          <button onclick="clearTierHistory()" style="background:transparent;border:1px solid rgba(255,80,80,0.25);color:rgba(255,100,100,0.6);border-radius:8px;padding:4px 10px;font-family:var(--mono);font-size:0.5rem;letter-spacing:0.5px;cursor:pointer;transition:all .15s" onmouseover="this.style.borderColor='rgba(255,80,80,0.5)';this.style.color='rgba(255,100,100,0.9)'" onmouseout="this.style.borderColor='rgba(255,80,80,0.25)';this.style.color='rgba(255,100,100,0.6)'">PURGE RECORDS</button>
+        </div>
+        <div id="tierHistoryList"></div>
+      </div>
+
+      <div class="card" style="border-color:rgba(255,80,80,0.12);background:rgba(255,30,30,0.02)">
+        <div class="card-title" style="color:rgba(255,100,100,0.8)">⚠️ Imperial Danger Zone</div>
+        <div style="font-family:var(--mono);font-size:0.6rem;color:rgba(255,255,255,0.4);line-height:1.8;margin-bottom:14px">
+          Erase all tier progress, referral counts and pending rewards from the imperial records. Your Emperor throne, name and codes remain intact. Invoke only after all conquests are complete and rewards secured.
+        </div>
+        <button onclick="promptResetAll()" style="width:100%;padding:12px;background:transparent;border:1px solid rgba(255,80,80,0.3);border-radius:12px;color:rgba(255,100,100,0.85);font-family:var(--display);font-size:0.62rem;font-weight:700;letter-spacing:2px;cursor:pointer;transition:all .15s" onmouseover="this.style.background='rgba(255,80,80,0.07)';this.style.borderColor='rgba(255,80,80,0.5)'" onmouseout="this.style.background='transparent';this.style.borderColor='rgba(255,80,80,0.3)'">
+          🔄 ERASE ALL CONQUEST RECORDS
+        </button>
+      </div>
+    </div>
+
+    <!-- Tab 2: Treasury (Reward History) -->
+    <div class="tab-panel" id="throneTabPanel2">
+      <div class="card">
+        <div class="card-title">💰 Imperial Treasury</div>
+        <div id="rewardHistList">
+          <div style="text-align:center;padding:14px;color:var(--muted);font-size:0.65rem;font-family:var(--mono)">Counting imperial gold…</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab 3: Guide (Stat explanations) -->
+    <div class="tab-panel" id="throneTabPanel3">
+      <div class="card">
+        <div class="card-title">ℹ️ What Your Stats Mean</div>
+        <div style="font-family:var(--mono);font-size:0.62rem;color:rgba(255,255,255,0.6);line-height:1.9">
+          <div style="margin-bottom:14px">
+            <strong style="color:var(--emp2)">⚡ SERVANTS</strong><br>
+            Everyone who installed PUZZLR using your link or code and got confirmed. This is your total recruits across every kingdom.
+          </div>
+          <div style="margin-bottom:14px">
+            <strong style="color:var(--emp2)">🏛 KINGDOMS</strong><br>
+            How many tiers — Starter, Bronze, Silver, Gold, Elite — you currently have active. Each kingdom you start counts toward this.
+          </div>
+          <div style="margin-bottom:14px">
+            <strong style="color:var(--emp2)">💰 TREASURY</strong><br>
+            How many rewards you've claimed so far. This counts completed claims, not what's still waiting to be unlocked.
+          </div>
+          <div style="margin-bottom:0">
+            <strong style="color:var(--emp2)">🔥 POWER DAYS</strong><br>
+            How many days you've held the throne since first reaching Emperor status by earning all 49 medals.
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">📊 About These Stats</div>
+        <div style="font-family:var(--mono);font-size:0.6rem;color:rgba(255,255,255,0.4);line-height:1.8">
+          These four numbers are read-only — they simply reflect your real progress and update automatically. You can't edit them directly here.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ SUBJECTS (Referrals) ══ -->
+  <div id="panelRefs" class="panel" style="display:none">
+    <div class="dash-header">
+      <div>
+        <div class="dash-greeting">⚔️ YOUR SERVANTS</div>
+        <div class="dash-sub"><span class="live-dot"></span>IMPERIAL LIVE TRACKING</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">⚔️ Servant Registry</div>
+      <div id="refsList">
+        <div style="text-align:center;padding:14px;color:var(--muted);font-size:0.65rem;font-family:var(--mono)">Summoning servant records…</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ SHARE ══ -->
+  <div id="panelShare" class="panel" style="display:none">
+    <div class="dash-header">
+      <div>
+        <div class="dash-greeting">📜 IMPERIAL KINGDOMS</div>
+        <div class="dash-sub"><span class="live-dot-gold" style="margin-right:5px"></span>EXPAND THE EMPIRE</div>
+      </div>
+    </div>
+
+    <div class="tabs">
+      <div class="tab active" id="stab0" onclick="switchShareTab(0)">
+        <span class="tab-crown">👑</span>⚡ DECREES
+      </div>
+      <div class="tab" id="stab1" onclick="switchShareTab(1)">
+        <span class="tab-crown">👑</span>📣 HERALD
+      </div>
+    </div>
+
+    <div class="tab-panel active" id="stabPanel0">
+      <div class="card">
+        <div class="card-title">⚡ Imperial Decree Codes</div>
+        <div style="font-family:var(--mono);font-size:0.58rem;color:rgba(255,255,255,0.32);margin-bottom:12px;line-height:1.7">
+          Each kingdom has its own unique decree code. Dispatch <strong style="color:#fff">that tier's decree</strong> — servants who confirm it are conscripted into your realm.
+        </div>
+        <div id="tierCodesPanel">
+          <div style="font-family:var(--mono);font-size:0.6rem;color:rgba(255,255,255,0.25);text-align:center;padding:12px 0">Loading tier codes…</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="tab-panel" id="stabPanel1">
+      <div class="card">
+        <div class="card-title">📣 Dispatch a Herald</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:12px">
+          <div style="background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.07);border-radius:12px;padding:10px 8px;text-align:center;cursor:pointer;transition:all .15s" onclick="shareVia('whatsapp')" onmouseover="this.style.borderColor='rgba(217,119,6,0.3)'" onmouseout="this.style.borderColor='rgba(255,255,255,0.07)'">
+            <div style="font-size:1.3rem;margin-bottom:4px">💬</div>
+            <div style="font-family:var(--display);font-size:0.6rem;font-weight:700;color:#fff">WhatsApp</div>
+            <div style="font-family:var(--mono);font-size:0.5rem;color:var(--muted);margin-top:2px">Recruit contacts</div>
+          </div>
+          <div style="background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.07);border-radius:12px;padding:10px 8px;text-align:center;cursor:pointer;transition:all .15s" onclick="shareVia('sms')" onmouseover="this.style.borderColor='rgba(217,119,6,0.3)'" onmouseout="this.style.borderColor='rgba(255,255,255,0.07)'">
+            <div style="font-size:1.3rem;margin-bottom:4px">📱</div>
+            <div style="font-family:var(--display);font-size:0.6rem;font-weight:700;color:#fff">SMS</div>
+            <div style="font-family:var(--mono);font-size:0.5rem;color:var(--muted);margin-top:2px">Imperial dispatch</div>
+          </div>
+          <div style="background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.07);border-radius:12px;padding:10px 8px;text-align:center;cursor:pointer;transition:all .15s" onclick="shareVia('telegram')" onmouseover="this.style.borderColor='rgba(217,119,6,0.3)'" onmouseout="this.style.borderColor='rgba(255,255,255,0.07)'">
+            <div style="font-size:1.3rem;margin-bottom:4px">✈️</div>
+            <div style="font-family:var(--display);font-size:0.6rem;font-weight:700;color:#fff">Telegram</div>
+            <div style="font-family:var(--mono);font-size:0.5rem;color:var(--muted);margin-top:2px">Mobilise legions</div>
+          </div>
+          <div style="background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.07);border-radius:12px;padding:10px 8px;text-align:center;cursor:pointer;transition:all .15s" onclick="shareVia('twitter')" onmouseover="this.style.borderColor='rgba(217,119,6,0.3)'" onmouseout="this.style.borderColor='rgba(255,255,255,0.07)'">
+            <div style="font-size:1.3rem;margin-bottom:4px">🐦</div>
+            <div style="font-family:var(--display);font-size:0.6rem;font-weight:700;color:#fff">X / Twitter</div>
+            <div style="font-family:var(--mono);font-size:0.5rem;color:var(--muted);margin-top:2px">Proclaim publicly</div>
+          </div>
+          <div style="background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.07);border-radius:12px;padding:10px 8px;text-align:center;cursor:pointer;transition:all .15s" onclick="shareVia('facebook')" onmouseover="this.style.borderColor='rgba(217,119,6,0.3)'" onmouseout="this.style.borderColor='rgba(255,255,255,0.07)'">
+            <div style="font-size:1.3rem;margin-bottom:4px">📘</div>
+            <div style="font-family:var(--display);font-size:0.6rem;font-weight:700;color:#fff">Facebook</div>
+            <div style="font-family:var(--mono);font-size:0.5rem;color:var(--muted);margin-top:2px">Expand the realm</div>
+          </div>
+          <div style="background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.07);border-radius:12px;padding:10px 8px;text-align:center;cursor:pointer;transition:all .15s" onclick="shareVia('copy')" onmouseover="this.style.borderColor='rgba(217,119,6,0.3)'" onmouseout="this.style.borderColor='rgba(255,255,255,0.07)'">
+            <div style="font-size:1.3rem;margin-bottom:4px">📋</div>
+            <div style="font-family:var(--display);font-size:0.6rem;font-weight:700;color:#fff">Copy Decree</div>
+            <div style="font-family:var(--mono);font-size:0.5rem;color:var(--muted);margin-top:2px">Paste anywhere</div>
+          </div>
+        </div>
+        <button class="btn btn-emp-gold" onclick="shareNative()">👑 DISPATCH DECREE NOW</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ SCROLLS (How It Works + Danger Zone) ══ -->
+  <div id="panelScrolls" class="panel" style="display:none">
+    <div class="dash-header">
+      <div>
+        <div class="dash-greeting">🏛 IMPERIAL CHRONICLES</div>
+        <div class="dash-sub"><span class="live-dot-gold" style="margin-right:5px"></span>SACRED LAWS OF THE REALM</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">🏛 Laws of the Empire</div>
+      <div class="step"><div class="step-num">Ⅰ</div><div class="step-text"><strong>Main Code</strong> — your permanent command key. It is your identity in the game and this command center. Guard it with your life.</div></div>
+      <div class="step"><div class="step-num">Ⅱ</div><div class="step-text"><strong>Emperor Code</strong> — bestowed upon you when your final medal was conquered. It grants access to this throne room alone. Never reveal it to another.</div></div>
+      <div class="step"><div class="step-num">Ⅲ</div><div class="step-text"><strong>Tier Decrees</strong> — each kingdom (Starter → Elite) has its own unique decree code. Dispatch it to allies. When they confirm it, your tier power rises.</div></div>
+      <div class="step"><div class="step-num">Ⅳ</div><div class="step-text"><strong>Herald Dispatches</strong> — tap any tier's share button to send a pre-written imperial message with your decree via WhatsApp, SMS, Telegram, and more.</div></div>
+      <div class="step" style="margin-bottom:0"><div class="step-num">Ⅴ</div><div class="step-text"><strong>Rewards Auto-Unlock</strong> — when a tier fills up, the empire detects it and your reward is unlocked automatically the next time you go online in the game.</div></div>
+    </div>
+
+    <!-- Imperial Warnings -->
+    <div class="card" style="border-color:rgba(255,59,92,0.2);background:rgba(255,40,40,0.02)">
+      <div class="card-title" style="color:rgba(255,120,120,0.85)">⚠️ Imperial Edicts</div>
+      <div style="display:flex;flex-direction:column;gap:8px;font-family:var(--mono);font-size:0.58rem;line-height:1.75">
+        <div style="background:rgba(255,59,92,0.05);border:1px solid rgba(255,59,92,0.18);border-radius:10px;padding:10px 12px;color:rgba(255,160,160,0.85)">
+          ⛔ <strong style="color:rgba(255,120,120,0.95)">Do not delete the APK, cache or data</strong> — all your imperial conquests will be permanently destroyed.
+        </div>
+        <div style="background:rgba(255,59,92,0.05);border:1px solid rgba(255,59,92,0.18);border-radius:10px;padding:10px 12px;color:rgba(255,160,160,0.85)">
+          🔐 <strong style="color:rgba(255,120,120,0.95)">Thrones are forged inside the APK only.</strong> This command center does not create new accounts.
+        </div>
+        <div style="background:rgba(255,59,92,0.05);border:1px solid rgba(255,59,92,0.18);border-radius:10px;padding:10px 12px;color:rgba(255,160,160,0.85)">
+          ✅ <strong style="color:rgba(255,120,120,0.95)">Confirm decree codes inside the APK</strong> — not in this command center.
+        </div>
+        <div style="background:rgba(255,59,92,0.05);border:1px solid rgba(255,59,92,0.18);border-radius:10px;padding:10px 12px;color:rgba(255,160,160,0.85)">
+          🚫 <strong style="color:rgba(255,120,120,0.95)">All deceit is monitored by the realm.</strong> Violations result in permanent exile with all progress erased forever.
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ── NAV ── -->
+<nav id="empNav" style="display:none">
+  <button class="nav-btn active" id="navThrone" onclick="showPanel('panelThrone','navThrone')">
+    <span class="nav-icon-label">👑</span>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+    THRONE<div class="nav-indicator"></div>
+  </button>
+  <button class="nav-btn" id="navRefs" onclick="showPanel('panelRefs','navRefs')">
+    <span class="nav-icon-label">⚔️</span>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+    SERVANTS<div class="nav-indicator"></div>
+  </button>
+  <button class="nav-btn" id="navShare" onclick="showPanel('panelShare','navShare')">
+    <span class="nav-icon-label">📜</span>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+    KINGDOMS<div class="nav-indicator"></div>
+  </button>
+  <button class="nav-btn" id="navScrolls" onclick="showPanel('panelScrolls','navScrolls')">
+    <span class="nav-icon-label">🏛</span>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+    CHRONICLES<div class="nav-indicator"></div>
+  </button>
+  <button class="nav-btn" id="navSwitchShare" onclick="switchToShareSite()" title="Switch to Share Site">
+    <span class="nav-icon-label">🏛</span>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
+    REALM PORTAL<div class="nav-indicator"></div>
+  </button>
+</nav>
+
+<!-- ── FIREBASE ── -->
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+<script>
+const fbConfig={
+  apiKey:"AIzaSyBFBJSyWKd_GGoQ5IhUZQ9w8j4-HaOeD1s",
+  authDomain:"david-connection.firebaseapp.com",
+  databaseURL:"https://david-connection-default-rtdb.firebaseio.com",
+  projectId:"david-connection",
+  storageBucket:"david-connection.firebasestorage.app",
+  messagingSenderId:"214764400544",
+  appId:"1:214764400544:web:e7c4bd26e9fac3e3b0f1c7"
+};
+const fbConfig2={
+  apiKey:"AIzaSyCwGGZwx0I0c7O3gxPWbubmMnhrPUyXogU",
+  authDomain:"david-worldwide.firebaseapp.com",
+  databaseURL:"https://david-worldwide-default-rtdb.firebaseio.com",
+  projectId:"david-worldwide",
+  storageBucket:"david-worldwide.firebasestorage.app",
+  messagingSenderId:"9757281433",
+  appId:"1:9757281433:web:7bc43a55ea078210bb3c08"
+};
+const fbApp1=firebase.initializeApp(fbConfig,  "connection");
+const fbApp2=firebase.initializeApp(fbConfig2, "worldwide");
+const db =fbApp1.database();
+const db2=fbApp2.database();
+
+// ── Dual-database helpers ─────────────────────────────────────────
+async function dbGet(path){
+  try{ const s=await db.ref(path).once('value'); if(s.exists()) return s; }catch(e){}
+  return db2.ref(path).once('value');
+}
+async function dbSet(path,val){
+  return Promise.all([db.ref(path).set(val), db2.ref(path).set(val)]);
+}
+async function dbUpdate(path,val){
+  return Promise.all([db.ref(path).update(val), db2.ref(path).update(val)]);
+}
+async function dbPush(path,val){
+  return Promise.all([db.ref(path).push(val), db2.ref(path).push(val)]);
+}
+function dbOn(path,event,callback){
+  db.ref(path).on(event,callback);
+  db2.ref(path).on(event,()=>{}); // keep secondary warm
+}
+
+// ── PARTICLE BG ──────────────────────────────────────────────────
+(function(){
+  const c=document.getElementById('empBg'),x=c.getContext('2d');
+  function resize(){c.width=innerWidth;c.height=innerHeight;}resize();
+  addEventListener('resize',resize);
+  const pts=Array.from({length:60},()=>({
+    x:Math.random()*innerWidth,y:Math.random()*innerHeight,
+    vx:(Math.random()-.5)*.25,vy:(Math.random()-.5)*.25,
+    r:Math.random()*1.6+.4,twinkle:Math.random()*Math.PI*2
+  }));
+  function draw(){
+    x.clearRect(0,0,c.width,c.height);
+    const g=x.createRadialGradient(c.width*.5,c.height*.3,0,c.width*.5,c.height*.3,c.width*.55);
+    g.addColorStop(0,'rgba(217,119,6,0.045)');g.addColorStop(.6,'rgba(251,191,36,0.01)');g.addColorStop(1,'transparent');
+    x.fillStyle=g;x.fillRect(0,0,c.width,c.height);
+    pts.forEach((p,i)=>{
+      pts.slice(i+1).forEach(q=>{
+        const d=Math.hypot(p.x-q.x,p.y-q.y);
+        if(d<110){x.beginPath();x.moveTo(p.x,p.y);x.lineTo(q.x,q.y);
+          x.strokeStyle=`rgba(217,119,6,${0.04*(1-d/110)})`;x.lineWidth=.5;x.stroke();}
+      });
+    });
+    pts.forEach(p=>{
+      p.x+=p.vx;p.y+=p.vy;p.twinkle+=.03;
+      if(p.x<0)p.x=c.width;if(p.x>c.width)p.x=0;
+      if(p.y<0)p.y=c.height;if(p.y>c.height)p.y=0;
+      const alpha=0.12+0.1*Math.sin(p.twinkle);
+      x.beginPath();x.arc(p.x,p.y,p.r,0,Math.PI*2);
+      x.fillStyle=`rgba(251,191,36,${alpha})`;x.fill();
+    });
+    requestAnimationFrame(draw);
+  }draw();
+})();
+
+// ── GLOBALS ──────────────────────────────────────────────────────
+let currentEmperor=null;
+let currentMainCode=null;
+const SITE_URL='https://daviduniverse.world';
+
+// ── TIER CONFIG — matches share_index exactly ─────────────────
+const TIERS={
+  starter:{ id:'starter', name:'Starter', icon:'🥉', need:1,  days:2,  color:'#c97b3a', bgRgb:'201,123,58'  },
+  bronze: { id:'bronze',  name:'Bronze',  icon:'🥈', need:3,  days:4,  color:'#a8a8a8', bgRgb:'168,168,168' },
+  silver: { id:'silver',  name:'Silver',  icon:'🥇', need:5,  days:7,  color:'#ffd700', bgRgb:'255,215,0'   },
+  gold:   { id:'gold',    name:'Gold',    icon:'💎', need:10, days:14, color:'#7ef4ff', bgRgb:'126,244,255'  },
+  elite:  { id:'elite',   name:'Elite',   icon:'👑', need:20, days:30, color:'#ff79c6', bgRgb:'255,121,198'  }
+};
+const TIER_ORDER=['starter','bronze','silver','gold','elite'];
+
+// ── SHARE MESSAGES ────────────────────────────────────────────
+function getTierShareMsg(tierKey, code){
+  const link=SITE_URL+'?tier='+encodeURIComponent(code);
+  const msgs={
+    starter:`🥉 Hey! I just started sharing PUZZLR — I only need 1 person to confirm my code!\n\n📲 Download & install: ${link}\n\nThen enter my code: *${code}*\n\nHelp me unlock my Starter reward! 🎮`,
+    bronze: `🥈 I'm going for Bronze tier on PUZZLR! Need 3 people to confirm my code.\n\n📲 Download & install: ${link}\n\nThen enter my code: *${code}*\n\nHelp me unlock Ad-Free + Hints + 250 Coins! 🎮`,
+    silver: `🥇 Going for Silver tier on PUZZLR! Need 5 people to confirm.\n\n📲 Download & install: ${link}\n\nThen enter my code: *${code}*\n\nHelp me unlock Exclusive Theme + Ad-Free 3 Days + 500 Coins! 🎮`,
+    gold:   `💎 Going for GOLD tier on PUZZLR! Need 10 people to confirm.\n\n📲 Download & install: ${link}\n\nThen enter my code: *${code}*\n\nHelp me unlock 2× XP + Premium Themes + Ad-Free 7 Days + 1000 Coins! 🏆`,
+    elite:  `👑 Going for ELITE tier on PUZZLR! Need 20 people to confirm.\n\n📲 Download & install: ${link}\n\nThen enter my code: *${code}*\n\nHelp me unlock 2× XP 30 Days + ALL Themes + 2500 Coins + 5 Spin Tickets! 🔥`
+  };
+  return msgs[tierKey]||msgs.starter;
+}
+
+// ── HELPERS ───────────────────────────────────────────────────
+function escH(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+
+function toast(msg,type='',dur=3200){
+  const t=document.getElementById('toast');
+  clearTimeout(t._h);t.textContent=msg;t.className=(type?type+' ':'')+'show';
+  t._h=setTimeout(()=>{t.className='';},dur+250);
+}
+
+function saferCopy(text,onDone){
+  try{const ta=document.createElement('textarea');ta.value=text;ta.style.cssText='position:fixed;top:0;left:0;opacity:0;pointer-events:none;';document.body.appendChild(ta);ta.focus();ta.select();document.execCommand('copy');document.body.removeChild(ta);}catch(e){}
+  if(navigator.clipboard&&window.isSecureContext)navigator.clipboard.writeText(text).catch(()=>{});
+  if(onDone)onDone();
+}
+
+function copyText(text,btnEl,label){
+  saferCopy(text,()=>{
+    if(btnEl){const orig=btnEl.innerHTML;btnEl.textContent='✓ ISSUED';btnEl.classList.add('copied');setTimeout(()=>{btnEl.innerHTML=orig||label;btnEl.classList.remove('copied');},2000);}
+  });
+  toast('⚡ DECREE COPIED SUCCESSFULLY','green');
+}
+
+function copyMainCode(){
+  const val=document.getElementById('mainCodeDisplay').textContent||'';
+  if(!val||val==='—')return;
+  const hint=document.getElementById('mainCodeHint');
+  saferCopy(val,()=>{
+    if(hint){hint.textContent='✓ DECREED';hint.style.color='#86efac';setTimeout(()=>{hint.textContent='⚡ TAP TO DECREE';hint.style.color='';},2000);}
+  });
+  const box=document.getElementById('mainCodeBox');
+  if(box){box.style.borderColor='rgba(134,239,172,0.5)';setTimeout(()=>{box.style.borderColor='';},1400);}
+  toast('👑 IMPERIAL COMMAND EXECUTED','green');
+}
+
+function copyTierCode(code,btnEl){
+  saferCopy(code,()=>{
+    if(btnEl){const orig=btnEl.textContent;btnEl.textContent='✓ ISSUED';btnEl.classList.add('copied');setTimeout(()=>{btnEl.textContent=orig;btnEl.classList.remove('copied');},2000);}
+  });
+  toast('⚡ DECREE COPIED SUCCESSFULLY','green');
+}
+
+function timeAgo(ts){
+  if(!ts)return'';
+  const d=Date.now()-ts;
+  if(d<60000)return'just now';if(d<3600000)return Math.floor(d/60000)+'m ago';
+  if(d<86400000)return Math.floor(d/3600000)+'h ago';return Math.floor(d/86400000)+'d ago';
+}
+
+// ── PANEL NAVIGATION ─────────────────────────────────────────
+function showPanel(panelId,navId){
+  ['panelThrone','panelRefs','panelShare','panelScrolls'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el){el.style.display=el.id===panelId?'block':'none';el.classList.toggle('active',el.id===panelId);}
+  });
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  const nb=document.getElementById(navId);if(nb)nb.classList.add('active');
+  if(panelId==='panelRefs')loadReferrals();
+  if(panelId==='panelShare'){initShareTabs();renderTierCodesPanel();}
+  if(panelId==='panelThrone'){loadTierProgress();renderInProgressTiers();}
+}
+
+// ── THRONE TABS ───────────────────────────────────────────────
+function switchThroneTab(idx){
+  [0,1,2,3].forEach(i=>{
+    document.getElementById('throneTab'+i).classList.toggle('active',i===idx);
+    const p=document.getElementById('throneTabPanel'+i);
+    if(p){p.classList.toggle('active',i===idx);p.style.display=i===idx?'block':'none';}
+  });
+  if(idx===1){renderInProgressTiers();loadTierHistory();}
+  if(idx===2)loadRewardHistory();
+}
+
+// ── SHARE TABS ────────────────────────────────────────────────
+function switchShareTab(idx){
+  [0,1].forEach(i=>{
+    document.getElementById('stab'+i).classList.toggle('active',i===idx);
+    const p=document.getElementById('stabPanel'+i);
+    if(p){p.classList.toggle('active',i===idx);p.style.display=i===idx?'block':'none';}
+  });
+  if(idx===0)renderTierCodesPanel();
+}
+
+function initShareTabs(){
+  document.getElementById('stabPanel0').style.display='block';
+  document.getElementById('stabPanel1').style.display='none';
+  document.getElementById('stab0').classList.add('active');
+  document.getElementById('stab1').classList.remove('active');
+}
+
+window.addEventListener('DOMContentLoaded',()=>{
+  ['stabPanel0','stabPanel1','throneTabPanel1','throneTabPanel2','throneTabPanel3'].forEach(id=>{
+    const el=document.getElementById(id);if(el)el.style.display='none';
+  });
+});
+
+// ── SIGN IN ───────────────────────────────────────────────────
+async function empLogin(){
+  const raw=(document.getElementById('empCodeInput').value||'').trim().toUpperCase();
+  const errEl=document.getElementById('gateError');
+  errEl.textContent='';
+  if(!raw||!raw.startsWith('EMP-')){errEl.textContent='⛔ Present a valid Emperor Code (EMP-XXX-XXXX)';return;}
+  errEl.textContent='Verifying imperial identity…';
+  const btn=document.querySelector('#gatePanel .btn');if(btn){btn.disabled=true;btn.textContent='⚡ VERIFYING…';}
+  try{
+    const snap=await dbGet('emperor_codes/'+raw);
+    const rec=snap.val();
+    if(!rec||!rec.ownerCode){errEl.textContent='⛔ Code not recognised. Check your Emperor Code and try again.';return;}
+    const uSnap=await dbGet('users/'+rec.ownerCode);
+    const user=uSnap.val();
+    if(!user||!user.stagesComplete){errEl.textContent='This code is not yet bound to an Emperor throne.';return;}
+    currentMainCode=rec.ownerCode;
+    currentEmperor={...user,code:rec.ownerCode,emperorCode:raw};
+    localStorage.setItem('puzzlr_emperor_session',JSON.stringify({empCode:raw,mainCode:rec.ownerCode}));
+    errEl.textContent='';
+    activateEmperorPortal();
+  }catch(e){errEl.textContent='Connection error. Try again.';}
+  finally{if(btn){btn.disabled=false;btn.textContent='👑 CLAIM YOUR THRONE →';}}
+}
+
+// ── AUTO LOGIN ────────────────────────────────────────────────
+(async function autoLogin(){
+  const sess=localStorage.getItem('puzzlr_emperor_session');
+  if(!sess)return;
+  try{
+    const {empCode:_ec,mainCode}=JSON.parse(sess);
+    const empCode=(_ec||'').toUpperCase();
+    if(!empCode||!mainCode)return;
+    const snap=await dbGet('emperor_codes/'+empCode);
+    const rec=snap.val();
+    if(!rec||rec.ownerCode!==mainCode)return;
+    const uSnap=await dbGet('users/'+mainCode);
+    const user=uSnap.val();
+    if(!user||!user.stagesComplete)return;
+    currentMainCode=mainCode;
+    currentEmperor={...user,code:mainCode,emperorCode:empCode};
+    activateEmperorPortal();
+  }catch(e){}
+})();
+
+// ── ACTIVATE PORTAL ───────────────────────────────────────────
+function activateEmperorPortal(){
+  const name=(currentEmperor.emperorName||currentEmperor.name||currentMainCode||'EMPEROR').toUpperCase();
+  document.getElementById('empNameTag').innerHTML='<span class="live-dot-gold" style="margin-right:6px"></span>EMPEROR ('+escH(name)+')';
+  document.getElementById('dashGreeting').textContent='EMPEROR '+escH(name);
+  document.getElementById('mainCodeDisplay').textContent=currentMainCode||'—';
+  document.getElementById('gatePanel').style.display='none';
+  document.getElementById('gatePanel').classList.remove('active');
+  document.getElementById('empNav').style.display='flex';
+  showPanel('panelThrone','navThrone');
+  loadThroneData().then(()=>showDavidSpeech(name));
+  loadTierProgress();
+  renderInProgressTiers();
+  startLiveSync();
+  showImperialGreeting(name);
+  startActivityRotator();
+}
+
+// ── IMPERIAL GREETING ─────────────────────────────────────────
+function showImperialGreeting(name){
+  const greetings=[
+    '☀ Good morning, Emperor '+name+'. Your empire awaits your command.',
+    '🌙 Welcome back, Your Majesty. The realm remains secure.',
+    '⚡ The empire has grown while you were away, Emperor '+name+'.',
+    '🏛 Your throne stands ready. The realm is yours to command.',
+    '👑 Another day. Another conquest. Welcome, Emperor '+name+'.',
+    '🔥 The empire never sleeps. Neither does its Emperor.',
+    '💎 All tiers kneel before you, Emperor '+name+'. Command wisely.',
+    '⚔️ The realm stirs at your arrival, Your Majesty.',
+  ];
+  const el=document.getElementById('imperialGreeting');
+  if(el){el.textContent=greetings[Math.floor(Math.random()*greetings.length)];}
+}
+
+// ── LIVE IMPERIAL ACTIVITY ROTATOR ────────────────────────────
+function startActivityRotator(){
+  const messages=[
+    '⚡ A new servant joined the Bronze kingdom.',
+    '🏆 A Gold conquest was completed.',
+    '💎 Silver decree strengthened.',
+    '👑 Empire expansion recorded.',
+    '📜 A new recruit confirmed their allegiance.',
+    '🔥 The realm grows stronger.',
+    '⚔️ Starter kingdom activated.',
+    '🏛 Elite decree — servants rising.',
+  ];
+  const el=document.getElementById('imperialActivityText');
+  if(!el)return;
+  let idx=Math.floor(Math.random()*messages.length);
+  function rotate(){
+    el.style.opacity='0';
+    setTimeout(()=>{
+      idx=(idx+1)%messages.length;
+      el.textContent=messages[idx];
+      el.style.transition='opacity .4s ease';
+      el.style.opacity='1';
+    },300);
+  }
+  setInterval(rotate,6000);
+}
+
+// ── EMPIRE POWER METER ────────────────────────────────────────
+function updateEmpireMeter(totalRefs,activeTiers){
+  const score=Math.min(100,Math.round((totalRefs*4)+(activeTiers*6)));
+  const fill=document.getElementById('meterFill');
+  const pct=document.getElementById('meterPct');
+  const status=document.getElementById('meterStatus');
+  if(!fill)return;
+  setTimeout(()=>{fill.style.width=score+'%';},200);
+  if(pct)pct.textContent=score+'%';
+  if(status){
+    if(score>=80)status.textContent='👑 DOMINANT';
+    else if(score>=55)status.textContent='🔥 ASCENDING';
+    else if(score>=30)status.textContent='⚔️ EXPANDING';
+    else status.textContent='🌱 RISING';
+  }
+}
+
+// ── ANIMATED COUNT-UP ─────────────────────────────────────────
+function animateCount(el,target){
+  if(!el||isNaN(target))return;
+  let cur=0;const dur=900;const step=16;const inc=Math.ceil(target/(dur/step));
+  const t=setInterval(()=>{cur=Math.min(cur+inc,target);el.textContent=cur;if(cur>=target)clearInterval(t);},step);
+}
+
+// ── THRONE DATA ───────────────────────────────────────────────
+async function loadThroneData(){
+  if(!currentEmperor)return;
+  const d=currentEmperor.emperorDate?Math.floor((Date.now()-new Date(currentEmperor.emperorDate).getTime())/(1000*60*60*24)):0;
+  animateCount(document.getElementById('statDaysSince'),d>=0?d:0);
+  let total=0;
+  try{
+    const snap=await dbGet('referrals/'+currentMainCode);
+    const refs=snap.val()||{};
+    Object.values(refs).forEach(v=>{if(v&&typeof v==='object')total+=Object.keys(v).length;else if(v)total++;});
+  }catch(e){}
+  animateCount(document.getElementById('statTotalRefs'),total||0);
+  let rewards=0;
+  try{
+    const snap=await dbGet('rewardHistory/'+currentMainCode);
+    rewards=Object.keys(snap.val()||{}).length||0;
+    animateCount(document.getElementById('statRewards'),rewards);
+  }catch(e){}
+  let activeTierCount=0;
+  try{
+    const snap=await dbGet('users/'+currentMainCode);
+    const u=snap.val()||{};
+    const activeTiers=u.activeTiers||{};
+    activeTierCount=Object.keys(activeTiers).filter(k=>activeTiers[k]).length||0;
+    animateCount(document.getElementById('statActiveTiers'),activeTierCount);
+    currentEmperor={...currentEmperor,...u,code:currentMainCode,emperorCode:currentEmperor.emperorCode};
+  }catch(e){}
+  updateEmpireMeter(total,activeTierCount);
+}
+
+// ── TIER PROGRESS (Throne > Tiers tab) ───────────────────────
+async function loadTierProgress(){
+  if(!currentEmperor)return;
+  // Always refresh user record from Firebase
+  try{
+    const snap=await dbGet('users/'+currentMainCode);
+    const u=snap.val()||{};
+    currentEmperor={...currentEmperor,...u,code:currentMainCode,emperorCode:currentEmperor.emperorCode};
+  }catch(e){}
+  const container=document.getElementById('tiersList');
+  const tierCodes=currentEmperor.tierCodes||{};
+  const completedTiers=currentEmperor.completedTiers||{};
+
+  // Fetch live referral counts for every active tier code from Firebase
+  const liveCounts={};
+  await Promise.all(TIER_ORDER.map(async key=>{
+    const tc=tierCodes[key];
+    if(!tc){liveCounts[key]=0;return;}
+    try{
+      const snap=await dbGet('referrals/'+currentMainCode+'/'+tc);
+      liveCounts[key]=snap.exists()?Object.keys(snap.val()||{}).length:0;
+    }catch(e){liveCounts[key]=0;}
+  }));
+
+  // Write live counts back so renderInProgress also sees them
+  currentEmperor._liveCounts=liveCounts;
+
+  let html='';
+  for(const key of TIER_ORDER){
+    const t=TIERS[key];
+    const tc=tierCodes[key]||null;
+    const prog=liveCounts[key]||0;
+    const done=!!completedTiers[key]||prog>=t.need;
+    const active=!!tc&&!done;
+    const pct=Math.min(100,Math.round((prog/t.need)*100));
+    const link=tc?(SITE_URL+'?tier='+encodeURIComponent(tc)):'';
+    html+=`<div class="tier-block tier-${key}" id="tierblock_${key}" style="border-color:rgba(${t.bgRgb},0.18)">
+      <div class="tier-name" style="color:${t.color}">${t.icon} ${t.name.toUpperCase()} THRONE
+        ${done?`<span style="background:rgba(134,239,172,0.1);border:1px solid rgba(134,239,172,0.3);color:#86efac;font-size:0.5rem;padding:2px 8px;border-radius:20px;letter-spacing:1px;font-family:var(--mono)">👑 CONQUERED</span>`:''}
+        ${active?`<span style="background:rgba(${t.bgRgb},0.1);border:1px solid rgba(${t.bgRgb},0.3);color:${t.color};font-size:0.5rem;padding:2px 8px;border-radius:20px;letter-spacing:1px;font-family:var(--mono)">⚔️ ACTIVE</span>`:''}
+      </div>
+      <div style="display:flex;justify-content:space-between;font-size:0.52rem;font-family:var(--mono);color:var(--muted);margin-bottom:6px">
+        <span data-count>${prog} / ${t.need} servants confirmed</span><span data-pct>${pct}%</span>
+      </div>
+      <div class="tier-prog-bar"><div class="tier-prog-fill" style="width:${pct}%;background:${t.color};box-shadow:0 0 10px rgba(${t.bgRgb},0.5)"></div></div>
+      ${tc?`
+      <div class="tier-code-wrap">
+        <input value="${escH(tc)}" readonly style="cursor:pointer;color:${t.color};text-shadow:0 0 8px rgba(${t.bgRgb},0.3)" onclick="copyTierCode('${escH(tc)}',document.getElementById('copybtn_${key}'))">
+        <button class="copy-btn" id="copybtn_${key}" onclick="copyTierCode('${escH(tc)}',this)">⚡ ISSUE</button>
+      </div>
+      <div class="share-row" style="margin-bottom:8px">
+        <button class="share-btn-mini" onclick="empShareTier('whatsapp','${key}')"><span class="sb-icon">💬</span>WA</button>
+        <button class="share-btn-mini" onclick="empShareTier('sms','${key}')"><span class="sb-icon">📱</span>SMS</button>
+        <button class="share-btn-mini" onclick="empShareTier('telegram','${key}')"><span class="sb-icon">✈️</span>TG</button>
+        <button class="share-btn-mini" onclick="empShareTier('twitter','${key}')"><span class="sb-icon">🐦</span>X</button>
+        <button class="share-btn-mini" onclick="empShareTier('copy','${key}')"><span class="sb-icon">📜</span>MSG</button>
+      </div>
+      <div style="background:rgba(0,0,0,0.18);border:1px solid rgba(${t.bgRgb},0.1);border-radius:9px;padding:7px 11px;cursor:pointer;transition:all .15s;margin-bottom:8px;font-family:var(--mono);font-size:0.48rem;color:rgba(255,255,255,0.3);word-break:break-all;line-height:1.5"
+        onclick="copyText('${escH(link)}',this,'COPY LINK')"
+        onmouseover="this.style.borderColor='rgba(${t.bgRgb},0.3)';this.style.color='rgba(255,255,255,0.6)'" onmouseout="this.style.borderColor='rgba(${t.bgRgb},0.1)';this.style.color='rgba(255,255,255,0.3)'">
+        <span style="color:rgba(${t.bgRgb},0.6);letter-spacing:1px;font-size:0.46rem;display:block;margin-bottom:2px">⚡ DECREE LINK · TAP TO COPY</span>${escH(link)}
+      </div>
+      ${done?`<div style="display:flex;align-items:center;gap:8px">
+        <span style="font-family:var(--mono);font-size:0.52rem;color:#86efac">👑 CONQUERED ✓</span>
+        <button onclick="resetSingleTier('${key}')" style="background:rgba(255,255,255,0.04);border:1px solid rgba(${t.bgRgb},0.3);color:${t.color};border-radius:7px;padding:4px 10px;font-family:var(--mono);font-size:0.5rem;cursor:pointer;transition:all .15s">↻ RECONQUER</button>
+      </div>`:`<button onclick="deleteTier('${key}')" style="width:100%;padding:7px;background:transparent;border:1px solid rgba(255,80,80,0.2);border-radius:9px;color:rgba(255,100,100,0.55);font-family:var(--display);font-size:0.48rem;font-weight:700;letter-spacing:1.5px;cursor:pointer;transition:all .15s" onmouseover="this.style.borderColor='rgba(255,80,80,0.5)';this.style.color='rgba(255,100,100,0.9)'" onmouseout="this.style.borderColor='rgba(255,80,80,0.2)';this.style.color='rgba(255,100,100,0.55)'">⛔ ABANDON THRONE</button>`}
+      `:`<button class="btn btn-outline" style="margin-top:10px;font-size:0.58rem;padding:9px;border-color:rgba(${t.bgRgb},0.3);color:${t.color}" onclick="startTier('${key}')">⚔️ CLAIM ${t.name.toUpperCase()} THRONE</button>`}
+    </div>`;
+  }
+  container.innerHTML=html||'<div style="text-align:center;padding:14px;color:var(--muted);font-size:0.65rem;font-family:var(--mono)">No tier data found.</div>';
+}
+
+// ── IN-PROGRESS TIERS ─────────────────────────────────────────
+function renderInProgressTiers(){
+  if(!currentEmperor)return;
+  const el=document.getElementById('inProgressList');
+  if(!el)return;
+  const completedTiers=currentEmperor.completedTiers||{};
+  const tierCodes=currentEmperor.tierCodes||{};
+  const liveCounts=currentEmperor._liveCounts||{};
+  const running=TIER_ORDER.filter(k=>tierCodes[k]);
+  if(!running.length){
+    el.innerHTML='<div style="font-family:var(--mono);font-size:0.62rem;color:var(--muted);text-align:center;padding:16px 0">NO TIERS STARTED YET</div>';
+    return;
+  }
+  el.innerHTML=running.map(key=>{
+    const t=TIERS[key];
+    const prog=liveCounts[key]||0;
+    const done=!!completedTiers[key]||prog>=t.need;
+    const pct=Math.min(100,Math.round((prog/t.need)*100));
+    const rgba=`rgba(${t.bgRgb},0.07)`;const border=`rgba(${t.bgRgb},0.2)`;
+    return `<div class="prog-card" style="background:${rgba};border:1px solid ${border}">
+      <div style="position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(${t.bgRgb},0.5),transparent)"></div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+        <div style="display:flex;align-items:center;gap:8px">
+          <span style="font-size:1.2rem">${t.icon}</span>
+          <div>
+            <div style="font-family:var(--display);font-size:0.6rem;font-weight:700;color:${t.color}">${t.name.toUpperCase()} TIER</div>
+            <div style="font-family:var(--mono);font-size:0.5rem;color:var(--muted);margin-top:1px">${t.need} confirms · ${t.days}d reward</div>
+          </div>
+        </div>
+        ${done?`<span style="font-family:var(--mono);font-size:0.5rem;color:#86efac;background:rgba(134,239,172,0.08);border:1px solid rgba(134,239,172,0.25);border-radius:20px;padding:3px 9px">✓ DONE</span>`
+              :`<span style="font-family:var(--mono);font-size:0.5rem;color:rgba(255,255,255,0.3);background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:20px;padding:3px 9px">ACTIVE</span>`}
+      </div>
+      <div style="display:flex;justify-content:space-between;font-family:var(--mono);font-size:0.5rem;color:var(--muted);margin-bottom:5px">
+        <span>Progress: ${prog} / ${t.need}</span><span>${pct}%</span>
+      </div>
+      <div style="height:3px;border-radius:99px;background:rgba(255,255,255,0.06);overflow:hidden">
+        <div style="height:100%;width:${pct}%;background:${t.color};border-radius:99px;transition:width .6s cubic-bezier(.4,0,.2,1)"></div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ── TIER HISTORY ──────────────────────────────────────────────
+async function loadTierHistory(){
+  if(!currentEmperor)return;
+  const card=document.getElementById('tierHistoryCard');
+  const list=document.getElementById('tierHistoryList');
+  if(!card||!list)return;
+  try{
+    const snap=await dbGet('tier_history/'+currentMainCode);
+    if(!snap.exists()){card.style.display='none';return;}
+    const entries=Object.values(snap.val()).sort((a,b)=>(b.completedAt||0)-(a.completedAt||0));
+    card.style.display='block';
+    list.innerHTML=entries.map(e=>{
+      const d=new Date(e.completedAt||0);
+      const t=TIERS[e.tier]||{color:'#FFB800',icon:'🏆',name:e.tier||'Unknown'};
+      return `<div class="hist-item">
+        <div class="hist-icon" style="background:linear-gradient(135deg,rgba(217,119,6,0.15),rgba(251,191,36,0.08));border:1px solid rgba(217,119,6,0.3);box-shadow:0 0 10px rgba(217,119,6,0.1)">${t.icon}</div>
+        <div class="hist-info">
+          <div class="hist-title">⚔️ ${escH((e.name||e.tier||'').toUpperCase())} THRONE CONQUERED</div>
+          <div class="hist-date">Conquered ${d.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'})} · ${d.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'})}</div>
+        </div>
+        <span class="hist-tier" style="color:${t.color}">👑 DONE</span>
+      </div>`;
+    }).join('');
+  }catch(e){card.style.display='none';}
+}
+
+window.clearTierHistory=async function(){
+  if(!currentEmperor)return;
+  const btn=event.target;btn.disabled=true;btn.textContent='…';
+  try{
+    await dbSet('tier_history/'+currentMainCode,null);
+    document.getElementById('tierHistoryCard').style.display='none';
+    toast('📜 CHRONICLES PURGED FROM THE REALM','green');
+  }catch(e){toast('Could not clear history.','red');}
+  finally{btn.disabled=false;btn.textContent='CLEAR HISTORY';}
+};
+
+// ── RESET SINGLE TIER ─────────────────────────────────────────
+async function resetSingleTier(key){
+  if(!currentEmperor||!currentMainCode)return;
+  const t=TIERS[key];if(!t)return;
+  const completedTiers=currentEmperor.completedTiers||{};
+  if(!completedTiers[key]){toast('This tier is not completed yet.','gold');return;}
+  const btn=document.querySelector(`#tierblock_${key} button[onclick*="resetSingleTier"]`);
+  if(btn){btn.disabled=true;btn.textContent='…';}
+  try{
+    // Archive to tier_history
+    await dbPush('tier_history/'+currentMainCode,{
+      tier:key, completedAt:Date.now(), icon:t.icon, name:t.name
+    });
+    const updates={};
+    updates['activeTiers/'+key]=null;
+    updates['completedTiers/'+key]=null;
+    updates['tierProgress/'+key]=0;
+    updates['tierCodes/'+key]=null;
+    await dbUpdate('users/'+currentMainCode,updates);
+    // Sync currentEmperor
+    const snap=await dbGet('users/'+currentMainCode);
+    const u=snap.val()||{};
+    currentEmperor={...currentEmperor,...u,code:currentMainCode,emperorCode:currentEmperor.emperorCode};
+    toast('⚔️ '+t.name.toUpperCase()+' THRONE RESET — READY TO RECONQUER','gold');
+    await loadTierProgress();
+    renderInProgressTiers();
+    renderTierCodesPanel();
+  }catch(e){toast('Failed to restart tier.','red');}
+  finally{if(btn){btn.disabled=false;btn.textContent='↻ RESTART';}}
+}
+
+// ── RESET ALL ─────────────────────────────────────────────────
+function promptResetAll(){
+  if(!currentEmperor||!currentMainCode)return;
+  const box=document.createElement('div');
+  box.style.cssText='position:fixed;inset:0;z-index:9990;background:rgba(4,3,10,0.93);display:flex;align-items:center;justify-content:center;padding:24px;backdrop-filter:blur(8px)';
+  box.innerHTML=`
+    <div style="background:#0D0A10;border:1px solid rgba(255,80,80,0.3);border-radius:20px;padding:28px 22px;max-width:340px;width:100%;text-align:center">
+      <div style="font-family:var(--display);font-size:0.65rem;font-weight:700;color:#ff6b6b;letter-spacing:2px;margin-bottom:12px">⚠️ RESET ALL PROGRESS?</div>
+      <div style="font-family:var(--mono);font-size:0.58rem;color:rgba(255,255,255,0.45);line-height:1.7;margin-bottom:18px">
+        This resets all tier progress, referral counts and pending rewards to zero.<br>Your Emperor account, name and codes are kept.
+      </div>
+      <div style="display:flex;gap:10px">
+        <button onclick="confirmResetAll()" style="flex:1;padding:11px;background:rgba(255,80,80,0.15);border:1px solid rgba(255,80,80,0.4);border-radius:10px;color:#ff6b6b;font-family:var(--display);font-size:0.55rem;font-weight:700;letter-spacing:1px;cursor:pointer">CONFIRM RESET</button>
+        <button onclick="this.closest('[style*=fixed]').remove()" style="flex:1;padding:11px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:10px;color:rgba(255,255,255,0.5);font-family:var(--display);font-size:0.55rem;font-weight:700;letter-spacing:1px;cursor:pointer">CANCEL</button>
+      </div>
+    </div>`;
+  document.body.appendChild(box);
+}
+
+async function confirmResetAll(){
+  document.querySelectorAll('[style*="position:fixed"][style*="z-index:9990"]').forEach(e=>e.remove());
+  if(!currentEmperor||!currentMainCode)return;
+  toast('Resetting…','',2000);
+  try{
+    const updates={
+      tierProgress:null,activeTiers:null,completedTiers:null,
+      tierCodes:null,referralCount:0,pendingRewards:0,rewardReady:false
+    };
+    await dbUpdate('users/'+currentMainCode,updates);
+    const snap=await dbGet('users/'+currentMainCode);
+    const u=snap.val()||{};
+    currentEmperor={...currentEmperor,...u,code:currentMainCode,emperorCode:currentEmperor.emperorCode};
+    toast('🔄 ALL CONQUEST RECORDS ERASED — THE EMPIRE RESETS','gold',4000);
+    await loadTierProgress();
+    renderInProgressTiers();
+    renderTierCodesPanel();
+    loadThroneData();
+  }catch(e){toast('Reset failed — check your connection.','red');}
+}
+
+// ── REWARD HISTORY ────────────────────────────────────────────
+async function loadRewardHistory(){
+  if(!currentEmperor)return;
+  const container=document.getElementById('rewardHistList');
+  try{
+    const snap=await dbGet('rewardHistory/'+currentMainCode);
+    const hist=snap.val()||{};
+    const entries=Object.entries(hist).sort((a,b)=>(b[1].date||0)-(a[1].date||0));
+    if(!entries.length){
+      container.innerHTML='<div style="text-align:center;padding:14px;color:var(--muted);font-size:0.65rem;font-family:var(--mono)">💰 TREASURY IS EMPTY — conquer your tier thrones to fill it.</div>';
+      return;
+    }
+    container.innerHTML=entries.slice(0,20).map(([,val])=>{
+      const t=TIERS[val.tier]||{icon:'🎁',color:'#FFB800',name:val.tier||'Reward'};
+      return `<div class="hist-item">
+        <div class="hist-icon">${t.icon}</div>
+        <div class="hist-info">
+          <div class="hist-title">${escH(val.reward||t.name+' Tier Reward')}</div>
+          <div class="hist-date">${val.date?new Date(val.date).toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}):''}</div>
+        </div>
+        <span class="hist-tier" style="color:${t.color}">${escH(val.tier||'—')}</span>
+      </div>`;
+    }).join('');
+  }catch(e){
+    container.innerHTML='<div style="text-align:center;padding:14px;color:var(--muted);font-size:0.65rem;font-family:var(--mono)">Could not load rewards.</div>';
+  }
+}
+
+// ── REFERRALS ─────────────────────────────────────────────────
+async function loadReferrals(){
+  if(!currentEmperor)return;
+  const container=document.getElementById('refsList');
+  try{
+    const snap=await dbGet('referrals/'+currentMainCode);
+    const refs=snap.val()||{};
+    const tierCodes=currentEmperor.tierCodes||{};
+    // Map code → tier key
+    const codeToTier={};
+    Object.entries(tierCodes).forEach(([tierKey,tc])=>{if(tc)codeToTier[tc]=tierKey;});
+    let rows=[];
+    Object.entries(refs).forEach(([_key,confirms])=>{
+      if(confirms&&typeof confirms==='object'){
+        Object.entries(confirms).forEach(([,cv])=>{
+          const tierKey=cv.tier||_key;
+          rows.push({tierKey,name:cv.name||'Anonymous',date:cv.confirmedAt||cv.date||0});
+        });
+      }
+    });
+    rows.sort((a,b)=>(b.date||0)-(a.date||0));
+    if(!rows.length){
+      container.innerHTML='<div style="text-align:center;padding:20px 14px;color:var(--muted);font-size:0.65rem;font-family:var(--mono)">⚔️ NO SERVANTS YET — dispatch your tier decrees to recruit them into the empire.</div>';
+      return;
+    }
+    container.innerHTML=rows.map(r=>{
+      const t=TIERS[r.tierKey]||{icon:'👤',color:'#FFB800',name:r.tierKey||'?'};
+      return `<div class="hist-item">
+        <div class="hist-icon" style="font-size:0.9rem;background:linear-gradient(135deg,rgba(217,119,6,0.12),rgba(251,191,36,0.06));border:1px solid rgba(217,119,6,0.25);box-shadow:0 0 8px rgba(217,119,6,0.08)">⚔️</div>
+        <div class="hist-info">
+          <div class="hist-title">${escH(r.name)} — conscripted</div>
+          <div class="hist-date">${r.date?timeAgo(r.date):''}</div>
+        </div>
+        <span class="hist-tier" style="color:${t.color}">${t.icon} ${escH(t.name)}</span>
+      </div>`;
+    }).join('');
+  }catch(e){
+    container.innerHTML='<div style="text-align:center;padding:14px;color:var(--muted);font-size:0.65rem;font-family:var(--mono)">Could not load subjects.</div>';
+  }
+}
+
+// ── START TIER ────────────────────────────────────────────────
+async function startTier(key){
+  if(!currentEmperor||!currentMainCode)return;
+  const tierCodes=currentEmperor.tierCodes||{};
+  if(tierCodes[key]){await loadTierProgress();return;}
+  const t=TIERS[key];
+  if(!confirm('Claim '+t.name+' Throne? A unique imperial decree code will be forged.'))return;
+  const chars='abcdefghjklmnpqrstuvwxyz23456789';
+  let suffix='';for(let i=0;i<4;i++)suffix+=chars[Math.floor(Math.random()*chars.length)];
+  const code=key+'-'+suffix;
+  try{
+    await dbSet('users/'+currentMainCode+'/tierCodes/'+key,code);
+    await dbSet('users/'+currentMainCode+'/activeTiers/'+key,true);
+    await dbSet('users/'+currentMainCode+'/tierProgress/'+key,0);
+    await dbSet('tier_codes/'+code,{ownerCode:currentMainCode,tier:key,created:Date.now()});
+    currentEmperor.tierCodes=currentEmperor.tierCodes||{};
+    currentEmperor.tierCodes[key]=code;
+    currentEmperor.activeTiers=currentEmperor.activeTiers||{};
+    currentEmperor.activeTiers[key]=true;
+    toast('👑 '+t.name.toUpperCase()+' THRONE CLAIMED — decree: '+code,'gold',5000);
+    await loadTierProgress();
+    renderInProgressTiers();
+  }catch(e){toast('Failed to start tier. Check connection.','red');}
+}
+
+// ── DELETE TIER ───────────────────────────────────────────────
+function deleteTier(key){
+  if(!currentEmperor||!currentMainCode)return;
+  const t=TIERS[key];
+  const block=document.getElementById('tierblock_'+key);
+  if(!block)return;
+  if(block.querySelector('.del-confirm'))return;
+  const box=document.createElement('div');
+  box.className='del-confirm';
+  box.style.cssText='position:absolute;inset:0;background:rgba(4,3,10,0.92);border-radius:14px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;z-index:10;padding:16px;backdrop-filter:blur(6px)';
+  box.innerHTML=`
+    <div style="font-family:var(--display);font-size:0.58rem;color:#ff6b6b;letter-spacing:2px;font-weight:700">⛔ CANCEL ${t.name.toUpperCase()} TIER?</div>
+    <div style="font-family:var(--mono);font-size:0.52rem;color:rgba(255,255,255,0.45);text-align:center;line-height:1.6">Referrals under this code<br>will be permanently lost.</div>
+    <div style="display:flex;gap:8px;width:100%">
+      <button onclick="confirmDeleteTier('${key}')" style="flex:1;padding:9px;background:rgba(255,80,80,0.15);border:1px solid rgba(255,80,80,0.4);border-radius:9px;color:#ff6b6b;font-family:var(--display);font-size:0.5rem;font-weight:700;letter-spacing:1px;cursor:pointer">CONFIRM</button>
+      <button onclick="cancelDeleteTier('${key}')" style="flex:1;padding:9px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:9px;color:rgba(255,255,255,0.5);font-family:var(--display);font-size:0.5rem;font-weight:700;letter-spacing:1px;cursor:pointer">KEEP IT</button>
+    </div>`;
+  block.style.position='relative';block.appendChild(box);
+}
+
+function cancelDeleteTier(key){const box=document.getElementById('tierblock_'+key)?.querySelector('.del-confirm');if(box)box.remove();}
+
+async function confirmDeleteTier(key){
+  cancelDeleteTier(key);
+  if(!currentEmperor||!currentMainCode)return;
+  const t=TIERS[key];
+  const tc=(currentEmperor.tierCodes||{})[key];
+  if(!tc){toast('No tier code found','red');return;}
+  toast('Cancelling '+t.name+' tier…','',2000);
+  try{
+    await dbSet('tier_codes/'+tc,null);
+    const updates={};
+    updates['tierCodes/'+key]=null;
+    updates['activeTiers/'+key]=null;
+    updates['tierProgress/'+key]=null;
+    await dbUpdate('users/'+currentMainCode,updates);
+    delete currentEmperor.tierCodes[key];
+    delete (currentEmperor.activeTiers||{})[key];
+    toast('⛔ '+t.name.toUpperCase()+' THRONE ABANDONED','red',4000);
+    await loadTierProgress();
+    renderInProgressTiers();
+    renderTierCodesPanel();
+    loadThroneData();
+  }catch(e){toast('Failed: '+e.message,'red',5000);}
+}
+
+// ── TIER CODES PANEL (Share > My Codes) ──────────────────────
+function renderTierCodesPanel(){
+  const el=document.getElementById('tierCodesPanel');
+  if(!currentEmperor||!el)return;
+  const tierCodes=currentEmperor.tierCodes||{};
+  const completedTiers=currentEmperor.completedTiers||{};
+  const started=TIER_ORDER.filter(k=>tierCodes[k]);
+  if(!started.length){
+    el.innerHTML='<div style="font-family:var(--mono);font-size:0.6rem;color:rgba(255,255,255,0.25);text-align:center;padding:14px 0">No tier codes yet — start a tier from the Throne to generate codes.</div>';
+    return;
+  }
+  el.innerHTML=started.map(key=>{
+    const t=TIERS[key];const code=tierCodes[key];
+    const done=!!completedTiers[key];
+    const link=SITE_URL+'?tier='+encodeURIComponent(code);
+    const rgba=`rgba(${t.bgRgb},0.07)`;const border=`rgba(${t.bgRgb},0.2)`;
+    return `<div style="background:${rgba};border:1px solid ${border};border-radius:13px;padding:14px;margin-bottom:12px;position:relative;overflow:hidden">
+      <div style="position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(${t.bgRgb},0.5),transparent)"></div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:11px">
+        <div style="display:flex;align-items:center;gap:9px">
+          <span style="font-size:1.35rem">${t.icon}</span>
+          <div>
+            <div style="font-family:var(--display);font-size:0.62rem;font-weight:700;color:${t.color}">${t.name.toUpperCase()} CODE</div>
+            <div style="font-family:var(--mono);font-size:0.5rem;color:rgba(255,255,255,0.28);margin-top:1px">${t.need} confirm${t.need>1?'s':''} · ${t.days}d reward</div>
+          </div>
+        </div>
+        ${done?`<span style="font-family:var(--mono);font-size:0.5rem;color:#86efac;background:rgba(134,239,172,0.08);border:1px solid rgba(134,239,172,0.25);border-radius:20px;padding:3px 9px">✓ DONE</span>`
+              :`<span style="font-family:var(--mono);font-size:0.5rem;color:rgba(255,255,255,0.3);background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:20px;padding:3px 9px">ACTIVE</span>`}
+      </div>
+      <div onclick="copyText('${escH(code)}',this,'TAP TO COPY')"
+        style="display:flex;align-items:center;justify-content:space-between;background:rgba(0,0,0,0.22);border:1px solid ${border};border-radius:10px;padding:12px 15px;cursor:pointer;margin-bottom:10px;transition:background .15s"
+        onmouseover="this.style.background='rgba(${t.bgRgb},0.08)'" onmouseout="this.style.background='rgba(0,0,0,0.22)'">
+        <span style="font-family:var(--mono);font-size:1.1rem;color:${t.color};letter-spacing:3px;text-shadow:0 0 10px rgba(${t.bgRgb},0.35)">${escH(code)}</span>
+        <span style="font-family:var(--display);font-size:0.5rem;color:rgba(217,119,6,0.55);letter-spacing:1px;flex-shrink:0">TAP TO COPY</span>
+      </div>
+      <div style="display:flex;gap:5px">
+        <button onclick="empShareTier('whatsapp','${key}')" style="flex:1;padding:8px 2px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.07);border-radius:8px;color:rgba(255,255,255,0.6);font-family:var(--display);font-size:0.44rem;font-weight:700;letter-spacing:1px;cursor:pointer;transition:all .15s" onmouseover="this.style.borderColor='${border}';this.style.color='#fff'" onmouseout="this.style.borderColor='rgba(255,255,255,0.07)';this.style.color='rgba(255,255,255,0.6)'">💬 WA</button>
+        <button onclick="empShareTier('sms','${key}')" style="flex:1;padding:8px 2px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.07);border-radius:8px;color:rgba(255,255,255,0.6);font-family:var(--display);font-size:0.44rem;font-weight:700;letter-spacing:1px;cursor:pointer;transition:all .15s" onmouseover="this.style.borderColor='${border}';this.style.color='#fff'" onmouseout="this.style.borderColor='rgba(255,255,255,0.07)';this.style.color='rgba(255,255,255,0.6)'">📱 SMS</button>
+        <button onclick="empShareTier('telegram','${key}')" style="flex:1;padding:8px 2px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.07);border-radius:8px;color:rgba(255,255,255,0.6);font-family:var(--display);font-size:0.44rem;font-weight:700;letter-spacing:1px;cursor:pointer;transition:all .15s" onmouseover="this.style.borderColor='${border}';this.style.color='#fff'" onmouseout="this.style.borderColor='rgba(255,255,255,0.07)';this.style.color='rgba(255,255,255,0.6)'">✈️ TG</button>
+        <button onclick="empShareTier('copy','${key}')" style="flex:1;padding:8px 2px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.07);border-radius:8px;color:rgba(255,255,255,0.6);font-family:var(--display);font-size:0.44rem;font-weight:700;letter-spacing:1px;cursor:pointer;transition:all .15s" onmouseover="this.style.borderColor='${border}';this.style.color='#fff'" onmouseout="this.style.borderColor='rgba(255,255,255,0.07)';this.style.color='rgba(255,255,255,0.6)'">📋 COPY</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ── SHARE FUNCTIONS ───────────────────────────────────────────
+function empShareTier(platform,tierKey){
+  if(!currentEmperor)return;
+  const t=TIERS[tierKey];if(!t)return;
+  const code=(currentEmperor.tierCodes||{})[tierKey];
+  if(!code){toast('Start the '+t.name+' tier first to get a code','red');return;}
+  const msg=getTierShareMsg(tierKey,code);
+  const enc=encodeURIComponent(msg);
+  const link=SITE_URL+'?tier='+encodeURIComponent(code);
+  if(platform==='whatsapp')window.open('https://wa.me/?text='+enc,'_blank');
+  else if(platform==='sms')window.open('sms:?body='+enc,'_blank');
+  else if(platform==='telegram')window.open('https://t.me/share/url?url='+encodeURIComponent(link)+'&text='+enc,'_blank');
+  else if(platform==='twitter')window.open('https://twitter.com/intent/tweet?text='+encodeURIComponent('👑 Play Puzzlr! Get it here: '+link+' — use my code: '+code),'_blank');
+  else if(platform==='copy'){saferCopy(msg,()=>{});toast('📜 IMPERIAL DECREE DISPATCHED','green');}
+}
+
+function shareVia(platform){
+  if(!currentEmperor){toast('Not signed in','red');return;}
+  const order=['elite','gold','silver','bronze','starter'];
+  const tierCodes=currentEmperor.tierCodes||{};
+  const bestKey=order.find(k=>tierCodes[k]);
+  if(!bestKey){toast('⚔️ ACTIVATE A TIER FIRST','red');return;}
+  const code=tierCodes[bestKey];
+  const msg=getTierShareMsg(bestKey,code);
+  const enc=encodeURIComponent(msg);
+  const link=SITE_URL+'?tier='+encodeURIComponent(code);
+  if(platform==='whatsapp')window.open('https://wa.me/?text='+enc,'_blank');
+  else if(platform==='sms')window.open('sms:?body='+enc,'_blank');
+  else if(platform==='telegram')window.open('https://t.me/share/url?url='+encodeURIComponent(link)+'&text='+enc,'_blank');
+  else if(platform==='twitter')window.open('https://twitter.com/intent/tweet?text='+encodeURIComponent('👑 Play Puzzlr! Get it: '+link+' — use code: '+code),'_blank');
+  else if(platform==='facebook')window.open('https://www.facebook.com/sharer/sharer.php?u='+encodeURIComponent(link),'_blank');
+  else if(platform==='copy'){saferCopy(msg,()=>{});toast('📜 IMPERIAL DECREE DISPATCHED','green');}
+}
+
+function shareNative(){
+  if(!currentEmperor){toast('Not signed in','red');return;}
+  const order=['elite','gold','silver','bronze','starter'];
+  const tierCodes=currentEmperor.tierCodes||{};
+  const bestKey=order.find(k=>tierCodes[k])||'starter';
+  const code=tierCodes[bestKey]||'';
+  const link=SITE_URL+(code?'?tier='+encodeURIComponent(code):'');
+  const msg=code?getTierShareMsg(bestKey,code):'Join me on PUZZLR! '+link;
+  if(navigator.share)navigator.share({title:'Join me on Puzzlr!',text:msg,url:link}).catch(()=>{});
+  else{saferCopy(msg,()=>{});toast('Share message copied!','green');}
+}
+
+// ── LIVE SYNC ─────────────────────────────────────────────────
+function startLiveSync(){
+  if(!currentMainCode)return;
+  const bar=document.getElementById('liveActivityBar');
+  const txt=document.getElementById('liveActivityText');
+  const sync=document.getElementById('lastSync');
+  bar.style.display='block';
+  dbOn('referrals/'+currentMainCode,'value',snap=>{
+    const refs=snap.val()||{};
+    let total=0;
+    Object.values(refs).forEach(v=>{if(v&&typeof v==='object')total+=Object.keys(v).length;});
+    document.getElementById('statTotalRefs').textContent=total;
+    txt.innerHTML='<span style="color:var(--emp2)">⚔️</span> '+total+' imperial servant'+(total===1?'':'s')+' conscripted across all kingdoms';
+    sync.textContent='Synced '+new Date().toLocaleTimeString();
+
+    // Recompute per-tier live counts from the referral snapshot
+    if(!currentEmperor)return;
+    const tierCodes=currentEmperor.tierCodes||{};
+    const liveCounts={};
+    TIER_ORDER.forEach(key=>{
+      const tc=tierCodes[key];
+      if(!tc){liveCounts[key]=0;return;}
+      const tierRefs=refs[tc];
+      liveCounts[key]=tierRefs&&typeof tierRefs==='object'?Object.keys(tierRefs).length:0;
+    });
+    currentEmperor._liveCounts=liveCounts;
+
+    // Patch progress bars in-place without full re-render (avoids losing button states)
+    TIER_ORDER.forEach(key=>{
+      const t=TIERS[key];
+      const prog=liveCounts[key]||0;
+      const pct=Math.min(100,Math.round((prog/t.need)*100));
+      const block=document.getElementById('tierblock_'+key);
+      if(!block)return;
+      // Update count text
+      const countEl=block.querySelector('[data-count]');
+      if(countEl)countEl.textContent=prog+' / '+t.need+' servants confirmed';
+      // Update pct text
+      const pctEl=block.querySelector('[data-pct]');
+      if(pctEl)pctEl.textContent=pct+'%';
+      // Update fill bar
+      const fill=block.querySelector('.tier-prog-fill');
+      if(fill)fill.style.width=pct+'%';
+    });
+  });
+}
+
+// ── DAVID AI SPEECH (Knowledge Oracle — no external API) ───────
+const davidSpeechBank={
+  morning:[
+    '☀ Good morning, Emperor {name}. The empire greets the dawn.',
+    '🌅 Another day of conquest begins, Your Majesty.'
+  ],
+  afternoon:[
+    '🏛 The sun stands high over your realm, Emperor {name}.',
+    '⚔ The empire marches on under your command, Your Majesty.'
+  ],
+  evening:[
+    '🌆 The realm settles into dusk, Emperor {name}. Your dominion holds.',
+    '🔥 As day fades, your empire\'s fires burn brighter, Your Majesty.'
+  ],
+  night:[
+    '🌙 Welcome back, Emperor {name}. The realm remained loyal in your absence.',
+    '⭐ The stars watch over your empire tonight, Your Majesty.'
+  ],
+  dominant:[
+    '👑 Emperor {name}, your dominion stands unrivaled at {power}% power.',
+    '🌌 Supreme Emperor {name}, few empires have risen so far.'
+  ],
+  ascending:[
+    '🔥 The empire rises under your command, Emperor {name}.',
+    '⚡ Your dominion continues to expand, now at {power}% power.'
+  ],
+  expanding:[
+    '⚔ Your influence spreads, Emperor {name}. {servants} servants now strengthen the empire.',
+    '🏛 The realm grows steadily under your reign, Your Majesty.'
+  ],
+  rising:[
+    '🌱 The throne has awaited your return, Emperor {name}.',
+    '🏛 Welcome back, Emperor {name}. Your reign is just beginning to take shape.'
+  ],
+  elite:[
+    '🌌 Supreme Emperor {name}, the Elite Throne shines brightly.',
+    '👑 The Elite Throne stands secure under you, Emperor {name}.'
+  ],
+  longAbsence:[
+    '🕯 You have been away, Emperor {name} — but the realm remained loyal, awaiting your {days}th day of reign.',
+    '🛡 The throne never wavered in your absence, Emperor {name}. Day {days} of your reign continues.'
+  ],
+  rewardsWaiting:[
+    '💰 {rewards} rewards await your claim in the treasury, Emperor {name}.',
+    '🏆 The treasury holds {rewards} unclaimed rewards for you, Your Majesty.'
+  ]
+};
+function pick(arr){return arr[Math.floor(Math.random()*arr.length)];}
+function fillTemplate(str,vars){return str.replace(/\{(\w+)\}/g,(_,k)=>vars[k]!==undefined?vars[k]:'');}
+
+function generateDavidSpeech(name){
+  const hour=new Date().getHours();
+  const timeBucket=hour<12?'morning':hour<17?'afternoon':hour<21?'evening':'night';
+
+  const empirePower=parseInt((document.getElementById('meterPct')||{}).textContent)||0;
+  const totalServants=parseInt((document.getElementById('statTotalRefs')||{}).textContent)||0;
+  const rewardsWaiting=parseInt((document.getElementById('statRewards')||{}).textContent)||0;
+  const daysSince=parseInt((document.getElementById('statDaysSince')||{}).textContent)||0;
+
+  const activeTiers=(currentEmperor&&currentEmperor.activeTiers)||{};
+  const highestTierKey=TIER_ORDER.slice().reverse().find(k=>activeTiers[k]);
+
+  const vars={name:escH(name),power:empirePower,servants:totalServants,rewards:rewardsWaiting,days:daysSince};
+
+  let bucket;
+  if(daysSince>=14)bucket='longAbsence';
+  else if(highestTierKey==='elite')bucket='elite';
+  else if(rewardsWaiting>0&&Math.random()<0.4)bucket='rewardsWaiting';
+  else if(empirePower>=80)bucket='dominant';
+  else if(empirePower>=55)bucket='ascending';
+  else if(empirePower>=30)bucket='expanding';
+  else if(empirePower>0)bucket='rising';
+  else bucket=timeBucket;
+
+  const line=fillTemplate(pick(davidSpeechBank[bucket]||davidSpeechBank[timeBucket]),vars);
+  return line+'<br><span style="font-size:0.58rem;color:rgba(251,191,36,0.4);margin-top:10px;display:block;letter-spacing:1px">— David AI, Keeper of the Puzzle Realm</span>';
+}
+
+function showDavidSpeech(name){
+  const el=document.getElementById('davidSpeech');
+  const textEl=document.getElementById('davidSpeechText');
+  el.style.display='block';
+  textEl.innerHTML=generateDavidSpeech(name);
+}
+
+
+// ── SWITCH TO SHARE SITE ──────────────────────────────────────
+function switchToShareSite(){
+  localStorage.setItem('puzzlr_default_page','share');
+  toast('⚙️ RETURNING TO THE REALM PORTAL','gold',2500);
+  setTimeout(()=>{window.location.href='share_index.html';},900);
+}
+</script>
+</body>
+</html>
